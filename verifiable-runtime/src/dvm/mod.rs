@@ -56,7 +56,7 @@ impl BinaryCode {
             }
             Self::Div => {
                 if ctx.stack.len() < 2 {
-                    panic!("Can not perform ADD, stack deep is {}", ctx.stack.len());
+                    panic!("Can not perform DIV, stack deep is {}", ctx.stack.len());
                 }
                 let a = ctx.stack.pop().unwrap();
                 let b = ctx.stack.pop().unwrap();
@@ -80,6 +80,9 @@ impl BinaryCode {
                 println!("RET\t${:#08x}", ctx.result);
             }
             Self::Swap => {
+                if ctx.stack.len() < 2 {
+                    panic!("Can not perform SWAP, stack deep is {}", ctx.stack.len());
+                }
                 let a = ctx.stack.pop().unwrap();
                 let b = ctx.stack.pop().unwrap();
                 ctx.stack.push(a);
