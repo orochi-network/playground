@@ -4,7 +4,7 @@ Orochi Network's playground and experiments
 
 # Verifiable Runtime
 
-Orochi Network Team introduced a PoC of **Verifiable Runtime**. The PoC implemented a _Dummy Virtual Machine (DVM)_, a minimal stack machine with tiny set of `OPCODE`. **DVM** can perform several deadly simple calculations and provide a verifiable _Zero Knowledge Proof (we use zk-STARK in this PoC)_ for every executed `OPCODE`.
+Orochi Network Team introduced a PoC of **Verifiable Runtime**. The PoC implemented a _Dummy Virtual Machine (DVM)_, a minimal stack machine with tiny set of `OPCODE`. **DVM** can perform several deadly simple calculations and provide a _Zero Knowledge Proof (we used zk-STARK in this PoC, [winterfell](https://github.com/novifinancial/winterfell))_ for every executed `OPCODE` and state.
 
 With this approach we can perform the computation off-chain and perform the verification on-chain. We hope with the result of this PoC we can implement verifiable runtime for EVM and WebAssembly.
 
