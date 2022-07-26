@@ -1,4 +1,6 @@
-mod vrt;
+mod rescue;
+mod runtime;
+mod utils;
 use std::vec;
 
 fn main() {
@@ -20,6 +22,6 @@ fn main() {
         0x22, 0x03, 0x05, 0x00, 0x00, 0x00, 0x02, 0x04, 0x05, 0x00, 0x00, 0xaf, 0xde, 0x08, 0x02,
         0x07,
     ];
-    let mut my_dummy_vm = vrt::dvm::DVM::new();
+    let mut my_dummy_vm = runtime::dvm::DVM::new();
     println!("Result: {}", my_dummy_vm.process(program));
 }
