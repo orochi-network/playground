@@ -24,8 +24,8 @@ impl BinaryCode {
                 if ctx.stack.len() < 2 {
                     panic!("Can not perform ADD, stack deep is {}", ctx.stack.len());
                 }
-                let a = ctx.stack.pop().unwrap();
                 let b = ctx.stack.pop().unwrap();
+                let a = ctx.stack.pop().unwrap();
                 ctx.stack.push(a + b);
                 println!("ADD\t(${:#08x} + ${:#08x})", a, b);
             }
@@ -33,8 +33,8 @@ impl BinaryCode {
                 if ctx.stack.len() < 2 {
                     panic!("Can not perform SUB, stack deep is {}", ctx.stack.len());
                 }
-                let a = ctx.stack.pop().unwrap();
                 let b = ctx.stack.pop().unwrap();
+                let a = ctx.stack.pop().unwrap();
                 ctx.stack.push(a - b);
                 println!("SUB\t(${:#08x} - ${:#08x})", a, b);
             }
@@ -42,8 +42,8 @@ impl BinaryCode {
                 if ctx.stack.len() < 2 {
                     panic!("Can not perform MUL, stack deep is {}", ctx.stack.len());
                 }
-                let a = ctx.stack.pop().unwrap();
                 let b = ctx.stack.pop().unwrap();
+                let a = ctx.stack.pop().unwrap();
                 ctx.stack.push(a * b);
 
                 println!("MUL\t(${:#08x} * ${:#08x})", a, b);
@@ -52,8 +52,8 @@ impl BinaryCode {
                 if ctx.stack.len() < 2 {
                     panic!("Can not perform DIV, stack deep is {}", ctx.stack.len());
                 }
-                let a = ctx.stack.pop().unwrap();
                 let b = ctx.stack.pop().unwrap();
+                let a = ctx.stack.pop().unwrap();
                 if b == 0 {
                     panic!("Divide by 0");
                 }
