@@ -3,7 +3,10 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 use super::{rescue, BaseElement, FieldElement, ProofOptions, CYCLE_LENGTH, TRACE_WIDTH};
-use crate::utils::{are_equal, is_zero, not, EvaluationResult};
+use crate::{
+    utils::{are_equal, is_zero, not, EvaluationResult},
+    DIGEST_SIZE,
+};
 use winterfell::{
     Air, AirContext, Assertion, ByteWriter, EvaluationFrame, Serializable, TraceInfo,
     TransitionConstraintDegree,
@@ -36,8 +39,8 @@ const CYCLE_MASK: [BaseElement; CYCLE_LENGTH] = [
 // ================================================================================================
 
 pub struct PublicInputs {
-    pub seed: [BaseElement; 2],
-    pub result: [BaseElement; 2],
+    pub seed: [BaseElement; DIGEST_SIZE],
+    pub result: [BaseElement; DIGEST_SIZE],
 }
 
 impl Serializable for PublicInputs {
@@ -49,8 +52,8 @@ impl Serializable for PublicInputs {
 
 pub struct DVMAir {
     context: AirContext<BaseElement>,
-    seed: [BaseElement; 2],
-    result: [BaseElement; 2],
+    seed: [BaseElement; DIGEST_SIZE],
+    result: [BaseElement; DIGEST_SIZE],
 }
 
 impl Air for DVMAir {

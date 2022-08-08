@@ -1,6 +1,10 @@
 use winterfell::math::fields::f128::BaseElement;
 
-use crate::helper::dvm_hash;
+use crate::{
+    helper::{dvm_hash, dvm_init},
+    stark::prove_dvm,
+    DIGEST_SIZE,
+};
 
 use super::opcode::{BinaryCode, Opcode};
 
@@ -33,7 +37,7 @@ impl DVM {
     // Process a given program with DVM
     pub fn process(&mut self, program: Vec<u8>) -> i32 {
         let mut program_ptr = 0;
-        let mut ctx_digests = Vec::<[BaseElement; 2]>::new();
+        let mut ctx_digests = Vec::<[BaseElement; DIGEST_SIZE]>::new();
         while program_ptr < program.len() {
             let bin_code = BinaryCode::from(program[program_ptr]);
             match bin_code {
@@ -55,7 +59,8 @@ impl DVM {
                 }
             };
         }
-        println!("{:?}", ctx_digests);
+        let seed = dvm_init(program);
+        prove_dvm(seed, ctx_digests);
         self.context.result
     }
 }
