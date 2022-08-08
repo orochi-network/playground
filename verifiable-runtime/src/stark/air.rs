@@ -47,13 +47,13 @@ impl Serializable for PublicInputs {
     }
 }
 
-pub struct RescueAir {
+pub struct DVMAir {
     context: AirContext<BaseElement>,
     seed: [BaseElement; 2],
     result: [BaseElement; 2],
 }
 
-impl Air for RescueAir {
+impl Air for DVMAir {
     type BaseField = BaseElement;
     type PublicInputs = PublicInputs;
 
@@ -67,7 +67,7 @@ impl Air for RescueAir {
             TransitionConstraintDegree::with_cycles(3, vec![CYCLE_LENGTH]),
         ];
         assert_eq!(TRACE_WIDTH, trace_info.width());
-        RescueAir {
+        DVMAir {
             context: AirContext::new(trace_info, degrees, 4, options),
             seed: pub_inputs.seed,
             result: pub_inputs.result,

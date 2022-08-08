@@ -106,6 +106,21 @@ impl BinaryCode {
             _ => Self::Invalid,
         }
     }
+
+    pub fn to(&self) -> u8 {
+        match *self {
+            Self::Add => 0x01,
+            Self::Sub => 0x02,
+            Self::Mul => 0x03,
+            Self::Div => 0x04,
+            Self::Push => 0x05,
+            Self::Pop => 0x06,
+            Self::Ret => 0x07,
+            Self::Swap => 0x08,
+            Self::Stop => 0xfe,
+            _ => 0xff,
+        }
+    }
 }
 
 // Opcode is the combine of BinaryCode and parameters

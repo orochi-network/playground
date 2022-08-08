@@ -3,18 +3,18 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 use super::{
-    rescue, BaseElement, FieldElement, ProofOptions, Prover, PublicInputs, RescueAir, Trace,
+    rescue, BaseElement, DVMAir, FieldElement, ProofOptions, Prover, PublicInputs, Trace,
     TraceTable, CYCLE_LENGTH, NUM_HASH_ROUNDS,
 };
 
 // RESCUE PROVER
 // ================================================================================================
 
-pub struct RescueProver {
+pub struct DVMProver {
     options: ProofOptions,
 }
 
-impl RescueProver {
+impl DVMProver {
     pub fn new(options: ProofOptions) -> Self {
         Self { options }
     }
@@ -22,6 +22,7 @@ impl RescueProver {
     pub fn build_trace(
         &self,
         seed: [BaseElement; 2],
+        track: &Vec<[BaseElement; 2]>,
         iterations: usize,
     ) -> TraceTable<BaseElement> {
         // allocate memory to hold the trace table
@@ -33,8 +34,8 @@ impl RescueProver {
                 // initialize first state of the computation
                 state[0] = seed[0];
                 state[1] = seed[1];
-                state[2] = BaseElement::ZERO;
-                state[3] = BaseElement::ZERO;
+                state[2] = track[0][0];
+                state[3] = track[0][1];
             },
             |step, state| {
                 // execute the transition function for all steps
@@ -55,9 +56,9 @@ impl RescueProver {
     }
 }
 
-impl Prover for RescueProver {
+impl Prover for DVMProver {
     type BaseField = BaseElement;
-    type Air = RescueAir;
+    type Air = DVMAir;
     type Trace = TraceTable<BaseElement>;
 
     fn get_pub_inputs(&self, trace: &Self::Trace) -> PublicInputs {

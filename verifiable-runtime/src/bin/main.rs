@@ -1,7 +1,5 @@
-mod rescue;
-mod runtime;
-mod utils;
 use std::vec;
+use vrt::dvm::DVM;
 
 fn main() {
     // 45022 - ((86 + 119)*34)/2
@@ -22,6 +20,6 @@ fn main() {
         0x22, 0x03, 0x05, 0x00, 0x00, 0x00, 0x02, 0x04, 0x05, 0x00, 0x00, 0xaf, 0xde, 0x08, 0x02,
         0x07,
     ];
-    let mut my_dummy_vm = runtime::dvm::DVM::new();
+    let mut my_dummy_vm = DVM::new();
     println!("Result: {}", my_dummy_vm.process(program));
 }
