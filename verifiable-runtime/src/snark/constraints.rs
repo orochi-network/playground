@@ -10,36 +10,17 @@
     unsafe_code
 )]
 
-use crate::dvm::{DVMContext, DVM};
-use crate::opcode::{BinaryCode, Opcode};
-
-use ark_groth16::{Groth16, Proof};
-use ark_sponge::Absorb;
-// For randomness (during paramgen and proof generation)
-use ark_std::rand::Rng;
-
-// For benchmarking
-use std::{
-    ops::AddAssign,
-    time::{Duration, Instant},
-};
+use crate::opcode::BinaryCode;
 
 // Bring in some tools for using pairing-friendly curves
 // We're going to use the BLS12-377 pairing-friendly elliptic curve.
 use ark_bls12_377::{Bls12_377, Fr};
-use ark_bls12_381::Bls12_381;
-use ark_ff::{BigInteger, Field, Fp256, One, PrimeField, Zero};
+use ark_ff::PrimeField;
 use ark_r1cs_std::{alloc::AllocVar, eq::EqGadget, fields::fp::FpVar};
 use ark_std::test_rng;
-use arkworks_r1cs_gadgets::poseidon::FieldHasherGadget;
 
 // We'll use these interfaces to construct our circuit.
-use ark_relations::{
-    lc, ns,
-    r1cs::{
-        ConstraintSynthesizer, ConstraintSystemRef, LinearCombination, SynthesisError, Variable,
-    },
-};
+use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystemRef, SynthesisError};
 
 /// This is our DVM circuit for proving state of DVM
 struct DVMCircuit<F: PrimeField> {
