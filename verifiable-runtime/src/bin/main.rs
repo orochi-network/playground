@@ -1,5 +1,6 @@
 use std::vec;
 use vrt::dvm::DVM;
+use vrt::snark::verify_dvm_circuit_groth16;
 
 fn main() {
     // 45022 - ((86 + 119)*34)/2
@@ -23,4 +24,5 @@ fn main() {
     ];
     let mut my_dummy_vm = DVM::new();
     println!("Result: {}", my_dummy_vm.process(program));
+    verify_dvm_circuit_groth16();
 }
