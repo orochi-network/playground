@@ -1,6 +1,9 @@
+use ark_r1cs_std::fields::fp;
 use std::vec;
 use vrt::dvm::DVM;
 use vrt::snark::verify_dvm_circuit_groth16;
+
+use ark_ff::{BigInteger64, Field, Fp64, Fp64Parameters, PrimeField};
 
 fn main() {
     // 45022 - ((86 + 119)*34)/2
@@ -23,6 +26,7 @@ fn main() {
         0x23, 0x02, 0x07,
     ];
     let mut my_dummy_vm = DVM::new();
-    println!("Result: {}", my_dummy_vm.process(program));
-    verify_dvm_circuit_groth16();
+    let result = my_dummy_vm.process(program);
+    println!("Result: {}", result);
+    verify_dvm_circuit_groth16(result);
 }

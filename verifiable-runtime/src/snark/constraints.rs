@@ -15,8 +15,8 @@ use crate::opcode::BinaryCode;
 // Bring in some tools for using pairing-friendly curves
 // We're going to use the BLS12-377 pairing-friendly elliptic curve.
 use ark_bls12_377::{Bls12_377, Fr};
-use ark_ff::PrimeField;
-use ark_r1cs_std::{alloc::AllocVar, eq::EqGadget, fields::fp::FpVar};
+use ark_ff::{PrimeField, ToBytes};
+use ark_r1cs_std::{alloc::AllocVar, eq::EqGadget, fields::fp::FpVar, prelude::FieldVar};
 use ark_std::test_rng;
 
 // We'll use these interfaces to construct our circuit.
@@ -33,7 +33,7 @@ struct DVMCircuit<F: PrimeField> {
 impl<F: PrimeField> DVMCircuit<F> {
     pub fn new(program: Vec<u8>, result: i32) -> Self {
         Self {
-            program: program.clone(),
+            program,
             result: F::from(result as u32),
         }
     }
@@ -119,10 +119,10 @@ impl<'a, F: PrimeField> ConstraintSynthesizer<F> for DVMCircuit<F> {
                     let a = FpVar::new_witness(cs.clone(), || Ok(F::from(a_val))).unwrap();
                     let b = FpVar::new_witness(cs.clone(), || Ok(F::from(b_val))).unwrap();
                     let c_val = a_val / b_val;
+                    let c_t = a.mul_by_inverse(&b).unwrap();
                     let c = FpVar::new_witness(cs.clone(), || Ok(F::from(c_val))).unwrap();
-                    let a_t = c * b;
-                    a.enforce_equal(&a_t)?;
-                    stack.push(a_val as i32 / b_val as i32);
+                    c.enforce_equal(&c_t)?;
+                    stack.push(c_val as i32);
                     program_ptr += 1;
                 }
                 BinaryCode::Pop => {
@@ -149,8 +149,7 @@ impl<'a, F: PrimeField> ConstraintSynthesizer<F> for DVMCircuit<F> {
                     let result_val = stack.pop().unwrap() as u32;
                     let result_target =
                         FpVar::new_witness(cs.clone(), || Ok(F::from(result_val))).unwrap();
-                    let result =
-                        FpVar::new_witness(cs.clone(), || Ok(F::from(self.result))).unwrap();
+                    let result = FpVar::new_input(cs.clone(), || Ok(F::from(self.result))).unwrap();
                     result.enforce_equal(&result_target)?;
                     program_ptr += 1;
                 }
@@ -163,7 +162,11 @@ impl<'a, F: PrimeField> ConstraintSynthesizer<F> for DVMCircuit<F> {
     }
 }
 
-pub fn verify_dvm_circuit_groth16() {
+fn to_prime_field_value<F: PrimeField>(v: i32) -> F {
+    F::from(v as u32)
+}
+
+pub fn verify_dvm_circuit_groth16(result: i32) {
     use ark_groth16::{
         create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
     };
@@ -182,8 +185,8 @@ pub fn verify_dvm_circuit_groth16() {
     // Create parameters for our circuit
     let params = {
         let c = DVMCircuit::<Fr> {
-            program,
-            result: Fr::from(30483),
+            program: program.clone(),
+            result: to_prime_field_value(result),
         };
 
         generate_random_parameters::<Bls12_377, _, _>(c, rng).unwrap()
@@ -192,18 +195,12 @@ pub fn verify_dvm_circuit_groth16() {
     // Prepare the verification key (for proof verification)
     let pvk = prepare_verifying_key(&params.vk);
 
-    let program = vec![
-        0x05u8, 0x00, 0x00, 0x00, 0x56, 0x05, 0x00, 0x00, 0x00, 0x77, 0x01, 0x05, 0x00, 0x00, 0x00,
-        0x22, 0x03, 0x05, 0x00, 0x00, 0x00, 0x02, 0x04, 0x05, 0x00, 0x00, 0xaf, 0xde, 0x08, 0x02,
-        0x05, 0x00, 0x12, 0xae, 0x24, 0x05, 0x00, 0x11, 0x0e, 0x12, 0x01, 0x05, 0x00, 0x23, 0x45,
-        0x23, 0x02, 0x07,
-    ];
-
-    let c = DVMCircuit::new(program, 30483);
+    let c = DVMCircuit::new(program.clone(), result);
 
     // Create a groth16 proof with our parameters.
     let proof = create_random_proof(c, &params, rng).unwrap();
     println!("Proved DVM code with proof: {:?}", proof);
-    assert!(verify_proof(&pvk, &proof, &[]).unwrap());
+    let result = to_prime_field_value(result);
+    assert!(verify_proof(&pvk, &proof, &[result]).unwrap());
     println!("Verified proof!.");
 }
