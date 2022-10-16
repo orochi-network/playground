@@ -287,20 +287,6 @@ impl<Field: FieldExt, const WIDTH: usize, const HEIGHT: usize> MyCircuit<Field, 
             }
         }
 
-        // print_vec_table::<Field>(&arranged_lookup_table);
-        // println!("----------");
-        // print_vec_table::<Field>(&sorted_value_table);
-
-        // assert to satisfy configuration from plookup argument
-        // for i in 0..HEIGHT {
-        //     println!("index {}", i);
-        //     assert!(
-        //         cmp_rows(&sorted_value_table[i], &arranged_lookup_table[i]) == Ordering::Equal 
-        //         || cmp_rows(&sorted_lookup_table[i], &sorted_lookup_table[i - 1]) == Ordering::Equal,
-        //         "tables generated incorrectly!"
-        //     );
-        // }
-
         // now arrange the result
         let transform_to_array = |table: &Vec<Vec<Field>>| -> [[Field; HEIGHT]; WIDTH] {
             let mut res = [[Field::zero(); HEIGHT]; WIDTH];
@@ -320,29 +306,6 @@ impl<Field: FieldExt, const WIDTH: usize, const HEIGHT: usize> MyCircuit<Field, 
         }
     }
 }
-
-// fn do_assigning_advice<Field: FieldExt, const WIDTH: usize, const HEIGHT: usize, Annotation: Fn() -> AR> (
-//     region: &Region<Field>,
-//     advice_column: &[Column<Advice>; WIDTH], 
-//     self_table: &Value<[[Field; HEIGHT]; WIDTH]>,
-//     annotation: Annotation,
-//  ) -> Result<(), Error> {
-//     for (idx, (&column, values)) in advice_column
-//         .iter()
-//         .zip(self_table.transpose_array().iter())
-//         .enumerate()
-//     {
-//         for (offset, &value) in values.transpose_array().iter().enumerate() {
-//             region.assign_advice(
-//                 annotation,
-//                 column,
-//                 offset,
-//                 || value,
-//             )?;
-//         }    
-//     }
-//     Ok(())
-// }
 
 impl<Field: FieldExt, const WIDTH: usize, const HEIGHT: usize> Circuit<Field> for MyCircuit<Field, WIDTH, HEIGHT> {
     type Config = MyConfig<WIDTH>;
