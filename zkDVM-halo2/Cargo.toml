@@ -1,5 +1,5 @@
 [package]
-name = "zkDVM-halo2"
+name = "zkDVM_halo2"
 version = "0.1.0"
 edition = "2021"
 

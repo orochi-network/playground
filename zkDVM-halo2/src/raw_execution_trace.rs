@@ -17,13 +17,5 @@ struct RawExecutionTrace {
     // each lhs and rhs correspond to stack[top - 1] and stack[top] respectively, considered as reading from stack[top]
 }
 
-// Opcodes encoding
-// PUSH (encoded 0): top is increased by 1, no constraint to lhs and rhs, pc += 1
-// ADD (encoded 1): top is decreased by 1 with written output = lhs + rhs, pc += 1
-// SUB (encoded 2): top is decreased by 1 with written output = lhs - rhs, pc += 1
-// MUL (encoded 3): top is decreased by 1 with written output = lhs * rhs, pc += 1
-// DIV (encoded 4): top is decreased by 1 with written output = lhs // rhs, pc += 1
-// RET (encoded 5): top is kept unchanged with written output = rhs, pc += 1
-// CMP new_pc (encoded 6): top is kept unchanged with written output = rhs, pc = new_pc according to 
-// CMPI dest new_pc (encoded 7): top is kept unchanged with written output = rhs, pc = (bool(rhs)) * (pc + 1) + (1 - bool(rhs)) * new_pc
+
 
