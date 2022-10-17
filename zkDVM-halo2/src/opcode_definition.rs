@@ -9,14 +9,15 @@
 // JMPI dest new_pc (encoded 7): top is kept unchanged with written output = rhs, pc = (bool(rhs)) * (pc + 1) + (1 - bool(rhs)) * new_pc
 
 pub enum Opcode {
-    PUSH = 0,
-    ADD = 1,
-    SUB = 2,
-    MUL = 3,
-    DIV = 4,
-    RET = 5,
-    JMP = 6,
-    JMPI = 7,
+    Push = 0, // top is increased by 1, no constraint to lhs and rhs, pc += 1
+    Add = 1, // top is decreased by 1 with written output = lhs + rhs, pc += 1
+    Sub = 2, // top is decreased by 1 with written output = lhs - rhs, pc += 1
+    Mul = 3, // top is decreased by 1 with written output = lhs * rhs, pc += 1
+    Div = 4, // top is decreased by 1 with written output = lhs // rhs, if rhs == 0 then jump to ErrDivisionByZero, pc += 1
+    Ret = 5, // top is kept unchanged with written output = rhs, pc += 1
+    Jmp = 6, // top is kept unchanged with written output = rhs, pc = new_pc
+    Jmpi = 7, // top is kept unchanged with written output = rhs, pc = (bool(rhs)) * (pc + 1) + (1 - bool(rhs)) * new_pc
+    ErrDivisionByZero = 8, // top is kept unchanged with written output = rhs, pc is unchanged
 }
 
 pub trait NumericEncoding {
@@ -31,14 +32,16 @@ impl NumericEncoding for Opcode {
 
     fn from_u32(v: u32) -> Self {
         let res = match v {
-            0 => Self::PUSH,
-            1 => Self::ADD,
-            2 => Self::SUB,
-            3 => Self::MUL,
-            4 => Self::DIV,
-            5 => Self::RET,
-            6 => Self::JMP,
-            _ => Self::JMPI,
+            0 => Self::Push,
+            1 => Self::Add,
+            2 => Self::Sub,
+            3 => Self::Mul,
+            4 => Self::Div,
+            5 => Self::Ret,
+            6 => Self::Jmp,
+            7 => Self::Jmpi,
+            8 => Self::ErrDivisionByZero,
+            _ => Self::Ret,
         };
         assert_eq!(res.to_u32(), v);
         res
