@@ -1,112 +1,151 @@
-use crate::opcode_definition::{Opcode, OpcodeWithParams, StackTopRequirement, ErrorCode, NumericEncoding};
+use crate::opcode_definition::{Opcode, OpcodeWithParams, ErrorCode, NumericEncoding, StackRequirement};
+use crate::stack::Stack;
+use crate::program_memory::ProgramMemory;
 
 struct DummyVirtualMachine {
-    program_memory: Vec<OpcodeWithParams>,
-    pc: usize,
-    stack: Vec<u32>,
-    top: usize,
+    program_memory: ProgramMemory,
+    stack: Stack,
+    result: u32,
+    error_code: ErrorCode,
 }
 
 impl DummyVirtualMachine {
     fn new(program_memory: &Vec<OpcodeWithParams>) -> Self {
         let mut new_program_memory = program_memory.clone();
-        new_program_memory.push(OpcodeWithParams::new(Opcode::Err, Option::None)); // padding errorcode to jump if necessary
+        new_program_memory.push(OpcodeWithParams::new(Opcode::Error, Option::None)); // padding errorcode to jump if necessary
         Self {
-            program_memory: new_program_memory,
-            pc: 1,
-            stack: vec![0; 2],
-            top: 1,
+            program_memory: ProgramMemory::new(new_program_memory),
+            stack: Stack::new(),
+            result: 0,
+            error_code: ErrorCode::NoError,
         }
-    }
-
-    fn is_top_reaching_limit(&self) -> bool {
-        if self.top + 1 == self.stack.len() {
-            return true;
-        }
-        false
-    }
-
-    fn push_element_to_stack(&self, new_element: &u32) {
-        if self.is_top_reaching_limit() {
-            self.stack.push(new_element.clone());
-        } else {
-            self.stack[self.top + 1] = new_element.clone();
-        }
-        self.top += 1;
     }
 
     fn get_error_index(&self) -> usize {
-        self.program_memory.len() - 1
+        self.program_memory.get_length() - 1
     }
 }
 
 trait Execution {
     fn execute_single_step(&mut self);
+    fn execute(&mut self, execution_length: usize) -> (u32, ErrorCode);
 }
 
 impl Execution for DummyVirtualMachine {
 
     fn execute_single_step(&mut self) {
 
-        let mut opcode = self.program_memory[self.pc].get_opcode();
-        let mut param = self.program_memory[self.pc].get_param();
-        let mut stack = &mut self.stack;
-        let mut top = &mut self.top;
+        // we assume that at this point, both program_counter and stack.depth are set correctly
+        assert!(self.program_memory.is_program_counter_reasonable());
 
-        // check top of stack to be true
-        if self.top.clone() < opcode.get_stack_top_minimum() {
-            self.push_element_to_stack(&ErrorCode::IncorrectStackAccess.to_u32());
-            self.pc = self.get_error_index();
+        // get current opcode
+        let opcode_with_param = self.program_memory.get_current_opcode_with_params();
+
+        // check where depth of stack is reasonable
+        if self.stack.get_depth() < opcode_with_param.get_opcode().get_stack_depth_minimum() {
+            self.stack.push(ErrorCode::IncorrectStackAccess.to_u32());
+            self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
+            return;
+        }
+
+        // check program pc is reasonable
+        if !self.program_memory.is_program_counter_reasonable() {
+            self.stack.push(ErrorCode::IncorrectProgramCounter.to_u32());
+            self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
             return;
         }
 
         // then now execute
-        match opcode {
+        // referring here for the use of opcodes https://ethervm.io/
+        match opcode_with_param.get_opcode() {
+            Opcode::Stop => {
+                // do nothing
+            },
             Opcode::Add => {
-                stack[top.clone() - 1] = stack[top.clone() - 1] + stack[top.clone()];
-                *top -= 1;
+                let a = self.stack.pop();
+                let b = self.stack.pop();
+                let result = a + b;
+                self.stack.push(result);
+                self.program_memory.next_program_counter();
             },
             Opcode::Sub => {
-                stack[top.clone() - 1] = stack[top.clone() - 1] - stack[top.clone()];
-                *top -= 1;
+                let a = self.stack.pop();
+                let b = self.stack.pop();
+                let result = a - b;
+                self.stack.push(result);
+                self.program_memory.next_program_counter();
             },
             Opcode::Mul => {
-                stack[top.clone() - 1] = stack[top.clone() - 1] * stack[top.clone()];
-                *top -= 1;
+                let a = self.stack.pop();
+                let b = self.stack.pop();
+                let result = a * b;
+                self.stack.push(result);
+                self.program_memory.next_program_counter();
             },
             Opcode::Div => {
-                stack[top.clone() - 1] = stack[top.clone() - 1] / stack[top.clone()];
-                *top -= 1;
+                let a = self.stack.pop();
+                let b = self.stack.pop();
+                if b == 0 {
+                    self.stack.push(ErrorCode::DivisionByZero.to_u32());
+                    self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
+                } else {
+                    let result = a / b;
+                    self.stack.push(result);
+                    self.program_memory.next_program_counter();
+                }
             },
             Opcode::Push => {
-                self.push_element_to_stack(&param);
+                self.stack.push(opcode_with_param.get_param().unwrap());
+                self.program_memory.next_program_counter();
             },
             Opcode::Pop => {
-                *top -= 1;
+                self.stack.pop();
+                self.program_memory.next_program_counter();
             },
-            Opcode::Ret => {
-                // do nothing, top remains
+            Opcode::Return => {
+                let result = self.stack.pop();
+                self.result = result;
+                self.error_code = ErrorCode::NoError;
+                self.program_memory.next_program_counter_with_destination(self.program_memory.get_stop_index());
             },
             Opcode::Swap => {
-                (stack[top.clone() - 1], stack[top.clone()]) = (stack[top.clone()], stack[top.clone() - 1]);
+                let a = self.stack.pop();
+                let b = self.stack.pop();
+                self.stack.push(a);
+                self.stack.push(b);
+                self.program_memory.next_program_counter();
             },
             Opcode::Jump => {
-                if stack[top.clone()] < (self.program_memory.len() as u32) {
-                    *pc = stack[top.clone()] as usize;
-                } else {
-                    
-                }
+                let destination = self.stack.pop();
+                self.program_memory.next_program_counter_with_destination(destination as usize);
             },
             Opcode::Jumpi => {
-                if stack[top.clone() - 1] - 1 != 0 {
-                    if stack[top] < (program_memory.len() as u32) {
-                        *pc = 
-                    }
+                let destination = self.stack.pop();
+                let condition = self.stack.pop();
+                if condition > 0 {
+                    self.program_memory.next_program_counter_with_destination(destination as usize);
+                } else {
+                    self.program_memory.next_program_counter();
                 }
-            }
-            _ => {},
+            }, 
+            Opcode::Error => {
+                let error_code = self.stack.pop();
+                self.error_code = ErrorCode::from_u32(error_code);
+                self.program_memory.next_program_counter_with_destination(self.program_memory.get_stop_index());
+            },
         }
 
-        ErrorCode::NoError
+        // check pc true
+    }
+
+    // execute and return result with corresponding error code (ErrorCode::NoError == 0 if there is no error)
+    fn execute(&mut self, execution_length: usize) -> (u32, ErrorCode) {
+        for _ in 0..execution_length {
+            self.execute_single_step();
+        }
+        (
+            self.result,
+            self.error_code.clone(),
+        )
     }
 }
