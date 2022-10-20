@@ -5,3 +5,5 @@ pub mod stack;
 pub mod raw_execution_trace;
 pub mod direction;
 pub mod numeric_encoding;
+pub mod stack_access;
+pub mod read_write_access;

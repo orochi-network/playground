@@ -4,7 +4,7 @@ use crate::{test::program_memory_maker::ProgramMemoryMaker, dvm::{
         }, 
         dvm::{
             DummyVirtualMachine, Execution
-        }, direction
+        }
     }
 };
 

@@ -1,7 +1,7 @@
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
 
-use super::numeric_encoding::NumericEncoding;
+use super::{numeric_encoding::NumericEncoding, stack::Stack};
 
 #[derive(Clone, PartialEq, Eq, FromPrimitive, Debug)]
 pub enum Opcode {
@@ -60,7 +60,7 @@ impl NumericEncoding for ErrorCode {
 
 impl StackRequirement for Opcode {
     fn get_stack_depth_minimum(&self) -> usize {
-        self.get_num_stack_params() + 2 // plus 2 since stack.width in convention is at least 2
+        self.get_num_stack_params() + Stack::INACCESSIBLE_ELEMENTS // plus 2 since stack.width in convention is at least 2
     }
 
     fn get_num_stack_params(&self) -> usize {
