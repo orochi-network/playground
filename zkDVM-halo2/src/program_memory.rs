@@ -46,15 +46,31 @@ impl ProgramMemory {
         self.program_counter < self.get_length()
     }
 
+    // normally, program counter is increased by 1 after each opcode
+    // so invoking this function to execute
     pub fn next_program_counter(&mut self) {
         self.program_counter += 1;
     }
 
+    // sometimes pc is required to move to some other destination
     pub fn next_program_counter_with_destination(&mut self, destination: usize) {
         self.program_counter = destination;
     }
 
-    // pub fn get_program_counter_mut(&self) -> &mut usize {
-    //     &mut self.program_counter
-    // }
+    pub fn display(&self) {
+        println!();
+        println!("------------- :@) ----------");
+        println!("The following is program memory generated: ");
+        for i in 0..self.memory.len() {
+            println!("{i}. {:?}  {}", self.memory[i].get_opcode(), match self.memory[i].get_param() {
+                Some(v) => v.to_string(),
+                None => "".to_string(),
+            });
+        }
+        println!();
+        println!("Error index is {}", self.get_error_index());
+        println!("Stop index is {}", self.get_stop_index());
+        println!("------------- :@) ----------");
+    }
+    
 }

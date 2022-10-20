@@ -22,9 +22,10 @@ pub enum Opcode {
 #[derive(Clone, FromPrimitive, Debug)]
 pub enum ErrorCode {
     NoError = 0x00, // there is no error happened
-    DivisionByZero = 0x01, // divison by zero
-    IncorrectStackAccess = 0x02, // incorrect stack access 
-    IncorrectProgramCounter = 0x03, // incorrect program counter
+    NoReturn = 0x01, // program hasn't stopped
+    DivisionByZero = 0x02, // divison by zero
+    IncorrectStackAccess = 0x03, // incorrect stack access 
+    IncorrectProgramCounter = 0x04, // incorrect program counter
 }
 
 pub trait NumericEncoding {

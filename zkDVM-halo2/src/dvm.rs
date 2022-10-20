@@ -2,7 +2,7 @@ use crate::opcode_definition::{Opcode, OpcodeWithParams, ErrorCode, NumericEncod
 use crate::stack::Stack;
 use crate::program_memory::ProgramMemory;
 
-struct DummyVirtualMachine {
+pub struct DummyVirtualMachine {
     program_memory: ProgramMemory,
     stack: Stack,
     result: u32,
@@ -10,23 +10,30 @@ struct DummyVirtualMachine {
 }
 
 impl DummyVirtualMachine {
-    fn new(program_memory: &Vec<OpcodeWithParams>) -> Self {
+    pub fn new(program_memory: &Vec<OpcodeWithParams>) -> Self {
         let mut new_program_memory = program_memory.clone();
-        new_program_memory.push(OpcodeWithParams::new(Opcode::Error, Option::None)); // padding errorcode to jump if necessary
         Self {
             program_memory: ProgramMemory::new(new_program_memory),
             stack: Stack::new(),
             result: 0,
-            error_code: ErrorCode::NoError,
+            error_code: ErrorCode::NoReturn,
         }
     }
 
-    fn get_error_index(&self) -> usize {
-        self.program_memory.get_length() - 1
+    pub fn get_program_memory(&self) -> &ProgramMemory {
+        &self.program_memory
+    }
+
+    pub fn get_result(&self) -> u32 {
+        self.result
+    }
+
+    pub fn get_error_code(&self) -> ErrorCode {
+        self.error_code.clone()
     }
 }
 
-trait Execution {
+pub trait Execution {
     fn execute_single_step(&mut self);
     fn execute(&mut self, execution_length: usize) -> (u32, ErrorCode);
 }

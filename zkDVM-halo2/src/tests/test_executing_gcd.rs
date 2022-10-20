@@ -1,4 +1,8 @@
-use crate::{tests::program_memory_maker::ProgramMemoryMaker, program_memory, opcode_definition::OpcodeWithParams, opcode_definition::Opcode};
+use crate::{tests::program_memory_maker::ProgramMemoryMaker, opcode_definition::OpcodeWithParams, opcode_definition::Opcode, dvm::{DummyVirtualMachine, Execution}};
+
+use super::{
+    program_execution_handler::ProgramExecutionHandler,
+};
 
 pub struct TestExecutingGreatestCommonDivisor {
 
@@ -63,5 +67,29 @@ impl ProgramMemoryMaker<2> for TestExecutingGreatestCommonDivisor {
             OpcodeWithParams::new(Opcode::Return, None), // index 11 // return a :@)
 
         ]
+    }
+}
+
+impl ProgramExecutionHandler<2> for TestExecutingGreatestCommonDivisor {
+    fn execute(num_steps: usize) {
+        let test_vector = [
+            [0, 0],
+            [10, 0], 
+            [0, 4],
+            [4, 12],
+            [20, 100],
+            [15, 7],
+            [324, 2442],
+        ];
+        for input in test_vector {
+            let mut dummy_vm = DummyVirtualMachine::new(
+                &Self::make_program_memory(input)
+            );
+    
+            // dummy_vm.get_program_memory().display();
+    
+            dummy_vm.execute(num_steps);
+            println!("Input = {:?}, Result = {}, Error Code = {:?}", input, dummy_vm.get_result(), dummy_vm.get_error_code());
+        }
     }
 }
