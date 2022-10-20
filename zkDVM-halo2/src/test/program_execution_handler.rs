@@ -1,4 +1,4 @@
-use crate::dvm::DummyVirtualMachine;
+use crate::dvm::dvm::DummyVirtualMachine;
 
 use super::program_memory_maker::ProgramMemoryMaker;
 

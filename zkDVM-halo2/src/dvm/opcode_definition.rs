@@ -1,6 +1,8 @@
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
 
+use super::numeric_encoding::NumericEncoding;
+
 #[derive(Clone, PartialEq, Eq, FromPrimitive, Debug)]
 pub enum Opcode {
     Stop = 0x00, // top is unchanged, program counter is unchanged too
@@ -26,14 +28,6 @@ pub enum ErrorCode {
     DivisionByZero = 0x02, // divison by zero
     IncorrectStackAccess = 0x03, // incorrect stack access 
     IncorrectProgramCounter = 0x04, // incorrect program counter
-}
-
-pub trait NumericEncoding {
-    // transform into u32 value
-    fn to_u32(&self) -> u32;
-
-    // from u32 transforming into Self
-    fn from_u32(v: u32) -> Self;
 }
 
 pub trait StackRequirement {

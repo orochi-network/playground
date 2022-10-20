@@ -1,5 +1,6 @@
-use crate::opcode_definition::{Opcode, OpcodeWithParams};
+use super::opcode_definition::{Opcode, OpcodeWithParams};
 
+#[derive(Clone)]
 pub struct ProgramMemory {
     memory: Vec<OpcodeWithParams>,
     program_counter: usize,
@@ -71,6 +72,10 @@ impl ProgramMemory {
         println!("Error index is {}", self.get_error_index());
         println!("Stop index is {}", self.get_stop_index());
         println!("------------- :@) ----------");
+    }
+
+    pub fn get_program_counter(&self) -> usize {
+        self.program_counter
     }
     
 }

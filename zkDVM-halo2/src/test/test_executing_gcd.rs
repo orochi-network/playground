@@ -1,4 +1,12 @@
-use crate::{tests::program_memory_maker::ProgramMemoryMaker, opcode_definition::OpcodeWithParams, opcode_definition::Opcode, dvm::{DummyVirtualMachine, Execution}};
+use crate::{test::program_memory_maker::ProgramMemoryMaker, dvm::{
+        opcode_definition::{
+            OpcodeWithParams, Opcode
+        }, 
+        dvm::{
+            DummyVirtualMachine, Execution
+        }, direction
+    }
+};
 
 use super::{
     program_execution_handler::ProgramExecutionHandler,
@@ -25,7 +33,7 @@ impl TestExecutingGreatestCommonDivisor {
 }
 
 impl ProgramMemoryMaker<2> for TestExecutingGreatestCommonDivisor {
-    fn make_program_memory(inputs: [u32; 2]) -> Vec<crate::opcode_definition::OpcodeWithParams> {
+    fn make_program_memory(inputs: [u32; 2]) -> Vec<OpcodeWithParams> {
         let a = inputs[0];
         let b = inputs[1];
         vec![
@@ -88,8 +96,24 @@ impl ProgramExecutionHandler<2> for TestExecutingGreatestCommonDivisor {
     
             dummy_vm.get_program_memory().display();
     
-            dummy_vm.execute(num_steps);
-            println!("Input = {:?}, Result = {}, Error Code = {:?}", input, dummy_vm.get_result(), dummy_vm.get_error_code());
+            let (result, error_code, execution_trace) = dummy_vm.execute(num_steps);
+            println!("Input = {:?}, Result = {}, Error Code = {:?}", input, result, error_code);
+            
+            let direction_trace = execution_trace.get_direction_trace();
+            println!("Directions ({} elements): ", direction_trace.len());
+            print!("[");
+            for direction in direction_trace {
+                print!("{:?},", direction);
+            }
+            println!("]");
+
+            let program_counter_trace = execution_trace.get_program_counter_trace();
+            println!("Program counters ({} elements): ", program_counter_trace.len());
+            print!("[");
+            for program_counter in program_counter_trace {
+                print!("{:?},", program_counter);
+            }
+            println!("]");
         }
     }
 }

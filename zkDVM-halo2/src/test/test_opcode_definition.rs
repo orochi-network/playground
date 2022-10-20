@@ -1,4 +1,7 @@
-use crate::opcode_definition::{Opcode, ErrorCode, NumericEncoding};
+use crate::dvm::{
+    opcode_definition::{Opcode, ErrorCode}, 
+    numeric_encoding::NumericEncoding
+};
 
 pub struct TestOpcodeDefinition {
     

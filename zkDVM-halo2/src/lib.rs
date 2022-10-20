@@ -1,3 +1,3 @@
 pub mod dvm;
-pub mod tests;
+pub mod test;
 pub mod proof;
