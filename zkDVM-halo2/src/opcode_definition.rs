@@ -1,4 +1,7 @@
-#[derive(Clone, PartialEq, Eq)]
+use num_derive::FromPrimitive;    
+use num_traits::FromPrimitive;
+
+#[derive(Clone, PartialEq, Eq, FromPrimitive, Debug)]
 pub enum Opcode {
     Stop = 0x00, // top is unchanged, program counter is unchanged too
     Add = 0x01, // top is decreased by 1 with written output = lhs + rhs, pc += 1
@@ -14,7 +17,7 @@ pub enum Opcode {
     Error = 0xfe, // top is increased by 1 with written error code (1 param), pc unchanged
 }
 
-#[derive(Clone)]
+#[derive(Clone, FromPrimitive, Debug)]
 pub enum ErrorCode {
     NoError = 0x00, // there is no error happened
     DivisionByZero = 0x01, // divison by zero
@@ -44,23 +47,7 @@ impl NumericEncoding for Opcode {
     }
 
     fn from_u32(v: u32) -> Self {
-        let res = match v {
-            0x00 => Self::Stop,
-            0x01 => Self::Add,
-            0x02 => Self::Sub,
-            0x03 => Self::Mul,
-            0x04 => Self::Div,
-            0x05 => Self::Push,
-            0x06 => Self::Pop,
-            0x07 => Self::Return,
-            0x08 => Self::Swap,
-            0x09 => Self::Jump,
-            0x0a => Self::Jumpi,
-            0xfe => Self::Error,
-            _ => Self::Error,
-        };
-        assert_eq!(res.to_u32(), v);
-        res
+        FromPrimitive::from_u32(v).unwrap()
     }
 }
 
@@ -70,15 +57,7 @@ impl NumericEncoding for ErrorCode {
     }
 
     fn from_u32(v: u32) -> Self {
-        let error_code = match v {
-            0x00 => ErrorCode::NoError,
-            0x01 => ErrorCode::DivisionByZero,
-            0x02 => ErrorCode::IncorrectStackAccess,
-            0x03 => ErrorCode::IncorrectProgramCounter,
-            _ => ErrorCode::NoError,
-        };
-        assert_eq!(error_code.to_u32(), v);
-        error_code
+        FromPrimitive::from_u32(v).unwrap()
     }
 }
 
