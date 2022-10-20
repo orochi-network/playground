@@ -94,8 +94,28 @@ impl Execution for DummyVirtualMachine {
                     self.program_memory.next_program_counter();
                 }
             },
-            Opcode::Push => {
+            Opcode::Mod => {
+                let a = self.stack.pop();
+                let b = self.stack.pop();
+                if b == 0 {
+                    self.stack.push(ErrorCode::DivisionByZero.to_u32());
+                    self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
+                } else {
+                    let result = a % b;
+                    self.stack.push(result);
+                    self.program_memory.next_program_counter();
+                }
+            },
+            Opcode::Push4 => {
                 self.stack.push(opcode_with_param.get_param().unwrap());
+                self.program_memory.next_program_counter();
+            },
+            Opcode::Dup2 => {
+                let a = self.stack.pop();
+                let b = self.stack.pop();
+                self.stack.push(b);
+                self.stack.push(a);
+                self.stack.push(b);
                 self.program_memory.next_program_counter();
             },
             Opcode::Pop => {
@@ -108,7 +128,7 @@ impl Execution for DummyVirtualMachine {
                 self.error_code = ErrorCode::NoError;
                 self.program_memory.next_program_counter_with_destination(self.program_memory.get_stop_index());
             },
-            Opcode::Swap => {
+            Opcode::Swap1 => {
                 let a = self.stack.pop();
                 let b = self.stack.pop();
                 self.stack.push(a);

@@ -8,12 +8,14 @@ pub enum Opcode {
     Sub = 0x02, // top is decreased by 1 with written output = lhs - rhs, pc += 1
     Mul = 0x03, // top is decreased by 1 with written output = lhs * rhs, pc += 1
     Div = 0x04, // top is decreased by 1 with written output = lhs // rhs, if rhs == 0 then jump to ErrDivisionByZero, pc += 1
-    Push = 0x05, // top is increased by 1, no constraint to lhs and rhs, pc += 1
-    Pop = 0x06, // top is decreased by 1, no constraint to lhs and rhs, pc += 1
-    Return = 0x07, // top is kept unchanged with written output = rhs, pc unchanged
-    Swap = 0x08, // top is kept unchanged with written stack[top - 1] and stackp[top] swapped, pc += 1
-    Jump = 0x09, // top is kept unchanged with written output = rhs, pc = new_pc
-    Jumpi = 0x0a, // top is kept unchanged with written output = rhs, pc = (bool(rhs)) * (pc + 1) + (1 - bool(rhs)) * new_pc
+    Mod = 0x06, // top is decreased by 1 with writeen output = lhs % rhs, if rhs == 0 then jump to ErrDivisionByZero, pc += 1
+    Pop = 0x50, // top is decreased by 1, no constraint to lhs and rhs, pc += 1
+    Jump = 0x56, // top is kept unchanged with written output = rhs, pc = new_pc
+    Jumpi = 0x57, // top is kept unchanged with written output = rhs, pc = (bool(rhs)) * (pc + 1) + (1 - bool(rhs)) * new_pc
+    Push4 = 0x63, // top is increased by 1, no constraint to lhs and rhs, pc += 1
+    Dup2 = 0x81, // top is increase by 1 with written output = lhs, pc += 1
+    Swap1 = 0x90, // top is kept unchanged with written stack[top - 1] and stackp[top] swapped, pc += 1
+    Return = 0xf3, // top is kept unchanged with written output = rhs, pc unchanged
     Error = 0xfe, // top is increased by 1 with written error code (1 param), pc unchanged
 }
 
@@ -73,10 +75,12 @@ impl StackRequirement for Opcode {
             Opcode::Sub => 2, // 2 params for subtracting
             Opcode::Mul => 2, // 2 params for multiplying
             Opcode::Div => 2, // 2 params for dividing
-            Opcode::Push => 0, // no param required
+            Opcode::Mod => 2, // 2 params for dividing
+            Opcode::Push4 => 0, // no param required
+            Opcode::Dup2 => 2, // 2 params required
             Opcode::Pop => 1, // 1 param for popping
             Opcode::Return => 1, // 1 param for returning
-            Opcode::Swap => 2, // 2 params for swapping
+            Opcode::Swap1 => 2, // 2 params for swapping
             Opcode::Jump => 1, // 1 param for pc to jump to the required destination
             Opcode::Jumpi => 2, // 2 params for condition and destination
             Opcode::Error => 1, // 1 param indicating error code
