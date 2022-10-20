@@ -114,6 +114,14 @@ impl ProgramExecutionHandler<2> for TestExecutingGreatestCommonDivisor {
                 print!("{:?},", program_counter);
             }
             println!("]");
+
+            let stack_trace = execution_trace.get_stack_trace();
+            println!("Stack trace ({} elements): ", stack_trace.len());
+            print!("[");
+            for stack_access in stack_trace {
+                println!("{:?},", stack_access);
+            }
+            println!("]");
         }
     }
 }

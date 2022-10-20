@@ -65,4 +65,8 @@ impl RawExecutionTrace {
     pub fn get_program_counter_trace(&self) -> &Vec<usize> {
         &self.program_counter_trace
     }
+
+    pub fn get_stack_trace(&self) -> &Vec<StackAccess> {
+        &self.stack_trace
+    }
 }
