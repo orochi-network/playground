@@ -86,7 +86,7 @@ impl ProgramExecutionHandler<2> for TestExecutingGreatestCommonDivisor {
                 &Self::make_program_memory(input)
             );
     
-            // dummy_vm.get_program_memory().display();
+            dummy_vm.get_program_memory().display();
     
             dummy_vm.execute(num_steps);
             println!("Input = {:?}, Result = {}, Error Code = {:?}", input, dummy_vm.get_result(), dummy_vm.get_error_code());

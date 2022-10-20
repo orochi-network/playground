@@ -1,6 +1,7 @@
-use crate::opcode_definition::{Opcode, OpcodeWithParams, ErrorCode, NumericEncoding, StackRequirement};
-use crate::stack::Stack;
-use crate::program_memory::ProgramMemory;
+use super::opcode_definition::{Opcode, OpcodeWithParams, ErrorCode, NumericEncoding, StackRequirement};
+use super::stack::Stack;
+use super::program_memory::ProgramMemory;
+use crate::proof::raw_execution_trace::RawExecutionTrace;
 
 pub struct DummyVirtualMachine {
     program_memory: ProgramMemory,
@@ -34,13 +35,13 @@ impl DummyVirtualMachine {
 }
 
 pub trait Execution {
-    fn execute_single_step(&mut self);
-    fn execute(&mut self, execution_length: usize) -> (u32, ErrorCode);
+    fn execute_single_step(&mut self, wrapped_execution_trace: &Option<&mut RawExecutionTrace>);
+    fn execute(&mut self, execution_length: usize, wrapped_execution_trace: &Option<&mut RawExecutionTrace>) -> (u32, ErrorCode);
 }
 
 impl Execution for DummyVirtualMachine {
 
-    fn execute_single_step(&mut self) {
+    fn execute_single_step(&mut self, wrapped_execution_trace: &Option<&mut RawExecutionTrace>) {
 
         // we assume that at this point, both program_counter and stack.depth are set correctly
         assert!(self.program_memory.is_program_counter_reasonable());
@@ -166,9 +167,9 @@ impl Execution for DummyVirtualMachine {
     }
 
     // execute and return result with corresponding error code (ErrorCode::NoError == 0 if there is no error)
-    fn execute(&mut self, execution_length: usize) -> (u32, ErrorCode) {
+    fn execute(&mut self, execution_length: usize, wrapped_execution_trace: &Option<&mut RawExecutionTrace>) -> (u32, ErrorCode) {
         for _ in 0..execution_length {
-            self.execute_single_step();
+            self.execute_single_step(wrapped_execution_trace);
         }
         (
             self.result,
