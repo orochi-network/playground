@@ -60,7 +60,7 @@ impl NumericEncoding for ErrorCode {
 
 impl StackRequirement for Opcode {
     fn get_stack_depth_minimum(&self) -> usize {
-        self.get_num_stack_params() + Stack::INACCESSIBLE_ELEMENTS // plus 2 since stack.width in convention is at least 2
+        self.get_num_stack_params() + Stack::NUM_INACCESSIBLE_ELEMENTS // plus 2 since stack.width in convention is at least 2
     }
 
     fn get_num_stack_params(&self) -> usize {

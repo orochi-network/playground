@@ -51,7 +51,7 @@ impl Execution for DummyVirtualMachine {
         assert!(self.program_memory.is_program_counter_reasonable());
 
         // get current opcode
-        let opcode_with_param = self.program_memory.get_current_opcode_with_params();
+        
 
         // first record the necessary read values
         let read_access_value_1 = self.stack[self.stack.get_depth() - 1];
@@ -71,6 +71,7 @@ impl Execution for DummyVirtualMachine {
             
             direction = Direction::Error;
         } else {
+            let opcode_with_param = self.program_memory.get_current_opcode_with_params();
             // then now execute
             // referring here for the use of opcodes https://ethervm.io/
 
@@ -223,8 +224,7 @@ impl Execution for DummyVirtualMachine {
     // execute and return result with corresponding error code (ErrorCode::NoError == 0 if there is no error)
     fn execute(&mut self, execution_length: usize) -> (u32, ErrorCode, RawExecutionTrace) {
         let mut execution_trace = RawExecutionTrace::new(
-            self.program_memory.clone(),
-            self.get_program_memory().get_program_counter(),
+            &self.program_memory,
         );
         for _ in 0..execution_length {
             self.execute_single_step(&mut execution_trace);

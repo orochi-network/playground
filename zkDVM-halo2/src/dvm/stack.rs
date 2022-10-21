@@ -7,14 +7,14 @@ pub struct Stack {
 
 impl Stack {
 
-    pub const INACCESSIBLE_ELEMENTS: usize = 2;
+    pub const NUM_INACCESSIBLE_ELEMENTS: usize = 2;
 
     pub fn new() -> Self {
         // initial stack must have 2 dummy elements at indices 0 and 1 for ease of handling later in constructing ZKP
         // depth must be at least 2
         Self {
-            stack: vec![0; Self::INACCESSIBLE_ELEMENTS],
-            depth: Self::INACCESSIBLE_ELEMENTS,
+            stack: vec![0; Self::NUM_INACCESSIBLE_ELEMENTS],
+            depth: Self::NUM_INACCESSIBLE_ELEMENTS,
         }
     }
 
@@ -54,7 +54,7 @@ impl Stack {
     }
 
     pub fn is_depth_violating(&self) -> bool {
-        self.depth < Self::INACCESSIBLE_ELEMENTS
+        self.depth < Self::NUM_INACCESSIBLE_ELEMENTS
     }
 }
 

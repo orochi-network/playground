@@ -19,4 +19,20 @@ impl StackAccess {
             value: value,
         }
     }
+
+    pub fn get_location(&self) -> usize {
+        self.location
+    }
+
+    pub fn get_time_tag(&self) -> u32 {
+        self.time_tag
+    }
+
+    pub fn get_access_operation(&self) -> ReadWriteAccess {
+        self.access_operation
+    }
+
+    pub fn get_value(&self) -> u32 {
+        self.value
+    }
 }

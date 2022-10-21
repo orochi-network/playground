@@ -43,6 +43,10 @@ impl ProgramMemory {
         self.memory[self.program_counter].clone()
     }
 
+    pub fn get_opcode_with_params(&self, index: usize) -> OpcodeWithParams {
+        self.memory[index]
+    }
+
     pub fn is_program_counter_reasonable(&self) -> bool {
         self.program_counter < self.get_length()
     }
