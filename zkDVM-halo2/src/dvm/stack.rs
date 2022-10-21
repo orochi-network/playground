@@ -42,13 +42,13 @@ impl Stack {
     }
 
     // get value of last element
-    pub fn back(&self) -> u32 {
+    pub fn get_top(&self) -> u32 {
         self.stack[self.depth - 1]
     }
 
     // pop element from stack
     pub fn pop(&mut self) -> u32 {
-        let last_element = self.back();
+        let last_element = self.get_top();
         self.depth -= 1;
         last_element
     }

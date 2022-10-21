@@ -214,7 +214,7 @@ impl Execution for DummyVirtualMachine {
             depth_before_changed, 
             read_access_value_1, read_access_value_2, 
             self.stack.get_depth(), 
-            self.stack.back()
+            self.stack.get_top()
         );
 
         // check pc true
