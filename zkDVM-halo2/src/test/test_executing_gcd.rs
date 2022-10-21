@@ -1,11 +1,14 @@
-use crate::{test::program_memory_maker::ProgramMemoryMaker, dvm::{
+use crate::{
+    test::program_memory_maker::ProgramMemoryMaker, 
+    dvm::{
         opcode_definition::{
             OpcodeWithParams, Opcode
         }, 
         dvm::{
             DummyVirtualMachine, Execution
         }
-    }
+    },
+    utils::display::print_vector
 };
 
 use super::{
@@ -98,30 +101,18 @@ impl ProgramExecutionHandler<2> for TestExecutingGreatestCommonDivisor {
     
             let (result, error_code, execution_trace) = dummy_vm.execute(num_steps);
             println!("Input = {:?}, Result = {}, Error Code = {:?}", input, result, error_code);
+
             
+
+
             let direction_trace = execution_trace.get_direction_trace();
-            println!("Directions ({} elements): ", direction_trace.len());
-            print!("[");
-            for direction in direction_trace {
-                print!("{:?},", direction);
-            }
-            println!("]");
+            print_vector(&format!("Directions ({} elements): ", direction_trace.len()), direction_trace, ',');
 
             let program_counter_trace = execution_trace.get_program_counter_trace();
-            println!("Program counters ({} elements): ", program_counter_trace.len());
-            print!("[");
-            for program_counter in program_counter_trace {
-                print!("{:?},", program_counter);
-            }
-            println!("]");
+            print_vector(&format!("Program counters ({} elements): ", program_counter_trace.len()), program_counter_trace, ',');
 
             let stack_trace = execution_trace.get_stack_trace();
-            println!("Stack trace ({} elements): ", stack_trace.len());
-            print!("[");
-            for stack_access in stack_trace {
-                println!("{:?},", stack_access);
-            }
-            println!("]");
+            print_vector(&format!("Stack trace ({} elements): ", stack_trace.len()), stack_trace, '\n');
         }
     }
 }

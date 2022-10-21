@@ -7,7 +7,7 @@ pub struct Stack {
 
 impl Stack {
 
-    pub const INACCESSIBLE_ELEMENTS: usize = 4;
+    pub const INACCESSIBLE_ELEMENTS: usize = 2;
 
     pub fn new() -> Self {
         // initial stack must have 2 dummy elements at indices 0 and 1 for ease of handling later in constructing ZKP

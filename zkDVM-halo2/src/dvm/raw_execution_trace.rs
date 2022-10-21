@@ -1,5 +1,3 @@
-use std::fs::read;
-
 use super::{program_memory::ProgramMemory, direction::Direction, stack_access::StackAccess, read_write_access::ReadWriteAccess};
 
 pub struct RawExecutionTrace {

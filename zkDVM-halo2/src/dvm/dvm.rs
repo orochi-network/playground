@@ -57,40 +57,19 @@ impl Execution for DummyVirtualMachine {
         let read_access_value_1 = self.stack[self.stack.get_depth() - 1];
         let read_access_value_2 = self.stack[self.stack.get_depth() - 2];
         let depth_before_changed = self.stack.get_depth();
+        let direction: Direction;
 
         // check where depth of stack is reasonable
         if self.stack.get_depth() < opcode_with_param.get_opcode().get_stack_depth_minimum() {
             self.stack.push(ErrorCode::IncorrectStackAccess.to_u32());
             self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
 
-            // update execution trace
-            execution_trace.push(
-                Direction::Error,
-                self.program_memory.get_program_counter(),
-                &mut self.time_tag,
-                depth_before_changed,
-                read_access_value_1,
-                read_access_value_2,
-                self.stack.get_depth(),
-                self.stack.back(),
-            );
-            return;
+            direction = Direction::Error;
         } else if !self.program_memory.is_program_counter_reasonable() { // check program pc is reasonable
             self.stack.push(ErrorCode::IncorrectProgramCounter.to_u32());
             self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
             
-            // update execution trace
-            execution_trace.push(
-                Direction::Error,
-                self.program_memory.get_program_counter(),
-                &mut self.time_tag,
-                depth_before_changed,
-                read_access_value_1,
-                read_access_value_2,
-                self.stack.get_depth(),
-                self.stack.back(),
-            );
-            return;
+            direction = Direction::Error;
         } else {
             // then now execute
             // referring here for the use of opcodes https://ethervm.io/
@@ -99,17 +78,7 @@ impl Execution for DummyVirtualMachine {
                 Opcode::Stop => {
                     // do nothing
 
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    direction = Direction::Normal;
                 },
                 Opcode::Add => {
                     let a = self.stack.pop();
@@ -118,17 +87,7 @@ impl Execution for DummyVirtualMachine {
                     self.stack.push(result);
                     self.program_memory.next_program_counter();
 
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    direction = Direction::Normal;
                 },
                 Opcode::Sub => {
                     let a = self.stack.pop();
@@ -137,17 +96,7 @@ impl Execution for DummyVirtualMachine {
                     self.stack.push(result);
                     self.program_memory.next_program_counter();
 
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    direction = Direction::Normal;
                 },
                 Opcode::Mul => {
                     let a = self.stack.pop();
@@ -156,17 +105,7 @@ impl Execution for DummyVirtualMachine {
                     self.stack.push(result);
                     self.program_memory.next_program_counter();
 
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    direction = Direction::Normal;
                 },
                 Opcode::Div => {
                     let a = self.stack.pop();
@@ -175,33 +114,13 @@ impl Execution for DummyVirtualMachine {
                         self.stack.push(ErrorCode::DivisionByZero.to_u32());
                         self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
 
-                        // update execution trace
-                        execution_trace.push(
-                            Direction::Error,
-                            self.program_memory.get_program_counter(),
-                            &mut self.time_tag,
-                            depth_before_changed,
-                            read_access_value_1,
-                            read_access_value_2,
-                            self.stack.get_depth(),
-                            self.stack.back(),
-                        );
+                        direction = Direction::Error;
                     } else {
                         let result = a / b;
                         self.stack.push(result);
                         self.program_memory.next_program_counter();
 
-                        // update execution trace
-                        execution_trace.push(
-                            Direction::Normal,
-                            self.program_memory.get_program_counter(),
-                            &mut self.time_tag,
-                            depth_before_changed,
-                            read_access_value_1,
-                            read_access_value_2,
-                            self.stack.get_depth(),
-                            self.stack.back(),
-                        );
+                        direction = Direction::Normal;
                     }
                 },
                 Opcode::Mod => {
@@ -211,49 +130,20 @@ impl Execution for DummyVirtualMachine {
                         self.stack.push(ErrorCode::DivisionByZero.to_u32());
                         self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
 
-                        // update execution trace
-                        execution_trace.push(
-                            Direction::Error,
-                            self.program_memory.get_program_counter(),
-                            &mut self.time_tag,
-                            depth_before_changed,
-                            read_access_value_1,
-                            read_access_value_2,
-                            self.stack.get_depth(),
-                            self.stack.back(),
-                        );
+                        direction = Direction::Error;
                     } else {
                         let result = a % b;
                         self.stack.push(result);
                         self.program_memory.next_program_counter();
 
-                        // update execution trace
-                        execution_trace.push(
-                            Direction::Normal,
-                            self.program_memory.get_program_counter(),
-                            &mut self.time_tag,
-                            depth_before_changed,
-                            read_access_value_1,
-                            read_access_value_2,
-                            self.stack.get_depth(),
-                            self.stack.back(),
-                        );
+                        direction = Direction::Normal;
                     }
                 },
                 Opcode::Push4 => {
                     self.stack.push(opcode_with_param.get_param().unwrap());
                     self.program_memory.next_program_counter();
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    
+                    direction = Direction::Normal;
                 },
                 Opcode::Dup2 => {
                     let a = self.stack.pop();
@@ -262,49 +152,22 @@ impl Execution for DummyVirtualMachine {
                     self.stack.push(a);
                     self.stack.push(b);
                     self.program_memory.next_program_counter();
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    
+                    direction = Direction::Normal;
                 },
                 Opcode::Pop => {
                     self.stack.pop();
                     self.program_memory.next_program_counter();
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    
+                    direction = Direction::Normal;
                 },
                 Opcode::Return => {
                     let result = self.stack.pop();
                     self.result = result;
                     self.error_code = ErrorCode::NoError;
                     self.program_memory.next_program_counter_with_destination(self.program_memory.get_stop_index());
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    
+                    direction = Direction::Normal;
                 },
                 Opcode::Swap1 => {
                     let a = self.stack.pop();
@@ -312,32 +175,14 @@ impl Execution for DummyVirtualMachine {
                     self.stack.push(a);
                     self.stack.push(b);
                     self.program_memory.next_program_counter();
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    
+                    direction = Direction::Normal;
                 },
                 Opcode::Jump => {
                     let destination = self.stack.pop();
                     self.program_memory.next_program_counter_with_destination(destination as usize);
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Jump,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    
+                    direction = Direction::Jump;
                 },
                 Opcode::Jumpi => {
                     let destination = self.stack.pop();
@@ -345,31 +190,11 @@ impl Execution for DummyVirtualMachine {
                     if condition > 0 {
                         self.program_memory.next_program_counter_with_destination(destination as usize);
 
-                        // update execution trace
-                        execution_trace.push(
-                            Direction::Jump,
-                            self.program_memory.get_program_counter(),
-                            &mut self.time_tag,
-                            depth_before_changed,
-                            read_access_value_1,
-                            read_access_value_2,
-                            self.stack.get_depth(),
-                            self.stack.back(),
-                        );
+                        direction = Direction::Jump;
                     } else {
                         self.program_memory.next_program_counter();
 
-                        // update execution trace
-                        execution_trace.push(
-                            Direction::Normal,
-                            self.program_memory.get_program_counter(),
-                            &mut self.time_tag,
-                            depth_before_changed,
-                            read_access_value_1,
-                            read_access_value_2,
-                            self.stack.get_depth(),
-                            self.stack.back(),
-                        );
+                        direction = Direction::Normal;
                     }
                 }, 
                 Opcode::Error => {
@@ -377,20 +202,20 @@ impl Execution for DummyVirtualMachine {
                     self.error_code = ErrorCode::from_u32(error_code);
                     self.program_memory.next_program_counter_with_destination(self.program_memory.get_stop_index());
 
-                    // update execution trace
-                    execution_trace.push(
-                        Direction::Normal,
-                        self.program_memory.get_program_counter(),
-                        &mut self.time_tag,
-                        depth_before_changed,
-                        read_access_value_1,
-                        read_access_value_2,
-                        self.stack.get_depth(),
-                        self.stack.back(),
-                    );
+                    direction = Direction::Normal;
                 },
             }
         }   
+
+        execution_trace.push(
+            direction, 
+            self.get_program_memory().get_program_counter(), 
+            &mut self.time_tag, 
+            depth_before_changed, 
+            read_access_value_1, read_access_value_2, 
+            self.stack.get_depth(), 
+            self.stack.back()
+        );
 
         // check pc true
     }
