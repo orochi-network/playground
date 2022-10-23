@@ -7,3 +7,4 @@ pub mod direction;
 pub mod numeric_encoding;
 pub mod stack_access;
 pub mod read_write_access;
+pub mod execution_checker;

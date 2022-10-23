@@ -51,15 +51,13 @@ impl ProgramMemory {
         self.program_counter < self.get_length()
     }
 
-    // normally, program counter is increased by 1 after each opcode
-    // so invoking this function to execute
-    pub fn next_program_counter(&mut self) {
-        self.program_counter += 1;
+    // set program counter
+    pub fn set_program_counter(&self, program_counter: usize) {
+        self.program_counter = program_counter;
     }
 
-    // sometimes pc is required to move to some other destination
-    pub fn next_program_counter_with_destination(&mut self, destination: usize) {
-        self.program_counter = destination;
+    pub fn is_custom_program_counter_reasonable(&self, program_counter: usize) -> bool {
+        program_counter < self.get_length()
     }
 
     pub fn display(&self) {

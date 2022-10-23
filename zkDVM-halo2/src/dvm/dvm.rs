@@ -1,9 +1,11 @@
-use super::opcode_definition::{Opcode, OpcodeWithParams, ErrorCode, StackRequirement};
+use super::opcode_definition::{Opcode, OpcodeWithParams, ErrorCode};
 use super::stack::Stack;
 use super::program_memory::ProgramMemory;
 use super::raw_execution_trace::RawExecutionTrace;
 use super::numeric_encoding::NumericEncoding;
+use super::execution_checker::ExecutionChecker;
 use crate::dvm::direction::Direction;
+use crate::dvm::opcode_definition::StackRequirement;
 
 pub struct DummyVirtualMachine {
     program_memory: ProgramMemory,
@@ -51,7 +53,7 @@ impl Execution for DummyVirtualMachine {
         assert!(self.program_memory.is_program_counter_reasonable());
 
         // get current opcode
-        
+        let opcode_with_param = self.get_program_memory().get_current_opcode_with_params();
 
         // first record the necessary read values
         let read_access_value_1 = self.stack[self.stack.get_depth() - 1];
@@ -62,19 +64,19 @@ impl Execution for DummyVirtualMachine {
         // check where depth of stack is reasonable
         if self.stack.get_depth() < opcode_with_param.get_opcode().get_stack_depth_minimum() {
             self.stack.push(ErrorCode::IncorrectStackAccess.to_u32());
-            self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
+            self.program_memory.set_program_counter(self.program_memory.get_error_index());
 
-            direction = Direction::Error;
-        } else if !self.program_memory.is_program_counter_reasonable() { // check program pc is reasonable
-            self.stack.push(ErrorCode::IncorrectProgramCounter.to_u32());
-            self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
-            
             direction = Direction::Error;
         } else {
-            let opcode_with_param = self.program_memory.get_current_opcode_with_params();
+
+            // check error code before executing
+            let error_code = opcode_with_param.get_opcode().get_error_after_executing(
+                read_access_value_1, read_access_value_2, 
+                &self.program_memory
+            );
+
             // then now execute
             // referring here for the use of opcodes https://ethervm.io/
-
             match opcode_with_param.get_opcode() {
                 Opcode::Stop => {
                     // do nothing
@@ -205,6 +207,13 @@ impl Execution for DummyVirtualMachine {
 
                     direction = Direction::Normal;
                 },
+            }
+
+            if !self.program_memory.is_program_counter_reasonable() { // check program pc is reasonable
+                self.stack.push(ErrorCode::IncorrectProgramCounter.to_u32());
+                self.program_memory.next_program_counter_with_destination(self.program_memory.get_error_index());
+                
+                direction = Direction::Error;
             }
         }   
 
