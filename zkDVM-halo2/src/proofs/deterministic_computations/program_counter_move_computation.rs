@@ -21,83 +21,64 @@ fn compute_next_program_counter(
     let opcode = Opcode::from_u32(opcode);
     let is_stack_depth_reasonable = current_stack_depth >= (opcode.get_minimum_stack_depth() as u32); 
 
-    // computing is_program_counter_reasonable
+    // computing is_program_counter_reasonable_after_executing
     // program_memory_length is considered a fixed constant when conducting proof
-    let is_program_counter_reasonable = current_program_counter < program_memory_length;
-
-    match opcode {
-        Opcode::Stop => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * current_program_counter
+    // computation is depending on implementation of trait OpcodeExecutionChecker for opcode
+    let is_program_counter_reasonable_after_executing = match opcode {
+        Opcode::Stop | Opcode::Return | Opcode::Error => {
+            // Stop does not move pc => NoError
+            // Return and Error move pc to location of Stop => always NoError
+            
+            false
         },
-        Opcode::Add => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (current_program_counter + 1)
+        Opcode::Add | Opcode::Sub | Opcode::Mul | Opcode::Push4 | Opcode::Dup2 | Opcode::Pop | Opcode::Swap1 => {
+            // pc is moved next
+            current_program_counter + 1 < program_memory_length
         },
-        Opcode::Sub => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (current_program_counter + 1)
-        },
-        Opcode::Mul => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (current_program_counter + 1)
-        },
-        Opcode::Div => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (current_program_counter + 1)
-        }, 
-        Opcode::Mod => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (current_program_counter + 1)
-        },
-        Opcode::Push4 => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (current_program_counter + 1)
-        },
-        Opcode::Dup2 => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (current_program_counter + 1)
-        },
-        Opcode::Pop => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (current_program_counter + 1)
-        },
-        Opcode::Return => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * stop_index
-        },
-        Opcode::Swap1 => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (current_program_counter + 1)
+        Opcode::Div | Opcode::Mod => {
+            let b = read_access_value_2;
+            b != 0 && current_program_counter + 1 < program_memory_length
         },
         Opcode::Jump => {
-            let destination = &read_access_value_1;
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * destination
+            let destination = read_access_value_1;
+            destination < program_memory_length // it jumps to destination, so destination must be valid
         },
         Opcode::Jumpi => {
-            let (destination, condition) = &(read_access_value_1, read_access_value_2);
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * ((*condition > 0) as u32) * destination
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * (not(*condition > 0) as u32) * destination
+            let (destination, condition) = (read_access_value_1, read_access_value_2);
+
+            (
+                ((condition == 0) as u32) * (program_memory_length + 1) // if condition is zeo then new_pc = pc + 1
+                + (1 - (condition == 0) as u32) * destination // else new_pc = destination
+            ) < program_memory_length // check new_pc < program_memory_length
         },
-        Opcode::Error => {
-            (not(is_stack_depth_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (not(is_program_counter_reasonable) as u32) * error_index
-            + (is_stack_depth_reasonable as u32) * (is_program_counter_reasonable as u32) * stop_index
-        }
+    };
+
+    let is_not_error = is_stack_depth_reasonable && is_program_counter_reasonable_after_executing;
+
+    // now output result
+    match opcode {
+        Opcode::Stop => {
+            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            + (is_not_error as u32) * current_program_counter // else, program counter is unchanged
+        },
+        Opcode::Add | Opcode::Sub | Opcode::Mul | Opcode::Div | Opcode::Mod | Opcode::Push4 | Opcode::Dup2 | Opcode::Pop | Opcode::Swap1 => {
+            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            + (is_not_error as u32) * (current_program_counter + 1) // else, program counter is set to be pc + 1
+        },
+        Opcode::Return | Opcode::Error => {
+            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            + (is_not_error as u32) * stop_index // else, program counter is set to be stop_index
+        },
+        Opcode::Jump => {
+            let destination = read_access_value_1;
+            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            + (is_not_error as u32) * destination // else, program counter is set to be destination
+        },
+        Opcode::Jumpi => {
+            let (destination, condition) = (read_access_value_1, read_access_value_2);
+            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            + (is_not_error as u32) * ((condition > 0) as u32) * destination // if condition != 0, jump to destination
+            + (is_not_error as u32) * (not(condition > 0) as u32) * (current_program_counter + 1) // if condition == 0, jump to pc + 1
+        },
     }
 }
