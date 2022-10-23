@@ -1,6 +1,7 @@
-use crate::dvm::{
-    opcode_definition::{Opcode, StackRequirement},
+use crate::dummy_virtual_machine::{
+    opcode::{Opcode},
     numeric_encoding::NumericEncoding,
+    stack_requirement::StackRequirement,
 };
 
 use super::logic::not;
@@ -18,7 +19,7 @@ fn compute_next_program_counter(
     // computing is_stack_depth_reasonable
     // notice that opcode is public => opcode.get_stack_depth_minimum() is publicly known
     let opcode = Opcode::from_u32(opcode);
-    let is_stack_depth_reasonable = current_stack_depth >= (opcode.get_stack_depth_minimum() as u32); 
+    let is_stack_depth_reasonable = current_stack_depth >= (opcode.get_minimum_stack_depth() as u32); 
 
     // computing is_program_counter_reasonable
     // program_memory_length is considered a fixed constant when conducting proof

@@ -1,12 +1,12 @@
 use crate::{
     test::program_memory_maker::ProgramMemoryMaker, 
-    dvm::{
-        opcode_definition::{
-            OpcodeWithParams, Opcode
+    dummy_virtual_machine::{
+        opcode::{
+            Opcode
         }, 
-        dvm::{
-            DummyVirtualMachine, Execution
-        }
+        dummy_virtual_machine::{
+            DummyVirtualMachine
+        }, opcode_with_params::OpcodeWithParams, execution::Execution
     },
     utils::display::print_vector
 };
@@ -102,11 +102,7 @@ impl ProgramExecutionHandler<2> for TestExecutingGreatestCommonDivisor {
             let (result, error_code, execution_trace) = dummy_vm.execute(num_steps);
             println!("Input = {:?}, Result = {}, Error Code = {:?}", input, result, error_code);
 
-            
-
-
-            let direction_trace = execution_trace.get_direction_trace();
-            print_vector(&format!("Directions ({} elements): ", direction_trace.len()), direction_trace, ',');
+            //print_vector(&format!("Directions ({} elements): ", direction_trace.len()), direction_trace, ',');
 
             let program_counter_trace = execution_trace.get_program_counter_trace();
             print_vector(&format!("Program counters ({} elements): ", program_counter_trace.len()), program_counter_trace, ',');

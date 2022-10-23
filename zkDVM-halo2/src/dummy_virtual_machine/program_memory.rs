@@ -1,9 +1,13 @@
-use super::opcode_definition::{Opcode, OpcodeWithParams};
+use super::{
+    opcode::Opcode,
+    opcode_with_params::OpcodeWithParams,
+};
+
+use std::ops::Index;
 
 #[derive(Clone)]
 pub struct ProgramMemory {
     memory: Vec<OpcodeWithParams>,
-    program_counter: usize,
 }
 
 impl ProgramMemory {
@@ -20,7 +24,6 @@ impl ProgramMemory {
         // then return
         Self {
             memory: new_memory,
-            program_counter: 0,
         }
     }
 
@@ -39,24 +42,7 @@ impl ProgramMemory {
         self.memory.len() - 1
     }
 
-    pub fn get_current_opcode_with_params(&self) -> OpcodeWithParams {
-        self.memory[self.program_counter].clone()
-    }
-
-    pub fn get_opcode_with_params(&self, index: usize) -> OpcodeWithParams {
-        self.memory[index]
-    }
-
-    pub fn is_program_counter_reasonable(&self) -> bool {
-        self.program_counter < self.get_length()
-    }
-
-    // set program counter
-    pub fn set_program_counter(&self, program_counter: usize) {
-        self.program_counter = program_counter;
-    }
-
-    pub fn is_custom_program_counter_reasonable(&self, program_counter: usize) -> bool {
+    pub fn is_program_counter_reasonable(&self, program_counter: usize) -> bool {
         program_counter < self.get_length()
     }
 
@@ -75,9 +61,13 @@ impl ProgramMemory {
         println!("Stop index is {}", self.get_stop_index());
         println!("------------- :@) ----------");
     }
-
-    pub fn get_program_counter(&self) -> usize {
-        self.program_counter
-    }
     
+}
+
+impl Index<usize> for ProgramMemory {
+    type Output = OpcodeWithParams;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.memory[index]
+    }
 }
