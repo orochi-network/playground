@@ -13,6 +13,8 @@ pub struct RawExecutionTrace {
 }
 
 impl RawExecutionTrace {
+    pub const NUM_ACCESSES_PER_STEP: usize = 4;
+
     pub fn new(program_memory: &ProgramMemory, initial_program_counter: usize) -> Self {
         Self {
             program_memory: program_memory.clone(), // TODO: recommending changing to reference with life time, to be fixed later
@@ -43,7 +45,7 @@ impl RawExecutionTrace {
             (depth_before_changed - 1, time_tag.clone(), ReadWriteAccess::Read, read_stack_value_1),
             (depth_before_changed - 2, time_tag.clone() + 1, ReadWriteAccess::Read, read_stack_value_2),
             (depth_after_changed - 1, time_tag.clone() + 2, ReadWriteAccess::Write, write_stack_value_top),
-            (depth_after_changed - 2, time_tag.clone() + 2, ReadWriteAccess::Write, write_stack_value_prev),
+            (depth_after_changed - 2, time_tag.clone() + 3, ReadWriteAccess::Write, write_stack_value_prev),
         ].map(|(location, time_tag, access_operation, value)| {
                 self.stack_trace.push(
                     StackAccess::new(
@@ -56,7 +58,7 @@ impl RawExecutionTrace {
             }
         );
 
-        *time_tag += 3; // increase time_tag by 3 for 2 READ and 1 WRITE access
+        *time_tag += Self::NUM_ACCESSES_PER_STEP as u32; // increase time_tag by 3 for 2 READ and 1 WRITE access
         self.opcode_trace.push(opcode_for_current_execution);
     }
 

@@ -2,11 +2,12 @@ use strum::IntoEnumIterator;
 
 use crate::{dummy_virtual_machine::{
     raw_execution_trace::RawExecutionTrace,
-    opcode::Opcode, read_write_access::ReadWriteAccess, stack::Stack
+    opcode::Opcode, read_write_access::ReadWriteAccess, stack::Stack,
 }, proofs::{deterministic_computations::program_counter_move_computation::compute_next_program_counter, proof_types::{p_opcode::POpcode, p_stack_depth::PStackDepth, p_program_counter::PProgramCounter, p_stack_value::PStackValue, p_location::PLocation, p_time_tag::PTimeTag, p_numeric_encoding::PNumericEncoding, p_read_write_acces::PReadWriteAccess}}, utils::numeric_encoding::NumericEncoding};
 
 
 pub struct HighLevelPlainProof {
+    num_transitions: usize, // number of transitions
     stack_access_table: Vec<(PLocation, PTimeTag, PReadWriteAccess, PStackValue)>, // (location, time_tag, opcode, value of corresponding stack location) read from access value
     state_transition_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode)
     state_transition_lookup_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter)
@@ -15,6 +16,7 @@ pub struct HighLevelPlainProof {
 impl HighLevelPlainProof {
     pub fn new(execution_trace: &RawExecutionTrace) -> Self {
         Self {
+            num_transitions: execution_trace.get_opcode_trace().len(),
             stack_access_table: Self::extract_stack_access_table(execution_trace),
             state_transition_table: Self::arrange_state_transition_table(execution_trace),
             state_transition_lookup_table: Self::arrange_state_transition_lookup_table(execution_trace),
@@ -60,8 +62,8 @@ impl HighLevelPlainProof {
                 PStackDepth::from_u32(execution_trace.get_depth_trace()[index] as u32), // depth before computing opcode
                 PProgramCounter::from_u32(execution_trace.get_program_counter_trace()[index] as u32), // program counter before computing opcode
                 // partitioning stack trace into tuple of 3 elements with corresponding AccessOperation sequence (Read, Read, Write)
-                PStackValue::from_u32(execution_trace.get_stack_trace()[index * 4].get_value()), // then get first element with Read
-                PStackValue::from_u32(execution_trace.get_stack_trace()[index * 4 + 1].get_value()), // the get second element with Read
+                PStackValue::from_u32(execution_trace.get_stack_trace()[index * RawExecutionTrace::NUM_ACCESSES_PER_STEP].get_value()), // then get first element with Read
+                PStackValue::from_u32(execution_trace.get_stack_trace()[index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 1].get_value()), // the get second element with Read
                 POpcode::from_u32(execution_trace.get_opcode_trace()[index].to_u32()), // extract the opcode
             )
         }).collect();
@@ -114,14 +116,56 @@ impl HighLevelPlainProof {
 
     // functions here are for verifying
 
-    // verify stack_access_table_correct
+    // verify stack_access_table
     fn verify_stack_access_table(&self) {
+        print!("Do verify stack access table: ");
+        // verify order of access of initial elements
+        for index in 0..Stack::NUM_INACCESSIBLE_ELEMENTS {
+            assert_eq!(self.stack_access_table[index].0.to_u32(), index as u32);
+            assert_eq!(self.stack_access_table[index].1.to_u32(), index as u32);
+            assert_eq!(self.stack_access_table[index].2, PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32()));
+        }
+
+        // verify order of access of remaining elements
+        for index in 0..self.num_transitions {
+            // verify correct access operations
+            assert_eq!(
+                self.stack_access_table[Stack::NUM_INACCESSIBLE_ELEMENTS + index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 0].2, 
+                PReadWriteAccess::from_u32(ReadWriteAccess::Read.to_u32())
+            );
+            assert_eq!(
+                self.stack_access_table[Stack::NUM_INACCESSIBLE_ELEMENTS + index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 1].2, 
+                PReadWriteAccess::from_u32(ReadWriteAccess::Read.to_u32())
+            );
+            assert_eq!(
+                self.stack_access_table[Stack::NUM_INACCESSIBLE_ELEMENTS + index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 2].2, 
+                PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32())
+            );
+            assert_eq!(
+                self.stack_access_table[Stack::NUM_INACCESSIBLE_ELEMENTS + index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 3].2, 
+                PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32())
+            );
+
+            // verify correct location access
+            assert_eq!(
+                self.stack_access_table[Stack::NUM_INACCESSIBLE_ELEMENTS + index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 0].0.to_u32(),     // top
+                self.stack_access_table[Stack::NUM_INACCESSIBLE_ELEMENTS + index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 1].0.to_u32() + 1  // prev
+            );
+
+            assert_eq!(
+                self.stack_access_table[Stack::NUM_INACCESSIBLE_ELEMENTS + index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 2].0.to_u32(),     // top
+                self.stack_access_table[Stack::NUM_INACCESSIBLE_ELEMENTS + index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 3].0.to_u32() + 1  // prev
+            );
+        }
+
+        // verify correct time tag
+        for index in 0..self.stack_access_table.len() {
+            assert_eq!(self.stack_access_table[index].1.to_u32(), index as u32);
+        }
+
+        // verify sorting version
         let mut ordered_stack_access_table = self.stack_access_table.clone();
         ordered_stack_access_table.sort();
-        // to be removed
-        for element in &ordered_stack_access_table {
-            println!("{:?}", element);
-        }
         for index in 0..ordered_stack_access_table.len() - 1 {
             let (cur_location, cur_time_tag, cur_access_operation, cur_stack_value) = &ordered_stack_access_table[index];
             let (next_location, next_time_tag, next_access_operation, next_stack_value) = &ordered_stack_access_table[index + 1];
@@ -138,9 +182,11 @@ impl HighLevelPlainProof {
                 // or if current location if different from next location, write access must be applied first
                 && (cur_location == next_location || *next_access_operation == PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32()))
             );
-        
         }
+        println!("succeed!");
     }
+
+
 
     pub fn verify(&self) {
         self.verify_stack_access_table();
