@@ -1,10 +1,11 @@
 use super::{program_memory::ProgramMemory, stack_access::StackAccess, read_write_access::ReadWriteAccess, stack::Stack, opcode::Opcode};
 
 pub struct RawExecutionTrace {
-    program_memory: ProgramMemory, // public: store the sequence of opcodes (encoded into u32)
+    program_memory: ProgramMemory, // public: store the sequence of opcodes (encoded into u32) and never change in the future
+
+    depth_trace: Vec<usize>, // advice: store the depth of the stack 
     program_counter_trace: Vec<usize>, // advice: store pc after each execution
     stack_trace: Vec<StackAccess>, // advice: store all possible accesses to stack with respective time, location, operation
-    depth_trace: Vec<usize>, // advice: store the depth of the stack 
     opcode_trace: Vec<Opcode>, // advice: store the encoded opcodes (u32) according to pc_trace
     // lhs_trace: Vec<u32>, // advice: each lhs as input of each opcode
     // rhs_trace: Vec<u32>, // advice: each rhs as input of each opcode
@@ -12,12 +13,13 @@ pub struct RawExecutionTrace {
 }
 
 impl RawExecutionTrace {
-    pub fn new(program_memory: &ProgramMemory, program_counter: usize) -> Self {
+    pub fn new(program_memory: &ProgramMemory, initial_program_counter: usize) -> Self {
         Self {
-            program_memory: program_memory.clone(),
-            program_counter_trace: vec![program_counter],
+            program_memory: program_memory.clone(), // TODO: recommending changing to reference with life time, to be fixed later
+            
+            program_counter_trace: vec![initial_program_counter], // initialized with the first program_counter
             stack_trace: Vec::<StackAccess>::new(),
-            depth_trace: vec![Stack::NUM_INACCESSIBLE_ELEMENTS],
+            depth_trace: vec![Stack::NUM_INACCESSIBLE_ELEMENTS], // depth trace must have 1 element for initial stack
             opcode_trace: Vec::<Opcode>::new(),
             // depth_trace: Vec::<usize>::new(),
         }
@@ -25,7 +27,7 @@ impl RawExecutionTrace {
     
     pub fn push(&mut self, 
         program_counter_after_changed: usize, 
-        time_tag: &mut u32,
+        time_tag: &mut u32, // time_tag a mutable reference whose value is the latest time hasn't been assigned to any element in stack_trace
         depth_before_changed: usize,
         read_access_value_1: u32,
         read_access_value_2: u32,
@@ -33,6 +35,7 @@ impl RawExecutionTrace {
         write_access_value: u32,   
         opcode_for_current_execution: Opcode,
     ) {
+        self.depth_trace.push(depth_after_changed);
         self.program_counter_trace.push(program_counter_after_changed);
 
         [
@@ -50,8 +53,8 @@ impl RawExecutionTrace {
                 );
             }
         );
+        
         *time_tag += 3; // increase time_tag by 3 for 2 READ and 1 WRITE access
-        self.depth_trace.push(depth_after_changed);
         self.opcode_trace.push(opcode_for_current_execution);
     }
 
