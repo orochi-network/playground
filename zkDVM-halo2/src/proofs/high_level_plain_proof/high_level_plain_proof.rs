@@ -7,19 +7,21 @@ use crate::{dummy_virtual_machine::{
 
 
 struct HighLevelPlainProof {
-    execution_trace: Vec<(PLocation, PTimeTag, POpcode, PStackValue)>, // (location, time_tag, opcode, value of corresponding stack location)
-    lookup_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter)
+    trace_table: Vec<(PLocation, PTimeTag, POpcode, PStackValue)>, // (location, time_tag, opcode, value of corresponding stack location) read from access value
+    state_transition_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode)
+    state_transition_lookup_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter)
 }
 
 impl HighLevelPlainProof {
     fn new(execution_trace: &RawExecutionTrace) -> Self {
         Self {
-            execution_trace: Self::extract_stack_trace_u32(execution_trace),
-            lookup_table: Self::arrange_lookup_table(execution_trace),
+            trace_table: Self::extract_trace_table(execution_trace),
+            state_transition_table: Self::arrange_state_transition_table(execution_trace),
+            state_transition_lookup_table: Self::arrange_state_transition_lookup_table(execution_trace),
         }
     }
 
-    fn extract_stack_trace_u32(execution_trace: &RawExecutionTrace) -> Vec<(PLocation, PTimeTag, POpcode, PStackValue)> {
+    fn extract_trace_table(execution_trace: &RawExecutionTrace) -> Vec<(PLocation, PTimeTag, POpcode, PStackValue)> {
         execution_trace.get_stack_trace().iter().map(|stack_access| {
             (
                 PLocation::from_u32(stack_access.get_location() as u32), 
@@ -30,7 +32,7 @@ impl HighLevelPlainProof {
         }).collect()
     }
 
-    fn arrange_computation_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)> {
+    fn arrange_state_transition_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)> {
         let depth_trace_len = execution_trace.get_depth_trace().len();
         let program_counter_trace_len = execution_trace.get_program_counter_trace().len();
         let stack_trace_len = execution_trace.get_stack_trace().len();
@@ -62,7 +64,7 @@ impl HighLevelPlainProof {
         res
     }
 
-    fn arrange_lookup_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)> {
+    fn arrange_state_transition_lookup_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)> {
         let program_memory_length = execution_trace.get_program_memory().get_length() as u32;
         let error_index = execution_trace.get_program_memory().get_error_index() as u32;
         let stop_index = execution_trace.get_program_memory().get_stop_index() as u32;
@@ -95,4 +97,8 @@ impl HighLevelPlainProof {
             )
         }).collect()
     }
+
+
+    // functions here are for verifying
+
 }
