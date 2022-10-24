@@ -8,7 +8,7 @@ use crate::{dummy_virtual_machine::{
 
 struct HighLevelPlainProof {
     execution_trace_u32: Vec<(u32, u32, u32, u32)>, // (location, time_tag, opcode, value of corresponding stack location)
-    lookup_table_u32: Vec<(u32, u32, u32, u32, u32, u32)>,
+    lookup_table_u32: Vec<(u32, u32, u32, u32, u32, u32)>, // (stack_depth, program_counter, read_access_value_1, read_access_value_2, opcode, next_program_counter)
 }
 
 impl HighLevelPlainProof {
@@ -68,9 +68,10 @@ impl HighLevelPlainProof {
         let stop_index = execution_trace.get_program_memory().get_stop_index() as u32;
         let opcode_trace_length = execution_trace.get_opcode_trace().len();
 
+        // take the cartesian product of indices and all possible opcodes
         (0..opcode_trace_length).map(|index| {
             Opcode::iter().map(move |opcode| (index, opcode))
-        }).flatten().map(|(index, opcode)| {
+        }).flatten().map(|(index, opcode)| { // then for each of then, compute the corresponding tuple of elements
             let current_stack_depth = execution_trace.get_depth_trace()[index] as u32;
             let current_program_counter = execution_trace.get_program_counter_trace()[index] as u32; // current program counter
             let read_access_value_1 = execution_trace.get_stack_trace()[index * 3].get_value(); // then get first element with Read

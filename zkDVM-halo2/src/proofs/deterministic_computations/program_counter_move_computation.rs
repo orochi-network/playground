@@ -4,8 +4,6 @@ use crate::dummy_virtual_machine::{
     stack_requirement::StackRequirement,
 };
 
-use super::logic::not;
-
 pub fn compute_next_program_counter(
     current_stack_depth: u32, // hidden
     current_program_counter: u32, // hidden
@@ -54,31 +52,32 @@ pub fn compute_next_program_counter(
     };
 
     let is_not_error = is_stack_depth_reasonable && is_program_counter_reasonable_after_executing;
+    let is_error = !is_not_error;
 
     // now output result
     match opcode {
         Opcode::Stop => {
-            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            (is_error as u32) * error_index // in case of error, pc jumps to error_index
             + (is_not_error as u32) * current_program_counter // else, program counter is unchanged
         },
         Opcode::Add | Opcode::Sub | Opcode::Mul | Opcode::Div | Opcode::Mod | Opcode::Push4 | Opcode::Dup2 | Opcode::Pop | Opcode::Swap1 => {
-            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            (is_error as u32) * error_index // in case of error, pc jumps to error_index
             + (is_not_error as u32) * (current_program_counter + 1) // else, program counter is set to be pc + 1
         },
         Opcode::Return | Opcode::Error => {
-            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            (is_error as u32) * error_index // in case of error, pc jumps to error_index
             + (is_not_error as u32) * stop_index // else, program counter is set to be stop_index
         },
         Opcode::Jump => {
             let destination = read_access_value_1;
-            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            (is_error as u32) * error_index // in case of error, pc jumps to error_index
             + (is_not_error as u32) * destination // else, program counter is set to be destination
         },
         Opcode::Jumpi => {
             let (destination, condition) = (read_access_value_1, read_access_value_2);
-            (not(is_not_error) as u32) * error_index // in case of error, pc jumps to error_index
+            (is_error as u32) * error_index // in case of error, pc jumps to error_index
             + (is_not_error as u32) * ((condition > 0) as u32) * destination // if condition != 0, jump to destination
-            + (is_not_error as u32) * (not(condition > 0) as u32) * (current_program_counter + 1) // if condition == 0, jump to pc + 1
+            + (is_not_error as u32) * (!(condition > 0) as u32) * (current_program_counter + 1) // if condition == 0, jump to pc + 1
         },
     }
 }
