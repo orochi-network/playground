@@ -53,7 +53,7 @@ impl RawExecutionTrace {
                 );
             }
         );
-        
+
         *time_tag += 3; // increase time_tag by 3 for 2 READ and 1 WRITE access
         self.opcode_trace.push(opcode_for_current_execution);
     }
@@ -72,5 +72,9 @@ impl RawExecutionTrace {
 
     pub fn get_opcode_trace(&self) -> &Vec<Opcode> {
         &self.opcode_trace
+    }
+
+    pub fn get_program_memory(&self) -> &ProgramMemory {
+        &&self.program_memory
     }
 }

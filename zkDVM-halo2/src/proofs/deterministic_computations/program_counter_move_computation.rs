@@ -6,9 +6,9 @@ use crate::dummy_virtual_machine::{
 
 use super::logic::not;
 
-fn compute_next_program_counter(
-    current_program_counter: u32, // hidden
+pub fn compute_next_program_counter(
     current_stack_depth: u32, // hidden
+    current_program_counter: u32, // hidden
     read_access_value_1: u32, // hidden // top value of the stack
     read_access_value_2: u32, // hidden // 2nd top value of the stack
     opcode: u32, // public
