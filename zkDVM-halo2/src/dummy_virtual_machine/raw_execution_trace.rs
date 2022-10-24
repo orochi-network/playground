@@ -32,7 +32,8 @@ impl RawExecutionTrace {
         read_stack_value_1: u32,
         read_stack_value_2: u32,
         depth_after_changed: usize,
-        write_stack_value: u32,   
+        write_stack_value_top: u32,  
+        write_stack_value_prev: u32, 
         opcode_for_current_execution: Opcode,
     ) {
         self.depth_trace.push(depth_after_changed);
@@ -41,7 +42,8 @@ impl RawExecutionTrace {
         [
             (depth_before_changed - 1, time_tag.clone(), ReadWriteAccess::Read, read_stack_value_1),
             (depth_before_changed - 2, time_tag.clone() + 1, ReadWriteAccess::Read, read_stack_value_2),
-            (depth_after_changed - 1, time_tag.clone() + 2, ReadWriteAccess::Write, write_stack_value),
+            (depth_after_changed - 1, time_tag.clone() + 2, ReadWriteAccess::Write, write_stack_value_top),
+            (depth_after_changed - 2, time_tag.clone() + 2, ReadWriteAccess::Write, write_stack_value_prev),
         ].map(|(location, time_tag, access_operation, value)| {
                 self.stack_trace.push(
                     StackAccess::new(

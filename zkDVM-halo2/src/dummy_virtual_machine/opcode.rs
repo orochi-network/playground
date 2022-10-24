@@ -14,7 +14,7 @@ use super::{
     opcode_with_params::OpcodeWithParams
 };
 
-#[derive(Clone, PartialEq, Eq, FromPrimitive, Debug, EnumIter)]
+#[derive(Clone, PartialEq, Eq, FromPrimitive, Debug, EnumIter, PartialOrd, Ord)]
 pub enum Opcode {
     Stop = 0x00, // top is unchanged, program counter is unchanged too
     Add = 0x01, // top is decreased by 1 with written output = lhs + rhs, pc += 1

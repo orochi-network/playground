@@ -28,7 +28,7 @@ impl DummyVirtualMachine {
             stack: Stack::new(),
             result: 0,
             error_code: ErrorCode::NoReturn,
-            time_tag: 0,
+            time_tag: Stack::NUM_INACCESSIBLE_ELEMENTS as u32,
         }
     }
 
@@ -206,6 +206,7 @@ impl DummyVirtualMachine {
             read_stack_value_1, read_stack_value_2, 
             self.stack.get_depth(), 
             self.stack.get_top(),
+            self.stack[self.stack.get_depth() - 2],
             opcode_with_param.get_opcode(),
         );
 

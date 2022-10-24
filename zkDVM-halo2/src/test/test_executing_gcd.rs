@@ -8,7 +8,7 @@ use crate::{
             DummyVirtualMachine
         }, opcode_with_params::OpcodeWithParams, execution::Execution
     },
-    utils::display::print_vector
+    utils::display::print_vector, proofs::high_level_plain_proof::{high_level_plain_proof::HighLevelPlainProof}
 };
 
 use super::{
@@ -104,11 +104,14 @@ impl ProgramExecutionHandler<2> for TestExecutingGreatestCommonDivisor {
 
             //print_vector(&format!("Directions ({} elements): ", direction_trace.len()), direction_trace, ',');
 
-            let program_counter_trace = execution_trace.get_program_counter_trace();
-            print_vector(&format!("Program counters ({} elements): ", program_counter_trace.len()), program_counter_trace, ',');
+            // let program_counter_trace = execution_trace.get_program_counter_trace();
+            // print_vector(&format!("Program counters ({} elements): ", program_counter_trace.len()), program_counter_trace, ',');
 
-            let stack_trace = execution_trace.get_stack_trace();
-            print_vector(&format!("Stack trace ({} elements): ", stack_trace.len()), stack_trace, '\n');
+            // let stack_trace = execution_trace.get_stack_trace();
+            // print_vector(&format!("Stack trace ({} elements): ", stack_trace.len()), stack_trace, '\n');
+
+            let high_level_plain_proof = HighLevelPlainProof::new(&execution_trace);
+            high_level_plain_proof.verify();
         }
     }
 }

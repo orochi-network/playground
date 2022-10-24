@@ -2,34 +2,47 @@ use strum::IntoEnumIterator;
 
 use crate::{dummy_virtual_machine::{
     raw_execution_trace::RawExecutionTrace,
-    opcode::Opcode
-}, proofs::{deterministic_computations::program_counter_move_computation::compute_next_program_counter, proof_types::{p_opcode::POpcode, p_stack_depth::PStackDepth, p_program_counter::PProgramCounter, p_stack_value::PStackValue, p_location::PLocation, p_time_tag::PTimeTag, p_numeric_encoding::PNumericEncoding}}, utils::numeric_encoding::NumericEncoding};
+    opcode::Opcode, read_write_access::ReadWriteAccess, stack::Stack
+}, proofs::{deterministic_computations::program_counter_move_computation::compute_next_program_counter, proof_types::{p_opcode::POpcode, p_stack_depth::PStackDepth, p_program_counter::PProgramCounter, p_stack_value::PStackValue, p_location::PLocation, p_time_tag::PTimeTag, p_numeric_encoding::PNumericEncoding, p_read_write_acces::PReadWriteAccess}}, utils::numeric_encoding::NumericEncoding};
 
 
-struct HighLevelPlainProof {
-    trace_table: Vec<(PLocation, PTimeTag, POpcode, PStackValue)>, // (location, time_tag, opcode, value of corresponding stack location) read from access value
+pub struct HighLevelPlainProof {
+    stack_access_table: Vec<(PLocation, PTimeTag, PReadWriteAccess, PStackValue)>, // (location, time_tag, opcode, value of corresponding stack location) read from access value
     state_transition_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode)
     state_transition_lookup_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter)
 }
 
 impl HighLevelPlainProof {
-    fn new(execution_trace: &RawExecutionTrace) -> Self {
+    pub fn new(execution_trace: &RawExecutionTrace) -> Self {
         Self {
-            trace_table: Self::extract_trace_table(execution_trace),
+            stack_access_table: Self::extract_stack_access_table(execution_trace),
             state_transition_table: Self::arrange_state_transition_table(execution_trace),
             state_transition_lookup_table: Self::arrange_state_transition_lookup_table(execution_trace),
         }
     }
 
-    fn extract_trace_table(execution_trace: &RawExecutionTrace) -> Vec<(PLocation, PTimeTag, POpcode, PStackValue)> {
-        execution_trace.get_stack_trace().iter().map(|stack_access| {
+    fn extract_stack_access_table(execution_trace: &RawExecutionTrace) -> Vec<(PLocation, PTimeTag, PReadWriteAccess, PStackValue)> {
+        // write to stack at inaccessible locations dummy values
+        let mut res: Vec<(PLocation, PTimeTag, PReadWriteAccess, PStackValue)> = (0..Stack::NUM_INACCESSIBLE_ELEMENTS).map(|index|
             (
-                PLocation::from_u32(stack_access.get_location() as u32), 
-                PTimeTag::from_u32(stack_access.get_time_tag()), 
-                POpcode::from_u32(stack_access.get_access_operation().to_u32()),
-                PStackValue::from_u32(stack_access.get_value()),
+                PLocation::from_u32(index as u32),
+                PTimeTag::from_u32(index as u32),
+                PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32()),
+                PStackValue::from_u32(0),
             )
-        }).collect()
+        ).collect();
+
+        res.extend(
+            execution_trace.get_stack_trace().iter().map(|stack_access| {
+                (
+                    PLocation::from_u32(stack_access.get_location() as u32), 
+                    PTimeTag::from_u32(stack_access.get_time_tag()), 
+                    PReadWriteAccess::from_u32(stack_access.get_access_operation().to_u32()),
+                    PStackValue::from_u32(stack_access.get_value()),
+                )
+            }).collect::<Vec<(PLocation, PTimeTag, PReadWriteAccess, PStackValue)>>()
+        );
+        res
     }
 
     fn arrange_state_transition_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)> {
@@ -39,7 +52,7 @@ impl HighLevelPlainProof {
         let opcode_trace_len = execution_trace.get_opcode_trace().len();
 
         assert_eq!(program_counter_trace_len, depth_trace_len); // they must be equal
-        assert_eq!(program_counter_trace_len * 3, stack_trace_len + 3); // stack_trace_len == (program_counter_trace_len - 1) * 3
+        assert_eq!(program_counter_trace_len * 4, stack_trace_len + 4); // stack_trace_len == (program_counter_trace_len - 1) * 4
         assert_eq!(program_counter_trace_len, opcode_trace_len + 1);
 
         let mut res: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)> = (0..opcode_trace_len).map(|index| {
@@ -47,8 +60,8 @@ impl HighLevelPlainProof {
                 PStackDepth::from_u32(execution_trace.get_depth_trace()[index] as u32), // depth before computing opcode
                 PProgramCounter::from_u32(execution_trace.get_program_counter_trace()[index] as u32), // program counter before computing opcode
                 // partitioning stack trace into tuple of 3 elements with corresponding AccessOperation sequence (Read, Read, Write)
-                PStackValue::from_u32(execution_trace.get_stack_trace()[index * 3].get_value()), // then get first element with Read
-                PStackValue::from_u32(execution_trace.get_stack_trace()[index * 3 + 1].get_value()), // the get second element with Read
+                PStackValue::from_u32(execution_trace.get_stack_trace()[index * 4].get_value()), // then get first element with Read
+                PStackValue::from_u32(execution_trace.get_stack_trace()[index * 4 + 1].get_value()), // the get second element with Read
                 POpcode::from_u32(execution_trace.get_opcode_trace()[index].to_u32()), // extract the opcode
             )
         }).collect();
@@ -101,4 +114,35 @@ impl HighLevelPlainProof {
 
     // functions here are for verifying
 
+    // verify stack_access_table_correct
+    fn verify_stack_access_table(&self) {
+        let mut ordered_stack_access_table = self.stack_access_table.clone();
+        ordered_stack_access_table.sort();
+        // to be removed
+        for element in &ordered_stack_access_table {
+            println!("{:?}", element);
+        }
+        for index in 0..ordered_stack_access_table.len() - 1 {
+            let (cur_location, cur_time_tag, cur_access_operation, cur_stack_value) = &ordered_stack_access_table[index];
+            let (next_location, next_time_tag, next_access_operation, next_stack_value) = &ordered_stack_access_table[index + 1];
+
+            assert!(
+                // either current location is less than next location
+                // or if current location == next location, current and next time tags must be different
+                (cur_location < next_location || (cur_location == next_location && cur_time_tag < next_time_tag))
+                // current location is different from next location
+                // or if current location == next location, value must be the same,
+                // of if current location == next location and value are different, next location must be a Write access
+                && (cur_location != next_location || cur_stack_value == next_stack_value || *next_access_operation == PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32()))
+                // current location is the same as next location
+                // or if current location if different from next location, write access must be applied first
+                && (cur_location == next_location || *next_access_operation == PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32()))
+            );
+        
+        }
+    }
+
+    pub fn verify(&self) {
+        self.verify_stack_access_table();
+    }
 }

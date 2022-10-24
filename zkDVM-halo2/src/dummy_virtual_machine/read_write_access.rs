@@ -3,7 +3,7 @@ use num_traits::FromPrimitive;
 
 use crate::utils::numeric_encoding::NumericEncoding;
 
-#[derive(Debug, FromPrimitive, Clone, Copy)]
+#[derive(Debug, FromPrimitive, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ReadWriteAccess {
     Write = 0x00,
     Read = 0x01,

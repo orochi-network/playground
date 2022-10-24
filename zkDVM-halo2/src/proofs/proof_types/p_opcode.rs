@@ -2,6 +2,7 @@ use crate::{dummy_virtual_machine::opcode::Opcode, utils::numeric_encoding::Nume
 
 use super::p_numeric_encoding::PNumericEncoding;
 
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct POpcode {
     value: Opcode,
 }

@@ -1,5 +1,6 @@
 use super::p_numeric_encoding::PNumericEncoding;
 
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct PStackValue {
     value: u32,
 }
