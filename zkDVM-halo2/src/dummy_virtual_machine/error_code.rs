@@ -1,7 +1,7 @@
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
 
-use super::numeric_encoding::NumericEncoding;
+use crate::utils::numeric_encoding::NumericEncoding;
 
 #[derive(Clone, FromPrimitive, Debug, PartialEq, Eq)]
 pub enum ErrorCode {

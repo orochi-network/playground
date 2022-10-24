@@ -2,8 +2,8 @@ use strum::IntoEnumIterator;
 
 use crate::{dummy_virtual_machine::{
     raw_execution_trace::RawExecutionTrace,
-    numeric_encoding::NumericEncoding, opcode::Opcode
-}, proofs::deterministic_computations::program_counter_move_computation::compute_next_program_counter};
+    opcode::Opcode
+}, proofs::deterministic_computations::program_counter_move_computation::compute_next_program_counter, utils::numeric_encoding::NumericEncoding};
 
 
 struct HighLevelPlainProof {
@@ -24,7 +24,7 @@ impl HighLevelPlainProof {
             (
                 stack_access.get_location() as u32, 
                 stack_access.get_time_tag(), 
-                stack_access.get_access_operation().to_u32(), 
+                stack_access.get_access_operation().to_u32(),
                 stack_access.get_value(),
             )
         }).collect()

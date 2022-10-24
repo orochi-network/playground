@@ -1,7 +1,7 @@
 use strum::IntoEnumIterator;
 use zkDVM_halo2::{test::{test_executing_gcd::TestExecutingGreatestCommonDivisor, program_execution_handler::ProgramExecutionHandler}, dummy_virtual_machine::{
-    opcode::Opcode, numeric_encoding::NumericEncoding
-}};
+    opcode::Opcode,
+}, utils::numeric_encoding::NumericEncoding};
 
 fn main() {
     TestExecutingGreatestCommonDivisor::execute(100);

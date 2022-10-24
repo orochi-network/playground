@@ -1,8 +1,7 @@
-use crate::dummy_virtual_machine::{
+use crate::{dummy_virtual_machine::{
     opcode::{Opcode},
-    numeric_encoding::NumericEncoding,
     stack_requirement::StackRequirement,
-};
+}, utils::numeric_encoding::NumericEncoding};
 
 pub fn compute_next_program_counter(
     current_stack_depth: u32, // hidden

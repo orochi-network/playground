@@ -1,3 +1,5 @@
+use crate::utils::numeric_encoding::NumericEncoding;
+
 use super::error_code::ErrorCode;
 use super::execution::Execution;
 use super::opcode::{Opcode};
@@ -5,7 +7,6 @@ use super::opcode_with_params::OpcodeWithParams;
 use super::stack::Stack;
 use super::program_memory::ProgramMemory;
 use super::raw_execution_trace::RawExecutionTrace;
-use super::numeric_encoding::NumericEncoding;
 use super::opcode_execution_checker::OpcodeExecutionChecker;
 use super::stack_requirement::StackRequirement;
 

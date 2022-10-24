@@ -3,8 +3,9 @@ use num_traits::FromPrimitive;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
+use crate::utils::numeric_encoding::NumericEncoding;
+
 use super::{
-    numeric_encoding::NumericEncoding, 
     stack::Stack, 
     opcode_execution_checker::OpcodeExecutionChecker, 
     program_memory::ProgramMemory, 

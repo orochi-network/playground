@@ -1,7 +1,7 @@
-use crate::dummy_virtual_machine::{
+use crate::{dummy_virtual_machine::{
     opcode::{Opcode}, 
-    numeric_encoding::NumericEncoding, error_code::ErrorCode
-};
+    error_code::ErrorCode
+}, utils::numeric_encoding::NumericEncoding};
 
 pub struct TestOpcodeDefinition {
     

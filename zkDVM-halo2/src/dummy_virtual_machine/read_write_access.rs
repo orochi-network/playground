@@ -1,6 +1,7 @@
-use super::numeric_encoding::NumericEncoding;
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
+
+use crate::utils::numeric_encoding::NumericEncoding;
 
 #[derive(Debug, FromPrimitive, Clone, Copy)]
 pub enum ReadWriteAccess {
