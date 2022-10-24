@@ -59,8 +59,8 @@ impl DummyVirtualMachine {
         let opcode_with_param = self.program_memory[self.program_counter].clone();
 
         // first record the necessary read values
-        let read_access_value_1 = self.stack[self.stack.get_depth() - 1];
-        let read_access_value_2 = self.stack[self.stack.get_depth() - 2];
+        let read_stack_value_1 = self.stack[self.stack.get_depth() - 1];
+        let read_stack_value_2 = self.stack[self.stack.get_depth() - 2];
         let depth_before_changed = self.stack.get_depth();
 
         // check where depth of stack is reasonable
@@ -72,7 +72,7 @@ impl DummyVirtualMachine {
 
             // check possible error code before executing
             error_code = opcode_with_param.get_opcode().get_error_after_executing(
-                read_access_value_1, read_access_value_2, 
+                read_stack_value_1, read_stack_value_2, 
                 &self.program_memory,
                 self.program_counter,
             );
@@ -203,7 +203,7 @@ impl DummyVirtualMachine {
             self.program_counter, 
             &mut self.time_tag, 
             depth_before_changed, 
-            read_access_value_1, read_access_value_2, 
+            read_stack_value_1, read_stack_value_2, 
             self.stack.get_depth(), 
             self.stack.get_top(),
             opcode_with_param.get_opcode(),

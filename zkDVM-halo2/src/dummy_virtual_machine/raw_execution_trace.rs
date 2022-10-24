@@ -29,19 +29,19 @@ impl RawExecutionTrace {
         program_counter_after_changed: usize, 
         time_tag: &mut u32, // time_tag a mutable reference whose value is the latest time hasn't been assigned to any element in stack_trace
         depth_before_changed: usize,
-        read_access_value_1: u32,
-        read_access_value_2: u32,
+        read_stack_value_1: u32,
+        read_stack_value_2: u32,
         depth_after_changed: usize,
-        write_access_value: u32,   
+        write_stack_value: u32,   
         opcode_for_current_execution: Opcode,
     ) {
         self.depth_trace.push(depth_after_changed);
         self.program_counter_trace.push(program_counter_after_changed);
 
         [
-            (depth_before_changed - 1, time_tag.clone(), ReadWriteAccess::Read, read_access_value_1),
-            (depth_before_changed - 2, time_tag.clone() + 1, ReadWriteAccess::Read, read_access_value_2),
-            (depth_after_changed - 1, time_tag.clone() + 2, ReadWriteAccess::Write, write_access_value),
+            (depth_before_changed - 1, time_tag.clone(), ReadWriteAccess::Read, read_stack_value_1),
+            (depth_before_changed - 2, time_tag.clone() + 1, ReadWriteAccess::Read, read_stack_value_2),
+            (depth_after_changed - 1, time_tag.clone() + 2, ReadWriteAccess::Write, write_stack_value),
         ].map(|(location, time_tag, access_operation, value)| {
                 self.stack_trace.push(
                     StackAccess::new(

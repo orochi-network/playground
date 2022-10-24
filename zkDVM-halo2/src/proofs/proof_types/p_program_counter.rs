@@ -1,10 +1,10 @@
 use super::p_numeric_encoding::PNumericEncoding;
 
-pub struct PStackDepth {
+pub struct PProgramCounter {
     value: usize,
 }
 
-impl PNumericEncoding for PStackDepth {
+impl PNumericEncoding for PProgramCounter {
     fn to_u32(&self) -> u32 {
         todo!()
     }

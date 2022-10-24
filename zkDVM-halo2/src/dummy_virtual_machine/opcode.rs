@@ -69,8 +69,8 @@ impl StackRequirement for Opcode {
 
 impl OpcodeExecutionChecker for Opcode {
     fn get_error_after_executing(&self, 
-        read_access_value_1: u32, 
-        read_access_value_2: u32, 
+        read_stack_value_1: u32, 
+        read_stack_value_2: u32, 
         program_memory_before_executing: &ProgramMemory,
         program_counter_before_executing: usize,
     ) -> ErrorCode {
@@ -91,7 +91,7 @@ impl OpcodeExecutionChecker for Opcode {
                 }
             },
             Opcode::Div | Opcode::Mod => {
-                let (a, b) = (read_access_value_1, read_access_value_2);
+                let (a, b) = (read_stack_value_1, read_stack_value_2);
                 match b {
                     0 => ErrorCode::DivisionByZero,
                     _ => {
@@ -106,7 +106,7 @@ impl OpcodeExecutionChecker for Opcode {
                 }
             },
             Opcode::Jump => {
-                let destination = read_access_value_1;
+                let destination = read_stack_value_1;
                 match program_memory_before_executing.is_program_counter_reasonable(
                     destination as usize
                 ) {
@@ -115,7 +115,7 @@ impl OpcodeExecutionChecker for Opcode {
                 }
             },
             Opcode::Jumpi => {
-                let (destination, condition) = (read_access_value_1, read_access_value_2);
+                let (destination, condition) = (read_stack_value_1, read_stack_value_2);
 
                 // get next pc according to condition
                 let next_program_counter = match condition {
