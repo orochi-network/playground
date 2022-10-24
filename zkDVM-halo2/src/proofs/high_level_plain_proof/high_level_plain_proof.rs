@@ -30,7 +30,7 @@ impl HighLevelPlainProof {
         }).collect()
     }
 
-    fn arrange_computation_table(execution_trace: &RawExecutionTrace) -> Vec<(u32, u32, u32, u32, u32)> {
+    fn arrange_computation_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)> {
         let depth_trace_len = execution_trace.get_depth_trace().len();
         let program_counter_trace_len = execution_trace.get_program_counter_trace().len();
         let stack_trace_len = execution_trace.get_stack_trace().len();
@@ -40,24 +40,24 @@ impl HighLevelPlainProof {
         assert_eq!(program_counter_trace_len * 3, stack_trace_len + 3); // stack_trace_len == (program_counter_trace_len - 1) * 3
         assert_eq!(program_counter_trace_len, opcode_trace_len + 1);
 
-        let mut res: Vec<(u32, u32, u32, u32, u32)> = (0..opcode_trace_len).map(|index| {
+        let mut res: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)> = (0..opcode_trace_len).map(|index| {
             (
-                execution_trace.get_depth_trace()[index] as u32, // depth before computing opcode
-                execution_trace.get_program_counter_trace()[index] as u32, // program counter before computing opcode
+                PStackDepth::from_u32(execution_trace.get_depth_trace()[index] as u32), // depth before computing opcode
+                PProgramCounter::from_u32(execution_trace.get_program_counter_trace()[index] as u32), // program counter before computing opcode
                 // partitioning stack trace into tuple of 3 elements with corresponding AccessOperation sequence (Read, Read, Write)
-                execution_trace.get_stack_trace()[index * 3].get_value(), // then get first element with Read
-                execution_trace.get_stack_trace()[index * 3 + 1].get_value(), // the get second element with Read
-                execution_trace.get_opcode_trace()[index].to_u32(), // extract the opcode
+                PStackValue::from_u32(execution_trace.get_stack_trace()[index * 3].get_value()), // then get first element with Read
+                PStackValue::from_u32(execution_trace.get_stack_trace()[index * 3 + 1].get_value()), // the get second element with Read
+                POpcode::from_u32(execution_trace.get_opcode_trace()[index].to_u32()), // extract the opcode
             )
         }).collect();
 
         let last_index = opcode_trace_len;
         res.push((
-            execution_trace.get_depth_trace()[last_index] as u32, // get last depth of depth_trace
-            execution_trace.get_program_counter_trace()[last_index] as u32, // last pc of pc_trace
-            0, // no read value needed
-            0, // no read value needed
-            0, // no opcode needed
+            PStackDepth::from_u32(execution_trace.get_depth_trace()[last_index] as u32), // get last depth of depth_trace
+            PProgramCounter::from_u32(execution_trace.get_program_counter_trace()[last_index] as u32), // last pc of pc_trace
+            PStackValue::from_u32(0), // no read value needed
+            PStackValue::from_u32(0), // no read value needed
+            POpcode::from_u32(0), // no opcode needed
         ));
         res
     }
