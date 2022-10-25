@@ -113,8 +113,8 @@ impl HighLevelPlainProof {
         }).flatten().map(|(index, opcode)| { // then for each of then, compute the corresponding tuple of elements
             let current_stack_depth = execution_trace.get_depth_trace()[index] as u32;
             let current_program_counter = execution_trace.get_program_counter_trace()[index] as u32; // current program counter
-            let read_stack_value_1 = execution_trace.get_stack_trace()[index * 3].get_value(); // then get first element with Read
-            let read_stack_value_2 = execution_trace.get_stack_trace()[index * 3 + 1].get_value(); // the get second element with Read
+            let read_stack_value_1 = execution_trace.get_stack_trace()[index * RawExecutionTrace::NUM_ACCESSES_PER_STEP].get_value(); // then get first element with Read
+            let read_stack_value_2 = execution_trace.get_stack_trace()[index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 1].get_value(); // the get second element with Read
             (
                 PStackDepth::from_u32(current_stack_depth),
                 PProgramCounter::from_u32(current_program_counter),
@@ -210,6 +210,7 @@ impl HighLevelPlainProof {
 
     // verify state_transition_lookup_table
     fn verify_state_transition_lookup_table(&self) {
+        print!("Do verify state transition lookup table: ");
         let num_state_transitions = self.state_transition_table.len();
         
         // verify correct opcode setting
@@ -222,24 +223,58 @@ impl HighLevelPlainProof {
         // verify correct next program counter
         for (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter) in &self.state_transition_lookup_table {
             assert_eq!(
-                compute_next_program_counter(
-                    stack_depth.to_u32(), 
-                    program_counter.to_u32(), 
-                    read_stack_value_1.to_u32(), 
-                    read_stack_value_2.to_u32(), 
-                    opcode.to_u32(), 
-                    self.program_memory_length as u32, 
-                    self.error_index as u32, 
-                    self.stop_index as u32,
+                PProgramCounter::from_u32(
+                    compute_next_program_counter(
+                        stack_depth.to_u32(), 
+                        program_counter.to_u32(), 
+                        read_stack_value_1.to_u32(), 
+                        read_stack_value_2.to_u32(), 
+                        opcode.to_u32(), 
+                        self.program_memory_length as u32, 
+                        self.error_index as u32, 
+                        self.stop_index as u32,
+                    )
                 ), 
-                next_program_counter.to_u32()
+                *next_program_counter
             );
         }
+
+        println!("succeed!");
     }
 
+    fn verify_tuple_inside_state_transition_lookup_table(&self, tuple: &(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)) -> bool {
+        for element in &self.state_transition_lookup_table {
+            if element == tuple {
+                return true;
+            }
+        }
+        false
+    }
+
+    // verify state transition table
+    fn verify_state_transition_table(&self) {
+        print!("Do verify state transition table: ");
+        for index in 0..self.state_transition_table.len() - 1 {
+            let (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode) = self.state_transition_table[index].clone();
+            assert!(
+                self.verify_tuple_inside_state_transition_lookup_table(
+                    &(
+                        stack_depth, 
+                        program_counter, 
+                        read_stack_value_1, 
+                        read_stack_value_2, 
+                        opcode, 
+                        self.state_transition_table[index + 1].1.clone()
+                    )
+                )
+            );
+        }
+        println!("succeed!");
+    }
 
     pub fn verify(&self) {
         self.verify_stack_access_table();
         self.verify_state_transition_lookup_table();
+        self.verify_state_transition_table();
     }
 }

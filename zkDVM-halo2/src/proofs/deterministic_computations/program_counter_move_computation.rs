@@ -26,7 +26,7 @@ pub fn compute_next_program_counter(
             // Stop does not move pc => NoError
             // Return and Error move pc to location of Stop => always NoError
             
-            false
+            true
         },
         Opcode::Add | Opcode::Sub | Opcode::Mul | Opcode::Push4 | Opcode::Dup2 | Opcode::Pop | Opcode::Swap1 => {
             // pc is moved next
@@ -42,9 +42,8 @@ pub fn compute_next_program_counter(
         },
         Opcode::Jumpi => {
             let (destination, condition) = (read_stack_value_1, read_stack_value_2);
-
             (
-                ((condition == 0) as u32) * (program_memory_length + 1) // if condition is zeo then new_pc = pc + 1
+                ((condition == 0) as u32) * (current_program_counter + 1) // if condition is zeo then new_pc = pc + 1
                 + (1 - (condition == 0) as u32) * destination // else new_pc = destination
             ) < program_memory_length // check new_pc < program_memory_length
         },
@@ -52,6 +51,7 @@ pub fn compute_next_program_counter(
 
     let is_not_error = is_stack_depth_reasonable && is_program_counter_reasonable_after_executing;
     let is_error = !is_not_error;
+    
 
     // now output result
     match opcode {
@@ -75,8 +75,8 @@ pub fn compute_next_program_counter(
         Opcode::Jumpi => {
             let (destination, condition) = (read_stack_value_1, read_stack_value_2);
             (is_error as u32) * error_index // in case of error, pc jumps to error_index
-            + (is_not_error as u32) * ((condition > 0) as u32) * destination // if condition != 0, jump to destination
-            + (is_not_error as u32) * (!(condition > 0) as u32) * (current_program_counter + 1) // if condition == 0, jump to pc + 1
+            + (is_not_error as u32) * (!(condition == 0) as u32) * destination // if condition != 0, jump to destination
+            + (is_not_error as u32) * ((condition == 0) as u32) * (current_program_counter + 1) // if condition == 0, jump to pc + 1
         },
     }
 }
