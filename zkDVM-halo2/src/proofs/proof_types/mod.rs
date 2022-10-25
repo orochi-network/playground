@@ -6,3 +6,4 @@ pub mod p_stack_value;
 pub mod p_location;
 pub mod p_time_tag;
 pub mod p_read_write_acces;
+pub mod p_tag;

@@ -1,7 +1,7 @@
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
-use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
+use strum::{EnumCount, IntoEnumIterator};
+use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
 use crate::utils::numeric_encoding::NumericEncoding;
 
@@ -14,7 +14,7 @@ use super::{
     opcode_with_params::OpcodeWithParams
 };
 
-#[derive(Clone, PartialEq, Eq, FromPrimitive, Debug, EnumIter, PartialOrd, Ord)]
+#[derive(Clone, PartialEq, Eq, FromPrimitive, Debug, EnumIter, PartialOrd, Ord, EnumCountMacro)]
 pub enum Opcode {
     Stop = 0x00, // top is unchanged, program counter is unchanged too
     Add = 0x01, // top is decreased by 1 with written output = lhs + rhs, pc += 1

@@ -1,13 +1,32 @@
-use strum::IntoEnumIterator;
+use strum::{IntoEnumIterator, EnumCount};
 
 use crate::{dummy_virtual_machine::{
     raw_execution_trace::RawExecutionTrace,
     opcode::Opcode, read_write_access::ReadWriteAccess, stack::Stack,
-}, proofs::{deterministic_computations::program_counter_move_computation::compute_next_program_counter, proof_types::{p_opcode::POpcode, p_stack_depth::PStackDepth, p_program_counter::PProgramCounter, p_stack_value::PStackValue, p_location::PLocation, p_time_tag::PTimeTag, p_numeric_encoding::PNumericEncoding, p_read_write_acces::PReadWriteAccess}}, utils::numeric_encoding::NumericEncoding};
+}, proofs::{
+    deterministic_computations::program_counter_move_computation::compute_next_program_counter, 
+    proof_types::{
+        p_opcode::POpcode, 
+        p_stack_depth::PStackDepth, 
+        p_program_counter::PProgramCounter, 
+        p_stack_value::PStackValue, 
+        p_location::PLocation, 
+        p_time_tag::PTimeTag, 
+        p_numeric_encoding::PNumericEncoding, 
+        p_read_write_acces::PReadWriteAccess, 
+        p_tag::PTag
+    }
+}, utils::numeric_encoding::NumericEncoding
+};
 
 
 pub struct HighLevelPlainProof {
     num_transitions: usize, // number of transitions
+    program_memory_length: usize, // length of program memory
+    error_index: usize,
+    stop_index: usize,
+
+
     stack_access_table: Vec<(PLocation, PTimeTag, PReadWriteAccess, PStackValue)>, // (location, time_tag, opcode, value of corresponding stack location) read from access value
     state_transition_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode)
     state_transition_lookup_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter)
@@ -17,6 +36,9 @@ impl HighLevelPlainProof {
     pub fn new(execution_trace: &RawExecutionTrace) -> Self {
         Self {
             num_transitions: execution_trace.get_opcode_trace().len(),
+            program_memory_length: execution_trace.get_program_memory().get_length(),
+            error_index: execution_trace.get_program_memory().get_error_index(),
+            stop_index: execution_trace.get_program_memory().get_stop_index(),
             stack_access_table: Self::extract_stack_access_table(execution_trace),
             state_transition_table: Self::arrange_state_transition_table(execution_trace),
             state_transition_lookup_table: Self::arrange_state_transition_lookup_table(execution_trace),
@@ -186,9 +208,38 @@ impl HighLevelPlainProof {
         println!("succeed!");
     }
 
+    // verify state_transition_lookup_table
+    fn verify_state_transition_lookup_table(&self) {
+        let num_state_transitions = self.state_transition_table.len();
+        
+        // verify correct opcode setting
+        for index in 0..num_state_transitions - 1 {
+            for (rindex, opcode) in Opcode::iter().enumerate() {
+                assert_eq!(self.state_transition_lookup_table[index * Opcode::COUNT + rindex].4.to_u32(), opcode.to_u32());
+            }
+        }
+
+        // verify correct next program counter
+        for (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter) in &self.state_transition_lookup_table {
+            assert_eq!(
+                compute_next_program_counter(
+                    stack_depth.to_u32(), 
+                    program_counter.to_u32(), 
+                    read_stack_value_1.to_u32(), 
+                    read_stack_value_2.to_u32(), 
+                    opcode.to_u32(), 
+                    self.program_memory_length as u32, 
+                    self.error_index as u32, 
+                    self.stop_index as u32,
+                ), 
+                next_program_counter.to_u32()
+            );
+        }
+    }
 
 
     pub fn verify(&self) {
         self.verify_stack_access_table();
+        self.verify_state_transition_lookup_table();
     }
 }
