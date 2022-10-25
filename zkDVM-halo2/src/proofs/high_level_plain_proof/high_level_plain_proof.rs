@@ -242,7 +242,7 @@ impl HighLevelPlainProof {
         println!("succeed!");
     }
 
-    fn verify_tuple_inside_state_transition_lookup_table(&self, tuple: &(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)) -> bool {
+    fn is_tuple_inside_state_transition_lookup_table(&self, tuple: &(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)) -> bool {
         for element in &self.state_transition_lookup_table {
             if element == tuple {
                 return true;
@@ -257,7 +257,7 @@ impl HighLevelPlainProof {
         for index in 0..self.state_transition_table.len() - 1 {
             let (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode) = self.state_transition_table[index].clone();
             assert!(
-                self.verify_tuple_inside_state_transition_lookup_table(
+                self.is_tuple_inside_state_transition_lookup_table(
                     &(
                         stack_depth, 
                         program_counter, 
