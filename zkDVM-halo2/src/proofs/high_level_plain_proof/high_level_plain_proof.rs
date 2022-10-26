@@ -4,7 +4,7 @@ use crate::{dummy_virtual_machine::{
     raw_execution_trace::RawExecutionTrace,
     opcode::Opcode, read_write_access::ReadWriteAccess, stack::Stack,
 }, proofs::{
-    deterministic_computations::program_counter_move_computation::compute_next_program_counter, 
+    deterministic_computations::next_state_computation::compute_next_state, 
     proof_types::{
         p_opcode::POpcode, 
         p_stack_depth::PStackDepth, 
@@ -29,7 +29,7 @@ pub struct HighLevelPlainProof {
 
     stack_access_table: Vec<(PLocation, PTimeTag, PReadWriteAccess, PStackValue)>, // (location, time_tag, opcode, value of corresponding stack location) read from access value
     state_transition_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode)
-    state_transition_lookup_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter)
+    state_transition_lookup_table: Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PStackDepth, PProgramCounter)>, // (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter)
 }
 
 impl HighLevelPlainProof {
@@ -101,7 +101,7 @@ impl HighLevelPlainProof {
         res
     }
 
-    fn arrange_state_transition_lookup_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)> {
+    fn arrange_state_transition_lookup_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PStackDepth, PProgramCounter)> {
         let program_memory_length = execution_trace.get_program_memory().get_length() as u32;
         let error_index = execution_trace.get_program_memory().get_error_index() as u32;
         let stop_index = execution_trace.get_program_memory().get_stop_index() as u32;
@@ -115,22 +115,26 @@ impl HighLevelPlainProof {
             let current_program_counter = execution_trace.get_program_counter_trace()[index] as u32; // current program counter
             let read_stack_value_1 = execution_trace.get_stack_trace()[index * RawExecutionTrace::NUM_ACCESSES_PER_STEP].get_value(); // then get first element with Read
             let read_stack_value_2 = execution_trace.get_stack_trace()[index * RawExecutionTrace::NUM_ACCESSES_PER_STEP + 1].get_value(); // the get second element with Read
+
+            let (next_stack_depth, next_program_counter) = compute_next_state(
+                current_stack_depth,
+                current_program_counter,
+                read_stack_value_1,
+                read_stack_value_2,
+                opcode.to_u32(),
+                program_memory_length,
+                error_index,
+                stop_index,
+            );
+
             (
                 PStackDepth::from_u32(current_stack_depth),
                 PProgramCounter::from_u32(current_program_counter),
                 PStackValue::from_u32(read_stack_value_1),
                 PStackValue::from_u32(read_stack_value_2),
                 POpcode::from_u32(opcode.to_u32()), // current opcode
-                PProgramCounter::from_u32(compute_next_program_counter(
-                    current_stack_depth,
-                    current_program_counter,
-                    read_stack_value_1,
-                    read_stack_value_2,
-                    opcode.to_u32(),
-                    program_memory_length,
-                    error_index,
-                    stop_index,
-                )),
+                PStackDepth::from_u32(next_stack_depth),
+                PProgramCounter::from_u32(next_program_counter),
             )
         }).collect()
     }
@@ -221,28 +225,34 @@ impl HighLevelPlainProof {
         }
 
         // verify correct next program counter
-        for (stack_depth, program_counter, read_stack_value_1, read_stack_value_2, opcode, next_program_counter) in &self.state_transition_lookup_table {
-            assert_eq!(
-                PProgramCounter::from_u32(
-                    compute_next_program_counter(
-                        stack_depth.to_u32(), 
-                        program_counter.to_u32(), 
-                        read_stack_value_1.to_u32(), 
-                        read_stack_value_2.to_u32(), 
-                        opcode.to_u32(), 
-                        self.program_memory_length as u32, 
-                        self.error_index as u32, 
-                        self.stop_index as u32,
-                    )
-                ), 
-                *next_program_counter
+        for (
+            stack_depth, 
+            program_counter, 
+            read_stack_value_1, 
+            read_stack_value_2, 
+            opcode, 
+            next_stack_depth, 
+            next_program_counter
+        ) in &self.state_transition_lookup_table {
+            let (computed_next_stack_depth, computed_next_program_counter) = compute_next_state(
+                stack_depth.to_u32(), 
+                program_counter.to_u32(), 
+                read_stack_value_1.to_u32(), 
+                read_stack_value_2.to_u32(), 
+                opcode.to_u32(), 
+                self.program_memory_length as u32, 
+                self.error_index as u32, 
+                self.stop_index as u32,
             );
+
+            assert_eq!(computed_next_stack_depth, next_stack_depth.to_u32());
+            assert_eq!(computed_next_program_counter, next_program_counter.to_u32());
         }
 
         println!("succeed!");
     }
 
-    fn is_tuple_inside_state_transition_lookup_table(&self, tuple: &(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PProgramCounter)) -> bool {
+    fn is_tuple_inside_state_transition_lookup_table(&self, tuple: &(PStackDepth, PProgramCounter, PStackValue, PStackValue, POpcode, PStackDepth, PProgramCounter)) -> bool {
         for element in &self.state_transition_lookup_table {
             if element == tuple {
                 return true;
@@ -264,6 +274,7 @@ impl HighLevelPlainProof {
                         read_stack_value_1, 
                         read_stack_value_2, 
                         opcode, 
+                        self.state_transition_table[index + 1].0.clone(),
                         self.state_transition_table[index + 1].1.clone()
                     )
                 )
