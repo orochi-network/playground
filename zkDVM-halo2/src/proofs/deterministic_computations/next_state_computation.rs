@@ -75,8 +75,29 @@ fn compute_next_program_counter(
     }
 }
 
-fn compute_next_stack_depth() -> u32 {
-    0
+fn compute_next_stack_depth(
+    current_stack_depth: u32,
+    opcode: &Opcode,
+    is_error: bool,
+    is_not_error: bool,
+) -> u32 {
+    match opcode {
+        Opcode::Stop | Opcode::Swap1 => {
+            (is_error as u32) * (current_stack_depth + 1) // push error code
+            + (is_not_error as u32) * current_stack_depth // stack unchanged
+        },
+        Opcode::Add | Opcode::Sub | Opcode::Mul | Opcode::Div | Opcode::Mod | Opcode::Pop | Opcode::Jump | Opcode::Return | Opcode::Error => {
+            (is_error as u32) * (current_stack_depth + 1) // if error then push error code
+            + (is_not_error as u32) * (current_stack_depth - 1) // (pop 2 elements and push 1) or (just pop 1 element as Opcode::Pop or Opcode::Jump)
+        },
+        Opcode::Push4 | Opcode::Dup2 => {
+            current_stack_depth + 1 // push 1 more element either error or not
+        },
+        Opcode::Jumpi => {
+            (is_error as u32) * (current_stack_depth + 1) // if error then push error code
+            + (is_not_error as u32) * (current_stack_depth - 2) // (pop 2 elements for destination and condition)
+        }
+    }
 }
 
 
@@ -110,7 +131,12 @@ pub fn compute_next_state(
     let is_error = !is_not_error;
 
     (
-        compute_next_stack_depth(),
+        compute_next_stack_depth(
+            current_stack_depth,
+            &opcode,
+            is_error,
+            is_not_error
+        ),
         compute_next_program_counter(
             current_program_counter, 
             read_stack_value_1,

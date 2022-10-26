@@ -76,126 +76,124 @@ impl DummyVirtualMachine {
                 &self.program_memory,
                 self.program_counter,
             );
-
-            // then now execute
-            // referring here for the use of opcodes https://ethervm.io/
-            if error_code == ErrorCode::NoError {
-                match opcode_with_param.get_opcode() {
-                    Opcode::Stop => {
-                        // do nothing
-                    },
-                    Opcode::Add => {
-                        let a = self.stack.pop();
-                        let b = self.stack.pop();
-                        let result = a + b;
-                        self.update_stack_and_program_counter(
-                            result, 
-                            self.program_counter + 1
-                        );
-                    },
-                    Opcode::Sub => {
-                        let a = self.stack.pop();
-                        let b = self.stack.pop();
-                        let result = a - b;
-                        self.update_stack_and_program_counter(
-                            result, 
-                            self.program_counter + 1
-                        );
-                    },
-                    Opcode::Mul => {
-                        let a = self.stack.pop();
-                        let b = self.stack.pop();
-                        let result = a * b;
-                        self.update_stack_and_program_counter(
-                            result, 
-                            self.program_counter + 1
-                        );
-                    },
-                    Opcode::Div => {
-                        let a = self.stack.pop();
-                        let b = self.stack.pop();
-                        let result = a / b;
-                        self.update_stack_and_program_counter(
-                            result, 
-                            self.program_counter + 1
-                        );
-                    },
-                    Opcode::Mod => {
-                        let a = self.stack.pop();
-                        let b = self.stack.pop();
-                        let result = a % b;
-                        self.update_stack_and_program_counter(
-                            result, 
-                            self.program_counter + 1
-                        );
-                    },
-                    Opcode::Push4 => {
-                        self.update_stack_and_program_counter(
-                            opcode_with_param.get_param().unwrap(), 
-                            self.program_counter + 1
-                        );
-                    },
-                    Opcode::Dup2 => {
-                        let a = self.stack.pop();
-                        let b = self.stack.pop();
-                        self.update_stack_and_program_counter(
-                            b, 
-                            self.program_counter
-                        );
-                        self.update_stack_and_program_counter(
-                            a, 
-                            self.program_counter
-                        );
-                        self.update_stack_and_program_counter(
-                            b, 
-                            self.program_counter + 1
-                        );
-                    },
-                    Opcode::Pop => {
-                        self.stack.pop();
-                        self.program_counter += 1;
-                    },
-                    Opcode::Return => {
-                        let result = self.stack.pop();
-                        self.result = result;
-                        self.error_code = ErrorCode::NoError;
-                        self.program_counter = self.program_memory.get_stop_index();
-                    },
-                    Opcode::Swap1 => {
-                        let a = self.stack.pop();
-                        let b = self.stack.pop();
-                        self.update_stack_and_program_counter(
-                            a, 
-                            self.program_counter
-                        );
-                        self.update_stack_and_program_counter(
-                            b, 
-                            self.program_counter + 1
-                        );
-                    },
-                    Opcode::Jump => {
-                        let destination = self.stack.pop();
-                        self.program_counter = destination as usize;
-                    },
-                    Opcode::Jumpi => {
-                        let destination = self.stack.pop();
-                        let condition = self.stack.pop();
-                        if condition > 0 {
-                            self.program_counter = destination as usize;
-                        } else {
-                            self.program_counter += 1;
-                        }
-                    }, 
-                    Opcode::Error => {
-                        let error_code = self.stack.pop();
-                        self.error_code = ErrorCode::from_u32(error_code);
-                        self.program_counter = self.program_memory.get_stop_index();
-                    },
-                };
-            }
         }   
 
-        if error_code != ErrorCode::NoError {
+        // then now execute
+        // referring here for the use of opcodes https://ethervm.io/
+        if error_code == ErrorCode::NoError {
+            match opcode_with_param.get_opcode() {
+                Opcode::Stop => {
+                    // do nothing
+                },
+                Opcode::Add => {
+                    let a = self.stack.pop();
+                    let b = self.stack.pop();
+                    let result = a + b;
+                    self.update_stack_and_program_counter(
+                        result, 
+                        self.program_counter + 1
+                    );
+                },
+                Opcode::Sub => {
+                    let a = self.stack.pop();
+                    let b = self.stack.pop();
+                    let result = a - b;
+                    self.update_stack_and_program_counter(
+                        result, 
+                        self.program_counter + 1
+                    );
+                },
+                Opcode::Mul => {
+                    let a = self.stack.pop();
+                    let b = self.stack.pop();
+                    let result = a * b;
+                    self.update_stack_and_program_counter(
+                        result, 
+                        self.program_counter + 1
+                    );
+                },
+                Opcode::Div => {
+                    let a = self.stack.pop();
+                    let b = self.stack.pop();
+                    let result = a / b;
+                    self.update_stack_and_program_counter(
+                        result, 
+                        self.program_counter + 1
+                    );
+                },
+                Opcode::Mod => {
+                    let a = self.stack.pop();
+                    let b = self.stack.pop();
+                    let result = a % b;
+                    self.update_stack_and_program_counter(
+                        result, 
+                        self.program_counter + 1
+                    );
+                },
+                Opcode::Push4 => {
+                    self.update_stack_and_program_counter(
+                        opcode_with_param.get_param().unwrap(), 
+                        self.program_counter + 1
+                    );
+                },
+                Opcode::Dup2 => {
+                    let a = self.stack.pop();
+                    let b = self.stack.pop();
+                    self.update_stack_and_program_counter(
+                        b, 
+                        self.program_counter
+                    );
+                    self.update_stack_and_program_counter(
+                        a, 
+                        self.program_counter
+                    );
+                    self.update_stack_and_program_counter(
+                        b, 
+                        self.program_counter + 1
+                    );
+                },
+                Opcode::Pop => {
+                    self.stack.pop();
+                    self.program_counter += 1;
+                },
+                Opcode::Return => {
+                    let result = self.stack.pop();
+                    self.result = result;
+                    self.error_code = ErrorCode::NoError;
+                    self.program_counter = self.program_memory.get_stop_index();
+                },
+                Opcode::Swap1 => {
+                    let a = self.stack.pop();
+                    let b = self.stack.pop();
+                    self.update_stack_and_program_counter(
+                        a, 
+                        self.program_counter
+                    );
+                    self.update_stack_and_program_counter(
+                        b, 
+                        self.program_counter + 1
+                    );
+                },
+                Opcode::Jump => {
+                    let destination = self.stack.pop();
+                    self.program_counter = destination as usize;
+                },
+                Opcode::Jumpi => {
+                    let destination = self.stack.pop();
+                    let condition = self.stack.pop();
+                    if condition > 0 {
+                        self.program_counter = destination as usize;
+                    } else {
+                        self.program_counter += 1;
+                    }
+                }, 
+                Opcode::Error => {
+                    let error_code = self.stack.pop();
+                    self.error_code = ErrorCode::from_u32(error_code);
+                    self.program_counter = self.program_memory.get_stop_index();
+                },
+            };
+        } else {
             self.update_stack_and_program_counter(error_code.to_u32(), self.program_memory.get_error_index());
         }
 
