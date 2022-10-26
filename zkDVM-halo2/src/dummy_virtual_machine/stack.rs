@@ -1,5 +1,7 @@
 use std::ops;
 
+use super::constants::MAXIMUM_NUM_READS_PER_OPCODE;
+
 pub struct Stack {
     stack: Vec<u32>,
     depth: usize,
@@ -7,14 +9,12 @@ pub struct Stack {
 
 impl Stack {
 
-    pub const NUM_INACCESSIBLE_ELEMENTS: usize = 2;
-
     pub fn new() -> Self {
         // initial stack must have 2 dummy elements at indices 0 and 1 for ease of handling later in constructing ZKP
         // depth must be at least 2
         Self {
-            stack: vec![0; Self::NUM_INACCESSIBLE_ELEMENTS],
-            depth: Self::NUM_INACCESSIBLE_ELEMENTS,
+            stack: vec![0; MAXIMUM_NUM_READS_PER_OPCODE],
+            depth: MAXIMUM_NUM_READS_PER_OPCODE,
         }
     }
 
@@ -54,7 +54,7 @@ impl Stack {
     }
 
     pub fn is_depth_violating(&self) -> bool {
-        self.depth < Self::NUM_INACCESSIBLE_ELEMENTS
+        self.depth < MAXIMUM_NUM_READS_PER_OPCODE
     }
 }
 

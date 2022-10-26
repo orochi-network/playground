@@ -1,13 +1,14 @@
+use crate::dummy_virtual_machine::constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE};
 use crate::utils::numeric_encoding::NumericEncoding;
 
 use super::error_code::ErrorCode;
 use super::execution::Execution;
 use super::opcode::{Opcode};
 use super::opcode_with_params::OpcodeWithParams;
-use super::stack::Stack;
 use super::program_memory::ProgramMemory;
 use super::raw_execution_trace::RawExecutionTrace;
 use super::opcode_execution_checker::OpcodeExecutionChecker;
+use super::stack::Stack;
 use super::stack_requirement::StackRequirement;
 
 pub struct DummyVirtualMachine {
@@ -21,14 +22,14 @@ pub struct DummyVirtualMachine {
 
 impl DummyVirtualMachine {
     pub fn new(program_memory: &Vec<OpcodeWithParams>) -> Self {
-        let mut new_program_memory = program_memory.clone();
+        let new_program_memory = program_memory.clone();
         Self {
             program_memory: ProgramMemory::new(new_program_memory),
             program_counter: 0,
             stack: Stack::new(),
             result: 0,
             error_code: ErrorCode::NoReturn,
-            time_tag: Stack::NUM_INACCESSIBLE_ELEMENTS as u32,
+            time_tag: MAXIMUM_NUM_READS_PER_OPCODE as u32,
         }
     }
 
@@ -59,8 +60,13 @@ impl DummyVirtualMachine {
         let opcode_with_param = self.program_memory[self.program_counter].clone();
 
         // first record the necessary read values
-        let read_stack_value_1 = self.stack[self.stack.get_depth() - 1];
-        let read_stack_value_2 = self.stack[self.stack.get_depth() - 2];
+        let read_stack_values = {
+            let mut to_be_returned_values = [0; MAXIMUM_NUM_READS_PER_OPCODE];
+            for i in 0..MAXIMUM_NUM_READS_PER_OPCODE {
+                to_be_returned_values[i] = self.stack[self.stack.get_depth() - i - 1];
+            }
+            to_be_returned_values
+        };
         let depth_before_changed = self.stack.get_depth();
 
         // check where depth of stack is reasonable
@@ -72,7 +78,7 @@ impl DummyVirtualMachine {
 
             // check possible error code before executing
             error_code = opcode_with_param.get_opcode().get_error_after_executing(
-                read_stack_value_1, read_stack_value_2, 
+                &read_stack_values,
                 &self.program_memory,
                 self.program_counter,
             );
@@ -198,14 +204,19 @@ impl DummyVirtualMachine {
         }
 
         execution_trace.push(
-            self.program_counter, 
             &mut self.time_tag, 
             depth_before_changed, 
-            read_stack_value_1, read_stack_value_2, 
-            self.stack.get_depth(), 
-            self.stack.get_top(),
-            self.stack[self.stack.get_depth() - 2],
+            read_stack_values, 
             opcode_with_param.get_opcode(),
+            self.stack.get_depth(), 
+            self.program_counter,
+            {
+                let mut write_stack_values = [0; MAXIMUM_NUM_WRITES_PER_OPCODE];
+                for i in 0..MAXIMUM_NUM_WRITES_PER_OPCODE {
+                    write_stack_values[i] = self.stack[self.stack.get_depth() - i - 1];
+                }
+                write_stack_values
+            },
         );
 
         // check pc true

@@ -1,17 +1,15 @@
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
-use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
 use crate::utils::numeric_encoding::NumericEncoding;
 
 use super::{
-    stack::Stack, 
     opcode_execution_checker::OpcodeExecutionChecker, 
     program_memory::ProgramMemory, 
     stack_requirement::StackRequirement, 
-    error_code::ErrorCode, 
-    opcode_with_params::OpcodeWithParams
+    error_code::ErrorCode,  
+    constants::MAXIMUM_NUM_READS_PER_OPCODE
 };
 
 #[derive(Clone, PartialEq, Eq, FromPrimitive, Debug, EnumIter, PartialOrd, Ord, EnumCountMacro)]
@@ -44,7 +42,7 @@ impl NumericEncoding for Opcode {
 
 impl StackRequirement for Opcode {
     fn get_minimum_stack_depth(&self) -> usize {
-        self.get_num_stack_params() + Stack::NUM_INACCESSIBLE_ELEMENTS // plus 2 since stack.width in convention is at least 2
+        self.get_num_stack_params() + MAXIMUM_NUM_READS_PER_OPCODE // plus 2 since stack.width in convention is at least 2
     }
 
     fn get_num_stack_params(&self) -> usize {
@@ -69,8 +67,7 @@ impl StackRequirement for Opcode {
 
 impl OpcodeExecutionChecker for Opcode {
     fn get_error_after_executing(&self, 
-        read_stack_value_1: u32, 
-        read_stack_value_2: u32, 
+        read_stack_values: &[u32; MAXIMUM_NUM_READS_PER_OPCODE],
         program_memory_before_executing: &ProgramMemory,
         program_counter_before_executing: usize,
     ) -> ErrorCode {
@@ -91,7 +88,7 @@ impl OpcodeExecutionChecker for Opcode {
                 }
             },
             Opcode::Div | Opcode::Mod => {
-                let (a, b) = (read_stack_value_1, read_stack_value_2);
+                let b = &read_stack_values[1];
                 match b {
                     0 => ErrorCode::DivisionByZero,
                     _ => {
@@ -106,21 +103,21 @@ impl OpcodeExecutionChecker for Opcode {
                 }
             },
             Opcode::Jump => {
-                let destination = read_stack_value_1;
+                let destination = &read_stack_values[0];
                 match program_memory_before_executing.is_program_counter_reasonable(
-                    destination as usize
+                    *destination as usize
                 ) {
                     false => ErrorCode::IncorrectProgramCounter,
                     true => ErrorCode::NoError,
                 }
             },
             Opcode::Jumpi => {
-                let (destination, condition) = (read_stack_value_1, read_stack_value_2);
+                let (destination, condition) = &(read_stack_values[0], read_stack_values[1]);
 
                 // get next pc according to condition
                 let next_program_counter = match condition {
                     0 => program_counter_before_executing + 1,
-                    _ => destination as usize,
+                    _ => *destination as usize,
                 };
 
                 // then check validity of pc

@@ -8,7 +8,7 @@ use crate::{
             DummyVirtualMachine
         }, opcode_with_params::OpcodeWithParams, execution::Execution
     },
-    utils::display::print_vector, proofs::high_level_plain_proof::{high_level_plain_proof::HighLevelPlainProof}
+    proofs::high_level_plain_proof::{high_level_plain_proof::HighLevelPlainProof}
 };
 
 use super::{
@@ -19,21 +19,21 @@ pub struct TestExecutingGreatestCommonDivisor {
 
 }
 
-impl TestExecutingGreatestCommonDivisor {
-    fn raw_gcd(a: u32, b: u32) -> u32{ // assuming b != 0 to test the error at the beginning
-        let mut new_a = a;
-        let mut new_b = b;
-        loop {
-            let r = new_a % new_b;
-            new_a = new_b;
-            new_b = r;
-            if new_b == 0 {
-                break;
-            }
-        };
-        new_a
-    }
-}
+// impl TestExecutingGreatestCommonDivisor {
+//     fn raw_gcd(a: u32, b: u32) -> u32{ // assuming b != 0 to test the error at the beginning
+//         let mut new_a = a;
+//         let mut new_b = b;
+//         loop {
+//             let r = new_a % new_b;
+//             new_a = new_b;
+//             new_b = r;
+//             if new_b == 0 {
+//                 break;
+//             }
+//         };
+//         new_a
+//     }
+// }
 
 impl ProgramMemoryMaker<2> for TestExecutingGreatestCommonDivisor {
     fn make_program_memory(inputs: [u32; 2]) -> Vec<OpcodeWithParams> {

@@ -1,11 +1,11 @@
 use super::p_numeric_encoding::PNumericEncoding;
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
-pub struct PLocation {
+pub struct PStackLocation {
     value: usize,
 }
 
-impl PNumericEncoding for PLocation {
+impl PNumericEncoding for PStackLocation {
     fn to_u32(&self) -> u32 {
         self.value as u32
     }

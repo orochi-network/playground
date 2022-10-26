@@ -10,3 +10,4 @@ pub mod error_code;
 pub mod stack_requirement;
 pub mod opcode_with_params;
 pub mod execution;
+pub mod constants;
