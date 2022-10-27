@@ -1,6 +1,6 @@
 use super::p_numeric_encoding::PNumericEncoding;
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Copy)]
 pub struct PTimeTag {
     value: u32,
 }

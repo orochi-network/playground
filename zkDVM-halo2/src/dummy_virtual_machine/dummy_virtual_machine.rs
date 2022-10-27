@@ -57,7 +57,7 @@ impl DummyVirtualMachine {
         assert!(self.program_memory.is_program_counter_reasonable(self.program_counter));
 
         // get current opcode
-        let opcode_with_param = self.program_memory[self.program_counter].clone();
+        let opcode_with_params = self.program_memory[self.program_counter].clone();
 
         // first record the necessary read values
         let read_stack_values = {
@@ -71,13 +71,13 @@ impl DummyVirtualMachine {
 
         // check where depth of stack is reasonable
         let error_code: ErrorCode;
-        if self.stack.get_depth() < opcode_with_param.get_opcode().get_minimum_stack_depth() {
+        if self.stack.get_depth() < opcode_with_params.get_opcode().get_minimum_stack_depth() {
             error_code = ErrorCode::IncorrectStackAccess;
             self.program_counter = self.program_memory.get_error_index();
         } else {
 
             // check possible error code before executing
-            error_code = opcode_with_param.get_opcode().get_error_after_executing(
+            error_code = opcode_with_params.get_opcode().get_error_after_executing(
                 &read_stack_values,
                 &self.program_memory,
                 self.program_counter,
@@ -87,7 +87,7 @@ impl DummyVirtualMachine {
         // then now execute
         // referring here for the use of opcodes https://ethervm.io/
         if error_code == ErrorCode::NoError {
-            match opcode_with_param.get_opcode() {
+            match opcode_with_params.get_opcode() {
                 Opcode::Stop => {
                     // do nothing
                 },
@@ -138,7 +138,7 @@ impl DummyVirtualMachine {
                 },
                 Opcode::Push4 => {
                     self.update_stack_and_program_counter(
-                        opcode_with_param.get_param().unwrap(), 
+                        opcode_with_params.get_param(0).unwrap(), 
                         self.program_counter + 1
                     );
                 },
@@ -207,7 +207,7 @@ impl DummyVirtualMachine {
             &mut self.time_tag, 
             depth_before_changed, 
             read_stack_values, 
-            opcode_with_param.get_opcode(),
+            opcode_with_params,
             self.stack.get_depth(), 
             self.program_counter,
             {

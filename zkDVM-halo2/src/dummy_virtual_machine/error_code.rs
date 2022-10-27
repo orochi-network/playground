@@ -1,9 +1,10 @@
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
+use strum_macros::EnumIter;
 
 use crate::utils::numeric_encoding::NumericEncoding;
 
-#[derive(Clone, FromPrimitive, Debug, PartialEq, Eq)]
+#[derive(Clone, FromPrimitive, Debug, PartialEq, Eq, EnumIter)]
 pub enum ErrorCode {
     NoError = 0x00, // there is no error happened
     NoReturn = 0x01, // program hasn't stopped

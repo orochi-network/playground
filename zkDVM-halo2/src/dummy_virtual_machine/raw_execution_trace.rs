@@ -1,4 +1,4 @@
-use super::{program_memory::ProgramMemory, stack_access::StackAccess, read_write_access::ReadWriteAccess, opcode::Opcode, constants::{MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE}};
+use super::{program_memory::ProgramMemory, stack_access::StackAccess, read_write_access::ReadWriteAccess, opcode::Opcode, constants::{MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE}, opcode_with_params::OpcodeWithParams};
 
 pub struct RawExecutionTrace {
     program_memory: ProgramMemory, // public: store the sequence of opcodes (encoded into u32) and never change in the future
@@ -6,7 +6,7 @@ pub struct RawExecutionTrace {
     depth_trace: Vec<usize>, // advice: store the depth of the stack 
     program_counter_trace: Vec<usize>, // advice: store pc after each execution
     stack_trace: Vec<StackAccess>, // advice: store all possible accesses to stack with respective time, location, operation
-    opcode_trace: Vec<Opcode>, // advice: store the encoded opcodes (u32) according to pc_trace
+    opcode_with_params_trace: Vec<OpcodeWithParams>, // advice: store the encoded opcodes (u32) according to pc_trace
 }
 
 impl RawExecutionTrace {
@@ -18,7 +18,7 @@ impl RawExecutionTrace {
             program_counter_trace: vec![initial_program_counter], // initialized with the first program_counter
             stack_trace: Vec::<StackAccess>::new(),
             depth_trace: vec![MAXIMUM_NUM_READS_PER_OPCODE], // depth trace must have 1 element for initial stack
-            opcode_trace: Vec::<Opcode>::new(),
+            opcode_with_params_trace: Vec::<OpcodeWithParams>::new(),
             // depth_trace: Vec::<usize>::new(),
         }
     }
@@ -27,7 +27,7 @@ impl RawExecutionTrace {
         time_tag: &mut u32, // time_tag a mutable reference whose value is the latest time hasn't been assigned to any element in stack_trace
         depth_before_changed: usize,
         read_stack_values: [u32; MAXIMUM_NUM_READS_PER_OPCODE],
-        opcode_for_current_execution: Opcode,
+        opcode_with_params_for_current_execution: OpcodeWithParams,
         depth_after_changed: usize,
         program_counter_after_changed: usize, 
         write_stack_values: [u32; MAXIMUM_NUM_WRITES_PER_OPCODE],
@@ -59,7 +59,7 @@ impl RawExecutionTrace {
             *time_tag += 1;
         }
 
-        self.opcode_trace.push(opcode_for_current_execution);
+        self.opcode_with_params_trace.push(opcode_with_params_for_current_execution);
         
     }
 
@@ -75,8 +75,8 @@ impl RawExecutionTrace {
         &self.depth_trace
     }
 
-    pub fn get_opcode_trace(&self) -> &Vec<Opcode> {
-        &self.opcode_trace
+    pub fn get_opcode_with_params_trace(&self) -> &Vec<OpcodeWithParams> {
+        &self.opcode_with_params_trace
     }
 
     pub fn get_program_memory(&self) -> &ProgramMemory {

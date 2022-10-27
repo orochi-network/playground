@@ -18,9 +18,9 @@ impl ProgramMemory {
         let mut new_memory = memory.clone();
 
         // each program must have an errorcode at the end to return whenever error happens
-        new_memory.push(OpcodeWithParams::new(Opcode::Error, None));
+        new_memory.push(OpcodeWithParams::new(Opcode::Error, &[None]));
         // then followed by Opcode::Stop
-        new_memory.push(OpcodeWithParams::new(Opcode::Stop, None));
+        new_memory.push(OpcodeWithParams::new(Opcode::Stop, &[None]));
         // then return
         Self {
             memory: new_memory,
@@ -51,10 +51,7 @@ impl ProgramMemory {
         println!("------------- :@) ----------");
         println!("The following is program memory generated: ");
         for i in 0..self.memory.len() {
-            println!("{i}. {:?}  {}", self.memory[i].get_opcode(), match self.memory[i].get_param() {
-                Some(v) => v.to_string(),
-                None => "".to_string(),
-            });
+            println!("{i}. {:?}  {:?}", self.memory[i].get_opcode(), self.memory[i].get_all_params());
         }
         println!();
         println!("Error index is {}", self.get_error_index());

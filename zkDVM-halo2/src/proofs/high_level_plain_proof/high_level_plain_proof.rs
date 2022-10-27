@@ -1,8 +1,10 @@
+use std::fmt::Display;
+
 use strum::{IntoEnumIterator, EnumCount};
 
 use crate::{dummy_virtual_machine::{
     raw_execution_trace::RawExecutionTrace,
-    opcode::Opcode, read_write_access::ReadWriteAccess, constants::{MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_ACCESSES_PER_OPCODE},
+    opcode::{Opcode, self}, read_write_access::ReadWriteAccess, constants::{MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_ACCESSES_PER_OPCODE, MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE}, opcode_with_params::OpcodeWithParams,
 }, proofs::{
     deterministic_computations::next_state_computation::compute_next_state, 
     proof_types::{
@@ -13,9 +15,9 @@ use crate::{dummy_virtual_machine::{
         p_time_tag::PTimeTag, 
         p_numeric_encoding::PNumericEncoding, 
         p_read_write_acces::PReadWriteAccess, 
-        p_program_memory_location::PProgramMemoryLocation, p_stack_location::PStackLocation
+        p_program_memory_location::PProgramMemoryLocation, p_stack_location::PStackLocation, p_opcode_params::POpcodeParam
     }
-}, utils::numeric_encoding::NumericEncoding
+}, utils::{numeric_encoding::NumericEncoding, copy_slice::{copy_slice_to_sized_array}}
 };
 
 
@@ -25,36 +27,59 @@ pub struct HighLevelPlainProof {
     error_index: PProgramMemoryLocation,
     stop_index: PProgramMemoryLocation,
 
-
+    program_memory_table: Vec<(POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE])>,
     stack_access_table: Vec<(PStackLocation, PTimeTag, PReadWriteAccess, PStackValue)>, // (location, time_tag, opcode, value of corresponding stack location) read from access value
     state_transition_table: Vec<(
         PStackDepth, // current stack depth before executing opcode
         PProgramCounter, // current program counter before executing opcode
         [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE],  // read_stack_value_1, read_stack_value_2, read_stack_3
-        POpcode // opcode to execute
+        POpcode, // opcode to execute
+        [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE],
     )>,
     state_transition_lookup_table: Vec<(
         PStackDepth, // current stack depth before executing opcode
         PProgramCounter, // current program counter before executing opcode
         [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], // read_stack_values
         POpcode, // opcode to execute
+        [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE], // params to the opcode
         PStackDepth, // next_stack_depth
         PProgramCounter, // next program counter
-        // [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE], // write_stack_values
+        [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE], // write_stack_values
     )>, 
 }
 
 impl HighLevelPlainProof {
     pub fn new(execution_trace: &RawExecutionTrace) -> Self {
         Self {
-            num_transitions: execution_trace.get_opcode_trace().len(),
+            num_transitions: execution_trace.get_opcode_with_params_trace().len(),
             program_memory_length: execution_trace.get_program_memory().get_length(),
             error_index: PProgramMemoryLocation::from_u32(execution_trace.get_program_memory().get_error_index() as u32),
             stop_index: PProgramMemoryLocation::from_u32(execution_trace.get_program_memory().get_stop_index() as u32),
+            program_memory_table: Self::extract_program_memory_table(execution_trace),
             stack_access_table: Self::extract_stack_access_table(execution_trace),
             state_transition_table: Self::arrange_state_transition_table(execution_trace),
             state_transition_lookup_table: Self::arrange_state_transition_lookup_table(execution_trace),
         }
+    }
+
+    fn extract_program_memory_table(execution_trace: &RawExecutionTrace) -> Vec<(POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE])> {
+        (0..execution_trace.get_program_memory().get_length()).map(|index| {
+            let opcode_with_params = &execution_trace.get_program_memory()[index];
+            (
+                POpcode::from_u32(opcode_with_params.get_opcode().to_u32()),
+
+                copy_slice_to_sized_array::<_, MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE>(
+                    &(0..MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE).map(|i| {
+                        POpcodeParam::from_u32(
+                            match opcode_with_params.get_param(i) {
+                                None => 0,
+                                Some(value) => value,
+                            }
+                        )
+                    }).collect::<Vec<POpcodeParam>>() // TODO: understand this pattern
+                ),
+            )
+        }).collect::<Vec<_>>()
     }
 
     fn extract_stack_access_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackLocation, PTimeTag, PReadWriteAccess, PStackValue)> {
@@ -81,17 +106,17 @@ impl HighLevelPlainProof {
         res
     }
 
-    fn arrange_state_transition_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode)> {
+    fn arrange_state_transition_table(execution_trace: &RawExecutionTrace) -> Vec<(PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE])> {
         let depth_trace_len = execution_trace.get_depth_trace().len();
         let program_counter_trace_len = execution_trace.get_program_counter_trace().len();
         let stack_trace_len = execution_trace.get_stack_trace().len();
-        let opcode_trace_len = execution_trace.get_opcode_trace().len();
+        let opcode_trace_len = execution_trace.get_opcode_with_params_trace().len();
 
         assert_eq!(program_counter_trace_len, depth_trace_len); // they must be equal
         assert_eq!(opcode_trace_len * MAXIMUM_NUM_ACCESSES_PER_OPCODE, stack_trace_len); // stack_trace_len == opcode_trace_len * MAXIMUM_NUM_ACCESSES_PER_OPCODE
         assert_eq!(program_counter_trace_len, opcode_trace_len + 1);
 
-        let mut res: Vec<(PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode)> = (0..opcode_trace_len).map(|index| {
+        let mut res: Vec<(PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE])> = (0..opcode_trace_len).map(|index| {
             (
                 PStackDepth::from_u32(execution_trace.get_depth_trace()[index] as u32), // depth before computing opcode
                 PProgramCounter::from_u32(execution_trace.get_program_counter_trace()[index] as u32), // program counter before computing opcode
@@ -103,7 +128,17 @@ impl HighLevelPlainProof {
                     }
                     to_be_return_values
                 },
-                POpcode::from_u32(execution_trace.get_opcode_trace()[index].to_u32()), // extract the opcode
+                POpcode::from_u32(execution_trace.get_opcode_with_params_trace()[index].get_opcode().to_u32()), // extract the opcode
+                {
+                    let mut to_be_returned_params = [POpcodeParam::from_u32(0); MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE];
+                    for i in 0..MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE {
+                        to_be_returned_params[i] = POpcodeParam::from_u32(match execution_trace.get_opcode_with_params_trace()[index].get_param(i) {
+                            None => 0,
+                            Some(value) => value,
+                        })
+                    }
+                    to_be_returned_params
+                }
             )
         }).collect();
 
@@ -119,16 +154,17 @@ impl HighLevelPlainProof {
                 last_read_array
             },
             POpcode::from_u32(0), // no opcode needed
+            [POpcodeParam::from_u32(0); MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE], // no param needed
         ));
         res
     }
 
     fn arrange_state_transition_lookup_table(execution_trace: &RawExecutionTrace) 
-    -> Vec<(PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode, PStackDepth, PProgramCounter)> {
+    -> Vec<(PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE], PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE])> {
         let program_memory_length = execution_trace.get_program_memory().get_length() as u32;
         let error_index = PProgramMemoryLocation::from_u32(execution_trace.get_program_memory().get_error_index() as u32);
         let stop_index = PProgramMemoryLocation::from_u32(execution_trace.get_program_memory().get_stop_index() as u32);
-        let opcode_trace_length = execution_trace.get_opcode_trace().len();
+        let opcode_trace_length = execution_trace.get_opcode_with_params_trace().len();
 
         // take the cartesian product of indices and all possible opcodes
         (0..opcode_trace_length).map(|index| {
@@ -145,11 +181,24 @@ impl HighLevelPlainProof {
                 to_be_assigned_array
             };
 
-            let (next_stack_depth, next_program_counter) = compute_next_state(
+            let opcode_params = copy_slice_to_sized_array::<_, MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE>(
+                &execution_trace.get_program_memory()[current_program_counter.to_u32() as usize].get_all_params()
+                    .map(|param| {
+                        PNumericEncoding::from_u32(
+                            match param {
+                                None => 0,
+                                Some(value) => value,
+                            }
+                        )
+                    })
+            );
+
+            let (next_stack_depth, next_program_counter, write_stack_values) = compute_next_state(
                 &current_stack_depth,
                 &current_program_counter,
                 &read_stack_values,
                 &POpcode::from_u32(opcode.to_u32()),
+                &opcode_params,
                 program_memory_length,
                 &error_index,
                 &stop_index,
@@ -160,11 +209,12 @@ impl HighLevelPlainProof {
                 current_program_counter,
                 read_stack_values,
                 POpcode::from_u32(opcode.to_u32()), // current opcode
+                opcode_params,
                 next_stack_depth,
                 next_program_counter,
-                // write_stack_values,
+                write_stack_values,
             )
-        }).collect::<Vec<(PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode, PStackDepth, PProgramCounter)>>()
+        }).collect::<Vec<(PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE], PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE])>>()
     }
 
 
@@ -258,15 +308,17 @@ impl HighLevelPlainProof {
             program_counter, 
             read_stack_values,
             opcode, 
+            opcode_params,
             next_stack_depth, 
             next_program_counter,
-            // write_stack_values,
+            next_read_stack_values,
         ) in &self.state_transition_lookup_table {
-            let (computed_next_stack_depth, computed_next_program_counter) = compute_next_state(
+            let (computed_next_stack_depth, computed_next_program_counter, write_stack_values) = compute_next_state(
                 &stack_depth, 
                 &program_counter, 
                 read_stack_values,
                 opcode, 
+                &opcode_params,
                 self.program_memory_length as u32, 
                 &self.error_index, 
                 &self.stop_index,
@@ -274,6 +326,7 @@ impl HighLevelPlainProof {
 
             assert_eq!(&computed_next_stack_depth, next_stack_depth);
             assert_eq!(&computed_next_program_counter, next_program_counter);
+            assert_eq!(next_read_stack_values[0..MAXIMUM_NUM_WRITES_PER_OPCODE], write_stack_values);
         }
 
         println!("succeed!");
@@ -284,9 +337,10 @@ impl HighLevelPlainProof {
         PProgramCounter, 
         [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], 
         POpcode, 
+        [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE],
         PStackDepth, 
         PProgramCounter, 
-        // [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE]
+        [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE]
     )) -> bool {
         for element in &self.state_transition_lookup_table {
             if element == tuple {
@@ -300,7 +354,7 @@ impl HighLevelPlainProof {
     fn verify_state_transition_table(&self) {
         print!("Do verify state transition table: ");
         for index in 0..self.state_transition_table.len() - 1 {
-            let (stack_depth, program_counter, read_stack_values, opcode) = &self.state_transition_table[index].clone();
+            let (stack_depth, program_counter, read_stack_values, opcode, opcode_params) = &self.state_transition_table[index].clone();
             assert!(
                 self.is_tuple_inside_state_transition_lookup_table(
                     &(
@@ -308,15 +362,10 @@ impl HighLevelPlainProof {
                         program_counter.clone(), 
                         read_stack_values.clone(),
                         opcode.clone(), 
+                        opcode_params.clone(),
                         self.state_transition_table[index + 1].0.clone(),
                         self.state_transition_table[index + 1].1.clone(),
-                        // {
-                        //     let mut write_stack_values = [PStackValue::from_u32(0); MAXIMUM_NUM_WRITES_PER_OPCODE];
-                        //     for i in 0..MAXIMUM_NUM_WRITES_PER_OPCODE {
-                        //         write_stack_values[i] = self.state_transition_table[index + 1].2[i]
-                        //     }
-                        //     write_stack_values
-                        // },
+                        copy_slice_to_sized_array::<_, MAXIMUM_NUM_WRITES_PER_OPCODE>(&self.state_transition_table[index + 1].2),
                     )
                 )
             );
