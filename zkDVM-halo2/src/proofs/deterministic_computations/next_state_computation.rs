@@ -1,13 +1,13 @@
 use crate::{dummy_virtual_machine::{
     opcode::{Opcode},
-    stack_requirement::StackRequirement, constants::MAXIMUM_NUM_READS_PER_OPCODE,
+    stack_requirement::StackRequirement, constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE}, error_code::ErrorCode,
 }, utils::numeric_encoding::NumericEncoding, proofs::proof_types::{
     p_stack_value::PStackValue, 
     p_stack_depth::PStackDepth, 
     p_numeric_encoding::PNumericEncoding, 
     p_program_counter::PProgramCounter,
     p_program_memory_location::PProgramMemoryLocation, 
-    p_opcode::POpcode
+    p_opcode::POpcode, p_opcode_params::POpcodeParam
 }};
 
 fn is_stack_depth_reasonable(
@@ -118,13 +118,173 @@ fn compute_next_stack_depth(
     )
 }
 
-// fn compute_next_stack_written_values(
-//     opcode: &Opcode,
-// ) -> [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE] {
-//     // input:  [read_stack_value_1,  read_stack_value_2,  read_stack_value_3, ...
-//     // output: [write_stack_value_1, write_stack_value_2, ...
-//     todo!();
-// }
+fn compute_next_stack_written_values(
+    read_stack_values: &[PStackValue; MAXIMUM_NUM_READS_PER_OPCODE],
+    opcode: &Opcode,
+    opcode_params: &[POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE],
+    is_stack_depth_reasonable: bool,
+    is_program_counter_reasonable: bool,
+    is_error: bool,
+    is_not_error: bool,
+) -> [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE] {
+    assert_eq!(!is_error, is_program_counter_reasonable && is_stack_depth_reasonable);
+    assert_eq!(!is_error, is_not_error);
+    // input:  [read_stack_value_1,  read_stack_value_2,  read_stack_value_3, ...
+    // output: [write_stack_value_1, write_stack_value_2, ...
+
+    let first_write_stack_value = |value_if_not_error: u32| -> PStackValue {
+        PStackValue::from_u32(
+            (!is_stack_depth_reasonable as u32) * ErrorCode::IncorrectStackAccess.to_u32()
+            + (is_stack_depth_reasonable as u32) * (!is_program_counter_reasonable as u32) * ErrorCode::IncorrectProgramCounter.to_u32()
+            + (is_not_error as u32) * value_if_not_error
+        )
+    };
+
+    let second_write_stack_value = |value_if_not_error: u32| -> PStackValue {
+        PStackValue::from_u32(
+            (is_error as u32) * read_stack_values[0].to_u32()
+            + (is_not_error as u32) * value_if_not_error
+        )
+    };
+
+    match opcode {
+        Opcode::Stop => {
+            // always no error
+            [
+                // there is no error for pc since pc does not move
+                PStackValue::from_u32(
+                    (!is_stack_depth_reasonable as u32) * ErrorCode::IncorrectStackAccess.to_u32() 
+                    + (is_stack_depth_reasonable as u32) * read_stack_values[0].to_u32()
+                ),
+                PStackValue::from_u32(
+                    (!is_stack_depth_reasonable as u32) * read_stack_values[0].to_u32() 
+                    + (is_stack_depth_reasonable as u32) * read_stack_values[1].to_u32()
+                ),
+            ]
+        }
+        Opcode::Add => {
+            // adding two first values
+            let (a, b) = &(read_stack_values[0], read_stack_values[1]);
+            [
+                first_write_stack_value(a.to_u32() + b.to_u32()),
+                second_write_stack_value(read_stack_values[2].to_u32()),
+            ]
+        },
+        Opcode::Sub => {
+            // subtracting two first values
+            let (a, b) = &(read_stack_values[0], read_stack_values[1]);
+            [
+                first_write_stack_value(a.to_u32() - b.to_u32()),
+                second_write_stack_value(read_stack_values[2].to_u32()),
+            ]
+        },
+        Opcode::Mul => {
+            // multiplying two first values
+            let (a, b) = &(read_stack_values[0], read_stack_values[1]);
+            [
+                first_write_stack_value(a.to_u32() * b.to_u32()),
+                second_write_stack_value(read_stack_values[2].to_u32()),
+            ]
+        },
+        Opcode::Div => {
+            // check division by zero
+            let (a, b) = &(read_stack_values[0], read_stack_values[1]);
+            let is_division_by_zero = b.to_u32() == 0;
+            [
+                first_write_stack_value(
+                    (is_division_by_zero as u32) * ErrorCode::DivisionByZero.to_u32() 
+                    + (!is_division_by_zero as u32) * (a.to_u32() / b.to_u32())
+                ),
+                second_write_stack_value(
+                    (is_division_by_zero as u32) * a.to_u32()
+                    + (!is_division_by_zero as u32) * read_stack_values[2].to_u32()
+                ),
+            ]
+        },
+        Opcode::Mod => {
+            // check division by zero
+            let (a, b) = &(read_stack_values[0], read_stack_values[1]);
+            let is_division_by_zero = b.to_u32() == 0;
+            [
+                first_write_stack_value(
+                    (is_division_by_zero as u32) * ErrorCode::DivisionByZero.to_u32() 
+                    + (!is_division_by_zero as u32) * (a.to_u32() % b.to_u32())
+                ),
+                second_write_stack_value(
+                    (is_division_by_zero as u32) * a.to_u32() 
+                    + (!is_division_by_zero as u32) * read_stack_values[2].to_u32()
+                ),
+            ]
+        },
+        Opcode::Push4 => {
+            [
+                first_write_stack_value(opcode_params[0].to_u32()),
+                second_write_stack_value(read_stack_values[0].to_u32())
+            ]
+        },
+        Opcode::Dup2 => {
+            let (a, b) = &(read_stack_values[0], read_stack_values[1]);
+            [
+                first_write_stack_value(b.to_u32()),
+                second_write_stack_value(a.to_u32())
+            ]
+        },
+        Opcode::Pop => {
+            let b = &read_stack_values[1];
+            [
+                first_write_stack_value(b.to_u32()),
+                second_write_stack_value(read_stack_values[2].to_u32())
+            ]
+        },
+        Opcode::Return => {
+            // there is no error for pc since pc always move to stop_index
+            [
+                PStackValue::from_u32(
+                    (!is_stack_depth_reasonable as u32) * ErrorCode::IncorrectStackAccess.to_u32() 
+                    + (is_stack_depth_reasonable as u32) * read_stack_values[0].to_u32()
+                ),
+                PStackValue::from_u32(
+                    (!is_stack_depth_reasonable as u32) * read_stack_values[0].to_u32() 
+                    + (is_stack_depth_reasonable as u32) * read_stack_values[1].to_u32()
+                ),
+            ]
+        },
+        Opcode::Swap1 => {
+            let (a, b) = &(read_stack_values[0], read_stack_values[1]);
+            [
+                first_write_stack_value(b.to_u32()),
+                second_write_stack_value(a.to_u32())
+            ]
+        },
+        Opcode::Jump => {
+            // only remove condition
+            [
+                first_write_stack_value(read_stack_values[1].to_u32()),
+                second_write_stack_value(read_stack_values[2].to_u32()),
+            ]
+        },
+        Opcode::Jumpi => {
+            // remove destination and condition
+            [
+                first_write_stack_value(read_stack_values[2].to_u32()),
+                second_write_stack_value(read_stack_values[3].to_u32())
+            ]
+        }, 
+        Opcode::Error => {
+            // there is no error for pc since pc always move to stop_index
+            [
+                PStackValue::from_u32(
+                    (!is_stack_depth_reasonable as u32) * ErrorCode::IncorrectStackAccess.to_u32() 
+                    + (is_stack_depth_reasonable as u32) * read_stack_values[0].to_u32()
+                ),
+                PStackValue::from_u32(
+                    (!is_stack_depth_reasonable as u32) * read_stack_values[0].to_u32() 
+                    + (is_stack_depth_reasonable as u32) * read_stack_values[1].to_u32()
+                ),
+            ]
+        },
+    }
+}
 
 
 pub fn compute_next_state(
@@ -170,6 +330,14 @@ pub fn compute_next_state(
             is_error,
             is_not_error,
         ),
-        // compute_next_stack_written_values(&opcode)
+        // compute_next_stack_written_values(
+        //     &read_stack_values,
+        //     &opcode,
+        //     opcode_params,
+        //     is_stack_depth_reasonable,
+        //     is_program_counter_reasonable,
+        //     is_error: bool,
+        //     is_not_error,
+        // ),
     )
 }

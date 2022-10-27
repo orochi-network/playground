@@ -8,3 +8,4 @@ pub mod p_time_tag;
 pub mod p_read_write_acces;
 pub mod p_tag;
 pub mod p_program_memory_location;
+pub mod p_opcode_params;
