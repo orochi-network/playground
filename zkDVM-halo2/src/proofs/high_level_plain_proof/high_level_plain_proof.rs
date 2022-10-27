@@ -27,7 +27,7 @@ pub struct HighLevelPlainProof {
     error_index: PProgramMemoryLocation,
     stop_index: PProgramMemoryLocation,
 
-    program_memory_table: Vec<(POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE])>,
+    program_memory_table: Vec<(PProgramCounter, POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE])>, // (index, opcode, params)
     stack_access_table: Vec<(PStackLocation, PTimeTag, PReadWriteAccess, PStackValue)>, // (location, time_tag, opcode, value of corresponding stack location) read from access value
     state_transition_table: Vec<(
         PStackDepth, // current stack depth before executing opcode
@@ -62,10 +62,11 @@ impl HighLevelPlainProof {
         }
     }
 
-    fn extract_program_memory_table(execution_trace: &RawExecutionTrace) -> Vec<(POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE])> {
+    fn extract_program_memory_table(execution_trace: &RawExecutionTrace) -> Vec<(PProgramCounter, POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE])> {
         (0..execution_trace.get_program_memory().get_length()).map(|index| {
             let opcode_with_params = &execution_trace.get_program_memory()[index];
             (
+                PProgramCounter::from_u32(index as u32),
                 POpcode::from_u32(opcode_with_params.get_opcode().to_u32()),
 
                 copy_slice_to_sized_array::<_, MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE>(
@@ -373,9 +374,52 @@ impl HighLevelPlainProof {
         println!("succeed!");
     }
 
+    fn verify_program_memory_table(&self) {
+        print!("Do verify correct program memory: ");
+        for index in 0..self.program_memory_table.len() {
+            assert_eq!(
+                PProgramCounter::from_u32(index as u32),
+                self.program_memory_table[index].0
+            );
+        }
+        println!("succeed!");
+    }
+
+    fn is_tuple_inside_program_memory(&self, tuple: &(
+        PProgramCounter, 
+        POpcode, 
+        [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE]
+    )) -> bool {
+        for element in &self.program_memory_table {
+            if element == tuple {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn verify_correct_access_program_memory(&self) {
+        print!("Do verify correct access to program memory: ");
+        for index in 0..self.state_transition_table.len() - 1 {
+            let state_transition_row = &self.state_transition_table[index];
+            assert!(
+                self.is_tuple_inside_program_memory(
+                    &(
+                        state_transition_row.1.clone(),
+                        state_transition_row.3.clone(),
+                        state_transition_row.4.clone()
+                    )
+                )
+            );
+        }
+        println!("succeed!");
+    }
+
     pub fn verify(&self) {
         self.verify_stack_access_table();
         self.verify_state_transition_lookup_table();
         self.verify_state_transition_table();
+        self.verify_program_memory_table();
+        self.verify_correct_access_program_memory();
     }
 }
