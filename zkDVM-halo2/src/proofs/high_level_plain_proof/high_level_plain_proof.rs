@@ -161,7 +161,10 @@ impl HighLevelPlainProof {
     }
 
     fn arrange_state_transition_lookup_table(execution_trace: &RawExecutionTrace) 
-    -> Vec<(PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE], PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE])> {
+    -> Vec<(
+        PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_READS_PER_OPCODE], POpcode /* public */, [POpcodeParam; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE], 
+        PStackDepth, PProgramCounter, [PStackValue; MAXIMUM_NUM_WRITES_PER_OPCODE]
+    )> {
         let program_memory_length = execution_trace.get_program_memory().get_length() as u32;
         let error_index = PProgramMemoryLocation::from_u32(execution_trace.get_program_memory().get_error_index() as u32);
         let stop_index = PProgramMemoryLocation::from_u32(execution_trace.get_program_memory().get_stop_index() as u32);
