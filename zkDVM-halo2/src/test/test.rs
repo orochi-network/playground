@@ -46,8 +46,13 @@ pub fn do_test(num_steps: usize) {
 
     let collatz_test_vector: Vec<[u32; NUM_COLLATZ_INPUTS]> = vec![
         [0],
-        [10],
+        [1],
+        [2],
         [3],
+        [4],
+        [5],
+        [6],
+        [10],
         [1000],
     ];
 

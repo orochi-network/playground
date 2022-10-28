@@ -2,7 +2,7 @@ use super::{opcode::Opcode, constants::MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE};
 
 // this struct is used to put inside program memory
 // it includes the opcode and possibly an additional param (like push value)
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct OpcodeWithParams {
     opcode: Opcode,
     params: [Option<u32>; MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE], // Some(param as u32) if there is some param. Otherwise, None

@@ -56,6 +56,14 @@ impl Stack {
     pub fn is_depth_violating(&self) -> bool {
         self.depth < MAXIMUM_NUM_READS_PER_OPCODE
     }
+
+    // pub fn display(&self) {
+    //     print!("   Stack[");
+    //     for index in (MAXIMUM_NUM_READS_PER_OPCODE..self.depth).rev() {
+    //         print!("{} ", self.stack[index]);
+    //     }
+    //     println!();
+    // }
 }
 
 impl ops::Index<usize> for Stack {

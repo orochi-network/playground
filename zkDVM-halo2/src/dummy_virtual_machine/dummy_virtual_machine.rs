@@ -59,6 +59,8 @@ impl DummyVirtualMachine {
         // get current opcode
         let opcode_with_params = self.program_memory[self.program_counter].clone();
 
+        //print!("{}. {:?}", self.program_counter, opcode_with_params);
+
         // first record the necessary read values
         let read_stack_values = {
             let mut to_be_returned_values = [0; MAXIMUM_NUM_READS_PER_OPCODE];
@@ -202,6 +204,8 @@ impl DummyVirtualMachine {
         } else {
             self.update_stack_and_program_counter(error_code.to_u32(), self.program_memory.get_error_index());
         }
+
+        //self.stack.display();
 
         execution_trace.push(
             &mut self.time_tag, 
