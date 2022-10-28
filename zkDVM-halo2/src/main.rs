@@ -1,5 +1,5 @@
-use zkdvm_halo2::{test::{test_executing_gcd::TestExecutingGreatestCommonDivisor, program_execution_handler::ProgramExecutionHandler}};
+use zkdvm_halo2::test::test::do_test;
 
 fn main() {
-    TestExecutingGreatestCommonDivisor::execute(100);
+    do_test(100);
 }

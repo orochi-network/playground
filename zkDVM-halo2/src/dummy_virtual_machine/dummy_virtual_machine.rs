@@ -103,7 +103,7 @@ impl DummyVirtualMachine {
                 Opcode::Sub => {
                     let a = self.stack.pop();
                     let b = self.stack.pop();
-                    let result = a - b;
+                    let result = a.wrapping_sub(b);
                     self.update_stack_and_program_counter(
                         result, 
                         self.program_counter + 1

@@ -186,7 +186,7 @@ fn compute_next_stack_written_values(
             // adding two first values
             let (a, b) = &(read_stack_values[0], read_stack_values[1]);
             [
-                first_write_stack_value(a.to_u32() + b.to_u32()),
+                first_write_stack_value(a.to_u32().wrapping_add(b.to_u32())),
                 second_write_stack_value(read_stack_values[2].to_u32()),
             ]
         },
@@ -202,7 +202,7 @@ fn compute_next_stack_written_values(
             // multiplying two first values
             let (a, b) = &(read_stack_values[0], read_stack_values[1]);
             [
-                first_write_stack_value(a.to_u32() * b.to_u32()),
+                first_write_stack_value(a.to_u32().wrapping_mul(b.to_u32())),
                 second_write_stack_value(read_stack_values[2].to_u32()),
             ]
         },
