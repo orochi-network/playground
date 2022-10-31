@@ -27,3 +27,8 @@ ark-bw6-761 = "0.3.0"
 ark-nonnative-field = "0.3.0"
 ark-sponge = "0.3.0"
 ark-bls12-381 = "0.3.0"
+
+num-traits = "0.2"
+num-derive = "0.3.3"
+strum = "0.24"
+strum_macros = "0.24"

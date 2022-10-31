@@ -1,2 +1,13 @@
 pub mod dvm;
 pub mod opcode;
+pub mod error_code;
+pub mod program_memory;
+pub mod opcode_with_params;
+pub mod constants;
+pub mod stack_requirement;
+pub mod opcode_execution_checker;
+pub mod stack;
+pub mod execution;
+pub mod raw_execution_trace;
+pub mod stack_access;
+pub mod read_write_access;

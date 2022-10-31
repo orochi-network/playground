@@ -1,137 +1,127 @@
-use super::dvm::DVMContext;
+use num_derive::FromPrimitive;
+use num_traits::FromPrimitive;
+use strum_macros::{EnumIter, EnumCount} ;
 
-// Operation Code in binary form
-#[derive(Copy, Clone, PartialEq, Debug)]
-// DVM's opcode
-pub enum BinaryCode {
-    Add = 0x01,
-    Sub = 0x02,
-    Mul = 0x03,
-    Div = 0x04,
-    Push = 0x05,
-    Pop = 0x06,
-    Ret = 0x07,
-    Swap = 0x08,
-    Stop = 0xfe,
-    Invalid = 0xff,
+use crate::utils::numeric_encoding::NumericEncoding;
+
+use super::{error_code::ErrorCode, constants::MAXIMUM_NUM_READS_PER_OPCODE, program_memory::ProgramMemory, stack_requirement::StackRequirement, opcode_execution_checker::OpcodeExecutionChecker};
+
+#[derive(Clone, PartialEq, Eq, FromPrimitive, Debug, EnumIter, PartialOrd, Ord, EnumCount)]
+pub enum Opcode {
+    Stop = 0x00, // top is unchanged, program counter is unchanged too
+    Add = 0x01, // top is decreased by 1 with written output = lhs + rhs, pc += 1
+    Sub = 0x02, // top is decreased by 1 with written output = lhs - rhs, pc += 1
+    Mul = 0x03, // top is decreased by 1 with written output = lhs * rhs, pc += 1
+    Div = 0x04, // top is decreased by 1 with written output = lhs // rhs, if rhs == 0 then jump to ErrDivisionByZero, pc += 1
+    Mod = 0x06, // top is decreased by 1 with writeen output = lhs % rhs, if rhs == 0 then jump to ErrDivisionByZero, pc += 1
+    Pop = 0x50, // top is decreased by 1, no constraint to lhs and rhs, pc += 1
+    Jump = 0x56, // top is kept unchanged with written output = rhs, pc = new_pc
+    Jumpi = 0x57, // top is kept unchanged with written output = rhs, pc = (bool(rhs)) * (pc + 1) + (1 - bool(rhs)) * new_pc
+    Push4 = 0x63, // top is increased by 1, no constraint to lhs and rhs, pc += 1
+    Dup2 = 0x81, // top is increase by 1 with written output = lhs, pc += 1
+    Swap1 = 0x90, // top is kept unchanged with written stack[top - 1] and stackp[top] swapped, pc += 1
+    Return = 0xf3, // top is kept unchanged with written output = rhs, pc unchanged
+    Error = 0xfe, // top is increased by 1 with written error code (1 param), pc unchanged
 }
 
-impl BinaryCode {
-    // Execute the opcode with the Dummy Virtual Machine's context
-    pub fn exec(&self, ctx: &mut DVMContext, param: i32) {
-        match *self {
-            Self::Add => {
-                if ctx.stack.len() < 2 {
-                    panic!("Can not perform ADD, stack deep is {}", ctx.stack.len());
-                }
-                let b = ctx.stack.pop().unwrap();
-                let a = ctx.stack.pop().unwrap();
-                ctx.stack.push(a + b);
-                println!("ADD\t(${:#08x} + ${:#08x})", a, b);
-            }
-            Self::Sub => {
-                if ctx.stack.len() < 2 {
-                    panic!("Can not perform SUB, stack deep is {}", ctx.stack.len());
-                }
-                let b = ctx.stack.pop().unwrap();
-                let a = ctx.stack.pop().unwrap();
-                ctx.stack.push(a - b);
-                println!("SUB\t(${:#08x} - ${:#08x})", a, b);
-            }
-            Self::Mul => {
-                if ctx.stack.len() < 2 {
-                    panic!("Can not perform MUL, stack deep is {}", ctx.stack.len());
-                }
-                let b = ctx.stack.pop().unwrap();
-                let a = ctx.stack.pop().unwrap();
-                ctx.stack.push(a * b);
-
-                println!("MUL\t(${:#08x} * ${:#08x})", a, b);
-            }
-            Self::Div => {
-                if ctx.stack.len() < 2 {
-                    panic!("Can not perform DIV, stack deep is {}", ctx.stack.len());
-                }
-                let b = ctx.stack.pop().unwrap();
-                let a = ctx.stack.pop().unwrap();
-                if b == 0 {
-                    panic!("Divide by 0");
-                }
-                ctx.stack.push(a / b);
-                println!("DIV\t(${:#08x} / ${:#08x})", a, b);
-            }
-            Self::Push => {
-                println!("PUSH\t${:#08x}", param);
-                ctx.stack.push(param);
-            }
-            Self::Pop => {
-                ctx.popped = ctx.stack.pop().unwrap();
-                println!("POP");
-            }
-            Self::Ret => {
-                ctx.result = ctx.stack.pop().unwrap();
-                ctx.terminated = true;
-                println!("RET\t${:#08x}", ctx.result);
-            }
-            Self::Swap => {
-                if ctx.stack.len() < 2 {
-                    panic!("Can not perform SWAP, stack deep is {}", ctx.stack.len());
-                }
-                let a = ctx.stack.pop().unwrap();
-                let b = ctx.stack.pop().unwrap();
-                ctx.stack.push(a);
-                ctx.stack.push(b);
-                println!("SWAP\t${:#08x} <-> {:#08x}", a, b);
-            }
-            Self::Stop => {
-                ctx.terminated = true;
-                println!("STOP");
-            }
-            Self::Invalid => panic!("Hello darkness, my old friend!"),
-        }
-        println!("\t\t\t\t\t{:?}", ctx.stack);
+impl NumericEncoding for Opcode {
+    fn to_u32(&self) -> u32 {
+        *self as u32
     }
 
-    pub fn from(bin: u8) -> BinaryCode {
-        match bin {
-            0x01 => Self::Add,
-            0x02 => Self::Sub,
-            0x03 => Self::Mul,
-            0x04 => Self::Div,
-            0x05 => Self::Push,
-            0x06 => Self::Pop,
-            0x07 => Self::Ret,
-            0x08 => Self::Swap,
-            0xfe => Self::Stop,
-            _ => Self::Invalid,
-        }
+    fn from_u32(v: u32) -> Self {
+        FromPrimitive::from_u32(v).unwrap()
+    }
+}
+
+impl StackRequirement for Opcode {
+    fn get_minimum_stack_depth(&self) -> usize {
+        self.get_num_stack_params() + MAXIMUM_NUM_READS_PER_OPCODE // plus 2 since stack.width in convention is at least 2
     }
 
-    pub fn to(&self) -> u8 {
-        match *self {
-            Self::Add => 0x01,
-            Self::Sub => 0x02,
-            Self::Mul => 0x03,
-            Self::Div => 0x04,
-            Self::Push => 0x05,
-            Self::Pop => 0x06,
-            Self::Ret => 0x07,
-            Self::Swap => 0x08,
-            Self::Stop => 0xfe,
-            _ => 0xff,
+    fn get_num_stack_params(&self) -> usize {
+        match self {
+            Opcode::Stop => 0,
+            Opcode::Add => 2, // 2 params for adding
+            Opcode::Sub => 2, // 2 params for subtracting
+            Opcode::Mul => 2, // 2 params for multiplying
+            Opcode::Div => 2, // 2 params for dividing
+            Opcode::Mod => 2, // 2 params for dividing
+            Opcode::Push4 => 0, // no param required
+            Opcode::Dup2 => 2, // 2 params required
+            Opcode::Pop => 1, // 1 param for popping
+            Opcode::Return => 1, // 1 param for returning
+            Opcode::Swap1 => 2, // 2 params for swapping
+            Opcode::Jump => 1, // 1 param for pc to jump to the required destination
+            Opcode::Jumpi => 2, // 2 params for condition and destination
+            Opcode::Error => 1, // 1 param indicating error code
         }
     }
 }
 
-// Opcode is the combine of BinaryCode and parameters
-#[derive(Debug)]
-pub struct Opcode(BinaryCode, i32);
+impl OpcodeExecutionChecker for Opcode {
+    fn get_error_after_executing(&self, 
+        read_stack_values: &[u32; MAXIMUM_NUM_READS_PER_OPCODE],
+        program_memory_before_executing: &ProgramMemory,
+        program_counter_before_executing: usize,
+    ) -> ErrorCode {
+        match self {
+            Opcode::Stop | Opcode::Return | Opcode::Error => {
+                // Stop does not move pc => NoError
+                // Return and Error move pc to location of Stop => always NoError
+                
+                ErrorCode::NoError
+            },
+            Opcode::Add | Opcode::Sub | Opcode::Mul | Opcode::Push4 | Opcode::Dup2 | Opcode::Pop | Opcode::Swap1 => {
+                // pc is moved next
+                match program_memory_before_executing.is_program_counter_reasonable(
+                    program_counter_before_executing + 1
+                ) {
+                    false => ErrorCode::IncorrectProgramCounter,
+                    true => ErrorCode::NoError,
+                }
+            },
+            Opcode::Div | Opcode::Mod => {
+                let b = &read_stack_values[1];
+                match b {
+                    0 => ErrorCode::DivisionByZero,
+                    _ => {
+                        // pc is moved next
+                        match program_memory_before_executing.is_program_counter_reasonable(
+                            program_counter_before_executing + 1
+                        ) {
+                            false => ErrorCode::IncorrectProgramCounter,
+                            true => ErrorCode::NoError,
+                        }
+                    }
+                }
+            },
+            Opcode::Jump => {
+                let destination = &read_stack_values[0];
+                match program_memory_before_executing.is_program_counter_reasonable(
+                    *destination as usize
+                ) {
+                    false => ErrorCode::IncorrectProgramCounter,
+                    true => ErrorCode::NoError,
+                }
+            },
+            Opcode::Jumpi => {
+                let (destination, condition) = &(read_stack_values[0], read_stack_values[1]);
 
-impl Opcode {
-    pub fn new(bin_code: BinaryCode, param: i32) -> Self {
-        Opcode(bin_code, param)
-    }
-    pub fn exec(&self, ctx: &mut DVMContext) {
-        self.0.exec(ctx, self.1)
+                // get next pc according to condition
+                let next_program_counter = match condition {
+                    0 => program_counter_before_executing + 1,
+                    _ => *destination as usize,
+                };
+
+                // then check validity of pc
+                match program_memory_before_executing.is_program_counter_reasonable(
+                    next_program_counter
+                ) {
+                    false => ErrorCode::IncorrectProgramCounter,
+                    true => ErrorCode::NoError,
+                }
+            },
+        }
     }
 }
