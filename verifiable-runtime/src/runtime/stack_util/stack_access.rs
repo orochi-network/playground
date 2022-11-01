@@ -1,4 +1,4 @@
-use crate::runtime::access_operation_util::access_operation::AccessOperation;
+use crate::runtime::access_util::access_operation::AccessOperation;
 
 // this struct aims to store the access at time_tag from stack[location]
 // access can either be read or write with value

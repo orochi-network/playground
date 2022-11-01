@@ -1,4 +1,4 @@
-use crate::runtime::access_operation_util::access_operation::AccessOperation;
+use crate::runtime::access_util::access_operation::AccessOperation;
 use crate::runtime::constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE};
 use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
 use crate::runtime::program_memory_util::program_memory::ProgramMemory;

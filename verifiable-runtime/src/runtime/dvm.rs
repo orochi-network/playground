@@ -1,5 +1,6 @@
 use crate::{runtime::{constants::MAXIMUM_NUM_WRITES_PER_OPCODE}, utils::numeric_encoding::NumericEncoding};
 use crate::runtime::error_code_util::error_code::ErrorCode;
+use crate::runtime::memory_util::memory::Memory;
 use crate::runtime::opcode_util::opcode::Opcode;
 use crate::runtime::opcode_util::opcode_execution_checker::OpcodeExecutionChecker;
 use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
@@ -15,6 +16,7 @@ use super::{execution::Execution, constants::MAXIMUM_NUM_READS_PER_OPCODE};
 pub struct DummyVirtualMachine {
     program_memory: ProgramMemory,
     program_counter: usize,
+    memory: Memory,
     stack: Stack,
     result: u32,
     error_code: ErrorCode,
@@ -26,6 +28,7 @@ impl DummyVirtualMachine {
         Self {
             program_memory: ProgramMemory::new(&program_memory),
             program_counter: 0,
+            memory: Memory::new(),
             stack: Stack::new(),
             result: 0,
             error_code: ErrorCode::NoReturn,

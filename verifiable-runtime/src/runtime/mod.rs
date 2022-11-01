@@ -5,5 +5,6 @@ pub mod program_memory_util;
 pub mod constants;
 pub mod execution;
 pub mod trace;
-pub mod access_operation_util;
+pub mod access_util;
 pub mod stack_util;
+pub mod memory_util;

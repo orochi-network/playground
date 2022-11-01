@@ -16,7 +16,7 @@ use crate::utils::numeric_encoding::NumericEncoding;
 
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount, EnumIter};
-use crate::runtime::access_operation_util::access_operation::AccessOperation;
+use crate::runtime::access_util::access_operation::AccessOperation;
 use crate::runtime::trace::raw_execution_trace::RawExecutionTrace;
 
 pub struct HighLevelPlainProof {

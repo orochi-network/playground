@@ -1,5 +1,5 @@
 use crate::{utils::numeric_encoding::NumericEncoding};
-use crate::runtime::access_operation_util::access_operation::AccessOperation;
+use crate::runtime::access_util::access_operation::AccessOperation;
 
 use super::p_numeric_encoding::PNumericEncoding;
 

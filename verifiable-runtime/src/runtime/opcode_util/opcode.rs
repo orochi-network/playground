@@ -2,8 +2,10 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use strum_macros::{EnumIter, EnumCount};
 use strum::IntoEnumIterator;
+use crate::runtime::access_util::access_specficiation_extractor::AccessSpecificationExtractor;
+use crate::runtime::access_util::access_specification::AccessSpecification;
 
-use crate::runtime::constants::MAXIMUM_NUM_READS_PER_OPCODE;
+use crate::runtime::constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE};
 use crate::runtime::error_code_util::error_code::ErrorCode;
 use crate::runtime::program_memory_util::program_memory::ProgramMemory;
 use crate::runtime::stack_util::stack_requirement::StackRequirement;
@@ -129,5 +131,14 @@ impl OpcodeExecutionChecker for Opcode {
                 }
             },
         }
+    }
+}
+
+impl AccessSpecificationExtractor for Opcode {
+    fn get_access_specification(&self) -> (
+        [AccessSpecification; MAXIMUM_NUM_READS_PER_OPCODE],
+        [AccessSpecification; MAXIMUM_NUM_WRITES_PER_OPCODE]
+    ) {
+        todo!()
     }
 }
