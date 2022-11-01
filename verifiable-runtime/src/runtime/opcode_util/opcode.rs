@@ -1,19 +1,25 @@
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
-use strum_macros::{EnumIter, EnumCount} ;
+use strum_macros::{EnumIter, EnumCount};
+use strum::IntoEnumIterator;
+
+use crate::runtime::constants::MAXIMUM_NUM_READS_PER_OPCODE;
+use crate::runtime::error_code_util::error_code::ErrorCode;
+use crate::runtime::program_memory_util::program_memory::ProgramMemory;
+use crate::runtime::stack_util::stack_requirement::StackRequirement;
 
 use crate::utils::numeric_encoding::NumericEncoding;
 
-use super::{error_code::ErrorCode, constants::MAXIMUM_NUM_READS_PER_OPCODE, program_memory::ProgramMemory, stack_requirement::StackRequirement, opcode_execution_checker::OpcodeExecutionChecker};
+use super::{opcode_execution_checker::OpcodeExecutionChecker};
 
-#[derive(Clone, PartialEq, Eq, FromPrimitive, Debug, EnumIter, PartialOrd, Ord, EnumCount)]
+#[derive(Clone, PartialEq, Eq, FromPrimitive, Debug, EnumIter, PartialOrd, Ord, EnumCount, Copy)]
 pub enum Opcode {
     Stop = 0x00, // top is unchanged, program counter is unchanged too
     Add = 0x01, // top is decreased by 1 with written output = lhs + rhs, pc += 1
     Sub = 0x02, // top is decreased by 1 with written output = lhs - rhs, pc += 1
     Mul = 0x03, // top is decreased by 1 with written output = lhs * rhs, pc += 1
     Div = 0x04, // top is decreased by 1 with written output = lhs // rhs, if rhs == 0 then jump to ErrDivisionByZero, pc += 1
-    Mod = 0x06, // top is decreased by 1 with writeen output = lhs % rhs, if rhs == 0 then jump to ErrDivisionByZero, pc += 1
+    Mod = 0x06, // top is decreased by 1 with written output = lhs % rhs, if rhs == 0 then jump to ErrDivisionByZero, pc += 1
     Pop = 0x50, // top is decreased by 1, no constraint to lhs and rhs, pc += 1
     Jump = 0x56, // top is kept unchanged with written output = rhs, pc = new_pc
     Jumpi = 0x57, // top is kept unchanged with written output = rhs, pc = (bool(rhs)) * (pc + 1) + (1 - bool(rhs)) * new_pc

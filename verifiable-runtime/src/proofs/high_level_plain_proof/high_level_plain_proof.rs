@@ -1,6 +1,23 @@
-use strum::{EnumCount, IntoEnumIterator};
+use crate::proofs::deterministic_computations::next_state_computation::compute_next_state;
+use crate::proofs::proof_types::p_numeric_encoding::PNumericEncoding;
+use crate::proofs::proof_types::p_opcode::POpcode;
+use crate::proofs::proof_types::p_opcode_params::POpcodeParam;
+use crate::proofs::proof_types::p_program_counter::PProgramCounter;
+use crate::proofs::proof_types::p_program_memory_location::PProgramMemoryLocation;
+use crate::proofs::proof_types::p_read_write_acces::PReadWriteAccess;
+use crate::proofs::proof_types::p_stack_depth::PStackDepth;
+use crate::proofs::proof_types::p_stack_location::PStackLocation;
+use crate::proofs::proof_types::p_stack_value::PStackValue;
+use crate::proofs::proof_types::p_time_tag::PTimeTag;
+use crate::runtime::constants::{MAXIMUM_NUM_ACCESSES_PER_OPCODE, MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE};
+use crate::runtime::opcode_util::opcode::Opcode;
+use crate::utils::copy_slice::copy_slice_to_sized_array;
+use crate::utils::numeric_encoding::NumericEncoding;
 
-use crate::{proofs::{proof_types::{p_program_memory_location::PProgramMemoryLocation, p_program_counter::PProgramCounter, p_opcode_params::POpcodeParam, p_read_write_acces::PReadWriteAccess, p_stack_value::PStackValue, p_opcode::POpcode, p_time_tag::PTimeTag, p_stack_location::PStackLocation, p_stack_depth::PStackDepth, p_numeric_encoding::PNumericEncoding}, deterministic_computations::next_state_computation::compute_next_state}, runtime::{constants::{MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_ACCESSES_PER_OPCODE}, raw_execution_trace::RawExecutionTrace, access_operation::AccessOperation}, utils::{numeric_encoding::NumericEncoding, copy_slice::copy_slice_to_sized_array}, opcode::Opcode};
+use strum::{EnumCount, IntoEnumIterator};
+use strum_macros::{EnumCount, EnumIter};
+use crate::runtime::access_operation_util::access_operation::AccessOperation;
+use crate::runtime::trace::raw_execution_trace::RawExecutionTrace;
 
 pub struct HighLevelPlainProof {
     num_transitions: usize, // number of transitions

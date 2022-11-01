@@ -1,6 +1,15 @@
-use crate::{opcode::Opcode, runtime::{constants::MAXIMUM_NUM_WRITES_PER_OPCODE, opcode_execution_checker::OpcodeExecutionChecker, stack_requirement::StackRequirement}, utils::numeric_encoding::NumericEncoding};
+use crate::{runtime::{constants::MAXIMUM_NUM_WRITES_PER_OPCODE}, utils::numeric_encoding::NumericEncoding};
+use crate::runtime::error_code_util::error_code::ErrorCode;
+use crate::runtime::opcode_util::opcode::Opcode;
+use crate::runtime::opcode_util::opcode_execution_checker::OpcodeExecutionChecker;
+use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
+use crate::runtime::program_memory_util::program_memory::ProgramMemory;
+use crate::runtime::stack_util::stack::Stack;
+use crate::runtime::stack_util::stack_requirement::StackRequirement;
+use crate::runtime::trace::raw_execution_trace;
+use crate::runtime::trace::raw_execution_trace::RawExecutionTrace;
 
-use super::{program_memory::ProgramMemory, error_code::ErrorCode, opcode_with_params::OpcodeWithParams, execution::Execution, stack::Stack, constants::MAXIMUM_NUM_READS_PER_OPCODE, raw_execution_trace::RawExecutionTrace};
+use super::{execution::Execution, constants::MAXIMUM_NUM_READS_PER_OPCODE};
 
 // Context of Dummy Virtual Machine
 pub struct DummyVirtualMachine {
@@ -14,9 +23,8 @@ pub struct DummyVirtualMachine {
 
 impl DummyVirtualMachine {
     pub fn new(program_memory: &Vec<OpcodeWithParams>) -> Self {
-        let new_program_memory = program_memory.clone();
         Self {
-            program_memory: ProgramMemory::new(new_program_memory),
+            program_memory: ProgramMemory::new(&program_memory),
             program_counter: 0,
             stack: Stack::new(),
             result: 0,

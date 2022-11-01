@@ -1,6 +1,5 @@
-use crate::opcode::Opcode;
-
-use super::constants::MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE;
+use crate::runtime::constants::MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE;
+use crate::runtime::opcode_util::opcode::Opcode;
 
 // this struct is used to put inside program memory
 // it includes the opcode and possibly an additional param (like push value)

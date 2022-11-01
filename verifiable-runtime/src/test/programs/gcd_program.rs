@@ -1,4 +1,5 @@
-use crate::{runtime::opcode_with_params::OpcodeWithParams, opcode::Opcode};
+use crate::runtime::opcode_util::opcode::Opcode;
+use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
 
 pub const NUM_GCD_INPUTS: usize = 2;
 
@@ -22,12 +23,12 @@ pub fn make_gcd_program_memory(inputs: &[u32; NUM_GCD_INPUTS]) -> Vec<OpcodeWith
         // stack: [a, b, b, a]
 
         // then compure r = a mod b
-        OpcodeWithParams::new(Opcode::Mod, &[None]), // index 5 // stack[r, b, a] 
+        OpcodeWithParams::new(Opcode::Mod, &[None]), // index 5 // stack[r, b, a]
         
         // by assigning a = b, b = r => view stack as [b, a, _]
 
         // now testing whether b == 0
-        OpcodeWithParams::new(Opcode::Push4, &[Some(2)]), // index 6 // push destination == 2 to the stack // stack[2, b, a]
+        OpcodeWithParams::new(Opcode::Push4, &[Some(2)]), // index 6 // push destination == 2 to the stack // stack_utils[2, b, a]
         
         // duplicate
         OpcodeWithParams::new(Opcode::Dup2, &[None]), // index 7 // stack[b, 2, b, a]

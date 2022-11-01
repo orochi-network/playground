@@ -1,6 +1,6 @@
-use crate::{opcode::Opcode, utils::numeric_encoding::NumericEncoding};
-
-use super::p_numeric_encoding::PNumericEncoding;
+use crate::proofs::proof_types::p_numeric_encoding::PNumericEncoding;
+use crate::runtime::opcode_util::opcode::Opcode;
+use crate::utils::numeric_encoding::NumericEncoding;
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct POpcode {

@@ -1,4 +1,7 @@
-use crate::{proofs::proof_types::{p_stack_depth::PStackDepth, p_numeric_encoding::PNumericEncoding, p_stack_value::PStackValue, p_program_counter::PProgramCounter, p_program_memory_location::PProgramMemoryLocation, p_opcode_params::POpcodeParam, p_opcode::POpcode}, opcode::Opcode, runtime::{constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE}, stack_requirement::StackRequirement, error_code::ErrorCode}, utils::numeric_encoding::NumericEncoding};
+use crate::{proofs::proof_types::{p_stack_depth::PStackDepth, p_numeric_encoding::PNumericEncoding, p_stack_value::PStackValue, p_program_counter::PProgramCounter, p_program_memory_location::PProgramMemoryLocation, p_opcode_params::POpcodeParam, p_opcode::POpcode}, runtime::{constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE}}, utils::numeric_encoding::NumericEncoding};
+use crate::runtime::error_code_util::error_code::ErrorCode;
+use crate::runtime::opcode_util::opcode::Opcode;
+use crate::runtime::stack_util::stack_requirement::StackRequirement;
 
 fn is_stack_depth_reasonable(
     current_stack_depth: &PStackDepth, 

@@ -1,5 +1,6 @@
-use crate::{opcode::Opcode, utils::numeric_encoding::NumericEncoding, runtime::error_code::ErrorCode};
-
+use crate::runtime::error_code_util::error_code::ErrorCode;
+use crate::runtime::opcode_util::opcode::Opcode;
+use crate::utils::numeric_encoding::NumericEncoding;
 
 pub struct TestOpcodeDefinition {
     

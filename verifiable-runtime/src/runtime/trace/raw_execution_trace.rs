@@ -1,9 +1,13 @@
-use super::{program_memory::ProgramMemory, constants::{MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE}, opcode_with_params::OpcodeWithParams, stack_access::StackAccess, access_operation::AccessOperation};
+use crate::runtime::access_operation_util::access_operation::AccessOperation;
+use crate::runtime::constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE};
+use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
+use crate::runtime::program_memory_util::program_memory::ProgramMemory;
+use crate::runtime::stack_util::stack_access::StackAccess;
 
 pub struct RawExecutionTrace {
     program_memory: ProgramMemory, // public: store the sequence of opcodes (encoded into u32) and never change in the future
 
-    depth_trace: Vec<usize>, // advice: store the depth of the stack 
+    depth_trace: Vec<usize>, // advice: store the depth of the stack
     program_counter_trace: Vec<usize>, // advice: store pc after each execution
     stack_trace: Vec<StackAccess>, // advice: store all possible accesses to stack with respective time, location, operation
     opcode_with_params_trace: Vec<OpcodeWithParams>, // advice: store the encoded opcodes (u32) according to pc_trace

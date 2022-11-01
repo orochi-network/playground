@@ -1,6 +1,7 @@
 use std::ops::Index;
+use crate::runtime::opcode_util::opcode::Opcode;
 
-use crate::{runtime::opcode_with_params::OpcodeWithParams, opcode::Opcode};
+use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
 
 #[derive(Clone)]
 pub struct ProgramMemory {
@@ -8,7 +9,7 @@ pub struct ProgramMemory {
 }
 
 impl ProgramMemory {
-    pub fn new(memory: Vec<OpcodeWithParams>) -> Self {
+    pub fn new(memory: &Vec<OpcodeWithParams>) -> Self {
         // program must be executable
         assert!(memory.len() > 0);
 

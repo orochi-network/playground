@@ -1,6 +1,5 @@
 use std::ops;
-
-use super::constants::MAXIMUM_NUM_READS_PER_OPCODE;
+use crate::runtime::constants::MAXIMUM_NUM_READS_PER_OPCODE;
 
 pub struct Stack {
     stack: Vec<u32>,

@@ -1,8 +1,14 @@
+use crate::proofs::high_level_plain_proof::high_level_plain_proof::HighLevelPlainProof;
+use crate::runtime::execution::Execution;
+use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
+use crate::test::programs::collatz_program::{make_collatz_program_memory, NUM_COLLATZ_INPUTS};
+use crate::test::programs::gcd_program::{make_gcd_program_memory, NUM_GCD_INPUTS};
 use strum::IntoEnumIterator;
 
-use crate::{runtime::{opcode_with_params::OpcodeWithParams, error_code::ErrorCode, execution::Execution}, dvm::DummyVirtualMachine, proofs::high_level_plain_proof::high_level_plain_proof::HighLevelPlainProof, utils::numeric_encoding::NumericEncoding};
+use crate::runtime::dvm::DummyVirtualMachine;
+use crate::runtime::error_code_util::error_code::ErrorCode;
+use crate::utils::numeric_encoding::NumericEncoding;
 
-use super::programs::{gcd_program::{NUM_GCD_INPUTS, make_gcd_program_memory}, collatz_program::{NUM_COLLATZ_INPUTS, make_collatz_program_memory}};
 
 fn test_with_program_memory(num_steps: usize, program_memory: &Vec<OpcodeWithParams>, input: &[u32]) {
     let mut dummy_vm = DummyVirtualMachine::new(program_memory);

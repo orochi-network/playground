@@ -1,4 +1,5 @@
-use crate::{runtime::opcode_with_params::OpcodeWithParams, opcode::Opcode};
+use crate::runtime::opcode_util::opcode::Opcode;
+use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
 
 pub const NUM_COLLATZ_INPUTS: usize = 1;
 

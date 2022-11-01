@@ -1,15 +1,16 @@
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use strum_macros::EnumIter;
+use strum::IntoEnumIterator;
 
 use crate::utils::numeric_encoding::NumericEncoding;
 
-#[derive(Clone, FromPrimitive, Debug, PartialEq, Eq, EnumIter)]
+#[derive(Clone, FromPrimitive, Debug, PartialEq, Eq, EnumIter, Copy)]
 pub enum ErrorCode {
     NoError = 0x00, // there is no error happened
     NoReturn = 0x01, // program hasn't stopped
-    DivisionByZero = 0x02, // divison by zero
-    IncorrectStackAccess = 0x03, // incorrect stack access 
+    DivisionByZero = 0x02, // division by zero
+    IncorrectStackAccess = 0x03, // incorrect stack access
     IncorrectProgramCounter = 0x04, // incorrect program counter
 }
 
