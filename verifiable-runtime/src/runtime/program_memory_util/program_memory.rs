@@ -9,19 +9,19 @@ pub struct ProgramMemory {
 }
 
 impl ProgramMemory {
-    pub fn new(memory: &Vec<OpcodeWithParams>) -> Self {
+    pub fn new(program_memory: &Vec<OpcodeWithParams>) -> Self {
         // program must be executable
-        assert!(memory.len() > 0);
+        assert!(program_memory.len() > 0);
 
-        let mut new_memory = memory.clone();
+        let mut new_program_memory = program_memory.clone();
 
         // each program must have an errorcode at the end to return whenever error happens
-        new_memory.push(OpcodeWithParams::new(Opcode::Error, &[None]));
+        new_program_memory.push(OpcodeWithParams::new(Opcode::Error, &[None]));
         // then followed by Opcode::Stop
-        new_memory.push(OpcodeWithParams::new(Opcode::Stop, &[None]));
+        new_program_memory.push(OpcodeWithParams::new(Opcode::Stop, &[None]));
         // then return
         Self {
-            memory: new_memory,
+            memory: new_program_memory,
         }
     }
 
