@@ -1,10 +1,10 @@
-use crate::{runtime::read_write_access::ReadWriteAccess, utils::numeric_encoding::NumericEncoding};
+use crate::{runtime::access_operation::AccessOperation, utils::numeric_encoding::NumericEncoding};
 
 use super::p_numeric_encoding::PNumericEncoding;
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct PReadWriteAccess {
-    value: ReadWriteAccess,
+    value: AccessOperation,
 }
 
 impl PNumericEncoding for PReadWriteAccess {
@@ -14,7 +14,7 @@ impl PNumericEncoding for PReadWriteAccess {
 
     fn from_u32(v: u32) -> Self {
         Self {
-            value: ReadWriteAccess::from_u32(v),
+            value: AccessOperation::from_u32(v),
         }
     }
 }

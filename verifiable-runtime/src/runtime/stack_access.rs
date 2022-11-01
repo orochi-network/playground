@@ -1,4 +1,4 @@
-use super::read_write_access::ReadWriteAccess;
+use super::access_operation::AccessOperation;
 
 // this struct aims to store the access at time_tag from stack[location]
 // access can either be read or write with value
@@ -6,12 +6,12 @@ use super::read_write_access::ReadWriteAccess;
 pub struct StackAccess {
     location: usize,
     time_tag: u32, 
-    access_operation: ReadWriteAccess,
+    access_operation: AccessOperation,
     value: u32,
 }
 
 impl StackAccess {
-    pub fn new(location: usize, time_tag: u32, access_operation: ReadWriteAccess, value: u32) -> Self {
+    pub fn new(location: usize, time_tag: u32, access_operation: AccessOperation, value: u32) -> Self {
         Self {
             location: location,
             time_tag: time_tag,
@@ -28,7 +28,7 @@ impl StackAccess {
         self.time_tag
     }
 
-    pub fn get_access_operation(&self) -> ReadWriteAccess {
+    pub fn get_access_operation(&self) -> AccessOperation {
         self.access_operation
     }
 

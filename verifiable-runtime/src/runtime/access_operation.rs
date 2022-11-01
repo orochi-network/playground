@@ -4,12 +4,12 @@ use num_traits::FromPrimitive;
 use crate::utils::numeric_encoding::NumericEncoding;
 
 #[derive(Debug, FromPrimitive, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum ReadWriteAccess {
+pub enum AccessOperation {
     Write = 0x00,
     Read = 0x01,
 }
 
-impl NumericEncoding for ReadWriteAccess {
+impl NumericEncoding for AccessOperation {
     fn to_u32(&self) -> u32 {
         *self as u32
     }

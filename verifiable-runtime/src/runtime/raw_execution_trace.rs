@@ -1,4 +1,4 @@
-use super::{program_memory::ProgramMemory, constants::{MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE}, opcode_with_params::OpcodeWithParams, stack_access::StackAccess, read_write_access::ReadWriteAccess};
+use super::{program_memory::ProgramMemory, constants::{MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE}, opcode_with_params::OpcodeWithParams, stack_access::StackAccess, access_operation::AccessOperation};
 
 pub struct RawExecutionTrace {
     program_memory: ProgramMemory, // public: store the sequence of opcodes (encoded into u32) and never change in the future
@@ -40,7 +40,7 @@ impl RawExecutionTrace {
                 StackAccess::new(
                     depth_before_changed - i - 1,
                     *time_tag,
-                    ReadWriteAccess::Read,
+                    AccessOperation::Read,
                     read_stack_values[i],
                 )
             );
@@ -52,7 +52,7 @@ impl RawExecutionTrace {
                 StackAccess::new(
                     depth_after_changed - i - 1,
                     *time_tag,
-                    ReadWriteAccess::Write,
+                    AccessOperation::Write,
                     write_stack_values[i],
                 )
             );

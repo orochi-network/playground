@@ -1,6 +1,6 @@
 use strum::{EnumCount, IntoEnumIterator};
 
-use crate::{proofs::{proof_types::{p_program_memory_location::PProgramMemoryLocation, p_program_counter::PProgramCounter, p_opcode_params::POpcodeParam, p_read_write_acces::PReadWriteAccess, p_stack_value::PStackValue, p_opcode::POpcode, p_time_tag::PTimeTag, p_stack_location::PStackLocation, p_stack_depth::PStackDepth, p_numeric_encoding::PNumericEncoding}, deterministic_computations::next_state_computation::compute_next_state}, runtime::{constants::{MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_ACCESSES_PER_OPCODE}, raw_execution_trace::RawExecutionTrace, read_write_access::ReadWriteAccess}, utils::{numeric_encoding::NumericEncoding, copy_slice::copy_slice_to_sized_array}, opcode::Opcode};
+use crate::{proofs::{proof_types::{p_program_memory_location::PProgramMemoryLocation, p_program_counter::PProgramCounter, p_opcode_params::POpcodeParam, p_read_write_acces::PReadWriteAccess, p_stack_value::PStackValue, p_opcode::POpcode, p_time_tag::PTimeTag, p_stack_location::PStackLocation, p_stack_depth::PStackDepth, p_numeric_encoding::PNumericEncoding}, deterministic_computations::next_state_computation::compute_next_state}, runtime::{constants::{MAXIMUM_NUM_OPCODE_PARAMS_PER_OPCODE, MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE, MAXIMUM_NUM_ACCESSES_PER_OPCODE}, raw_execution_trace::RawExecutionTrace, access_operation::AccessOperation}, utils::{numeric_encoding::NumericEncoding, copy_slice::copy_slice_to_sized_array}, opcode::Opcode};
 
 pub struct HighLevelPlainProof {
     num_transitions: usize, // number of transitions
@@ -70,7 +70,7 @@ impl HighLevelPlainProof {
             (
                 PStackLocation::from_u32(index as u32),
                 PTimeTag::from_u32(index as u32),
-                PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32()),
+                PReadWriteAccess::from_u32(AccessOperation::Write.to_u32()),
                 PStackValue::from_u32(0),
             )
         ).collect();
@@ -212,7 +212,7 @@ impl HighLevelPlainProof {
         for index in 0..MAXIMUM_NUM_WRITES_PER_OPCODE {
             assert_eq!(self.stack_access_table[index].0.to_u32(), index as u32);
             assert_eq!(self.stack_access_table[index].1.to_u32(), index as u32);
-            assert_eq!(self.stack_access_table[index].2, PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32()));
+            assert_eq!(self.stack_access_table[index].2, PReadWriteAccess::from_u32(AccessOperation::Write.to_u32()));
         }
 
         // verify order of access of remaining elements
@@ -221,14 +221,14 @@ impl HighLevelPlainProof {
             for i in 0..MAXIMUM_NUM_READS_PER_OPCODE {
                 assert_eq!(
                     self.stack_access_table[MAXIMUM_NUM_READS_PER_OPCODE + index * MAXIMUM_NUM_ACCESSES_PER_OPCODE + i].2, 
-                    PReadWriteAccess::from_u32(ReadWriteAccess::Read.to_u32())
+                    PReadWriteAccess::from_u32(AccessOperation::Read.to_u32())
                 );
             }
 
             for i in MAXIMUM_NUM_READS_PER_OPCODE..MAXIMUM_NUM_ACCESSES_PER_OPCODE {
                 assert_eq!(
                     self.stack_access_table[MAXIMUM_NUM_READS_PER_OPCODE + index * MAXIMUM_NUM_ACCESSES_PER_OPCODE + i].2, 
-                    PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32())
+                    PReadWriteAccess::from_u32(AccessOperation::Write.to_u32())
                 );
             }
 
@@ -267,10 +267,10 @@ impl HighLevelPlainProof {
                 // current location is different from next location
                 // or if current location == next location, value must be the same,
                 // of if current location == next location and value are different, next location must be a Write access
-                && (cur_location != next_location || cur_stack_value == next_stack_value || *next_access_operation == PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32()))
+                && (cur_location != next_location || cur_stack_value == next_stack_value || *next_access_operation == PReadWriteAccess::from_u32(AccessOperation::Write.to_u32()))
                 // current location is the same as next location
                 // or if current location if different from next location, write access must be applied first
-                && (cur_location == next_location || *next_access_operation == PReadWriteAccess::from_u32(ReadWriteAccess::Write.to_u32()))
+                && (cur_location == next_location || *next_access_operation == PReadWriteAccess::from_u32(AccessOperation::Write.to_u32()))
             );
         }
         println!("succeed!");

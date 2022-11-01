@@ -10,4 +10,4 @@ pub mod stack;
 pub mod execution;
 pub mod raw_execution_trace;
 pub mod stack_access;
-pub mod read_write_access;
+pub mod access_operation;
