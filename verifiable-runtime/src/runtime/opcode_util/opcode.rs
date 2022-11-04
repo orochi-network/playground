@@ -4,6 +4,7 @@ use strum_macros::{EnumIter, EnumCount};
 use strum::IntoEnumIterator;
 use crate::runtime::access_util::access_specficiation_extractor::AccessSpecificationExtractor;
 use crate::runtime::access_util::access_specification::AccessSpecification;
+use crate::runtime::access_util::access_type::AccessType;
 
 use crate::runtime::constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE};
 use crate::runtime::error_code_util::error_code::ErrorCode;
@@ -139,6 +140,30 @@ impl AccessSpecificationExtractor for Opcode {
         [AccessSpecification; MAXIMUM_NUM_READS_PER_OPCODE],
         [AccessSpecification; MAXIMUM_NUM_WRITES_PER_OPCODE]
     ) {
-        todo!()
+        match self {
+            Opcode::Stop => {
+                (
+                    [
+                        AccessSpecification::new(AccessType::Garbage, None),
+                    ],
+                    [
+
+                    ]
+                )
+            },
+            Opcode::Add => {},
+            Opcode::Sub => {},
+            Opcode::Mul => {},
+            Opcode::Div => {},
+            Opcode::Mod => {},
+            Opcode::Pop => {},
+            Opcode::Jump => {},
+            Opcode::Jumpi => {},
+            Opcode::Push4 => {},
+            Opcode::Dup2 => {},
+            Opcode::Swap1 => {},
+            Opcode::Return => {},
+            Opcode::Error => {},
+        }
     }
 }
