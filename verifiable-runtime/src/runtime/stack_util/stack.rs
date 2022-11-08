@@ -1,5 +1,5 @@
 use std::ops;
-use crate::runtime::constants::MAXIMUM_NUM_READS_PER_OPCODE;
+// use crate::runtime::constants::MAXIMUM_NUM_READS_PER_OPCODE;
 
 pub struct Stack {
     stack: Vec<u32>,
@@ -12,8 +12,8 @@ impl Stack {
         // initial stack must have 2 dummy elements at indices 0 and 1 for ease of handling later in constructing ZKP
         // depth must be at least 2
         Self {
-            stack: vec![0; MAXIMUM_NUM_READS_PER_OPCODE],
-            depth: MAXIMUM_NUM_READS_PER_OPCODE,
+            stack: Vec::<u32>::new(),
+            depth: 0,
         }
     }
 
@@ -53,7 +53,8 @@ impl Stack {
     }
 
     pub fn is_depth_violating(&self) -> bool {
-        self.depth < MAXIMUM_NUM_READS_PER_OPCODE
+        todo!();
+        // self.depth < MAXIMUM_NUM_READS_PER_OPCODE
     }
 
     // pub fn display(&self) {

@@ -354,25 +354,26 @@ impl HighLevelPlainProof {
 
     // verify state transition table
     fn verify_state_transition_table(&self) {
-        print!("Do verify state transition table: ");
-        for index in 0..self.state_transition_table.len() - 1 {
-            let (stack_depth, program_counter, read_stack_values, opcode, opcode_params) = &self.state_transition_table[index].clone();
-            assert!(
-                self.is_tuple_inside_state_transition_lookup_table(
-                    &(
-                        stack_depth.clone(), 
-                        program_counter.clone(), 
-                        read_stack_values.clone(),
-                        opcode.clone(), 
-                        opcode_params.clone(),
-                        self.state_transition_table[index + 1].0.clone(),
-                        self.state_transition_table[index + 1].1.clone(),
-                        copy_slice_to_sized_array::<_, MAXIMUM_NUM_WRITES_PER_OPCODE>(&self.state_transition_table[index + 1].2),
-                    )
-                )
-            );
-        }
-        println!("succeed!");
+        todo!();
+        // print!("Do verify state transition table: ");
+        // for index in 0..self.state_transition_table.len() - 1 {
+        //     let (stack_depth, program_counter, read_stack_values, opcode, opcode_params) = &self.state_transition_table[index].clone();
+        //     assert!(
+        //         self.is_tuple_inside_state_transition_lookup_table(
+        //             &(
+        //                 stack_depth.clone(),
+        //                 program_counter.clone(),
+        //                 read_stack_values.clone(),
+        //                 opcode.clone(),
+        //                 opcode_params.clone(),
+        //                 self.state_transition_table[index + 1].0.clone(),
+        //                 self.state_transition_table[index + 1].1.clone(),
+        //                 copy_slice_to_sized_array::<_, MAXIMUM_NUM_WRITES_PER_OPCODE>(&self.state_transition_table[index + 1].2),
+        //             )
+        //         )
+        //     );
+        // }
+        // println!("succeed!");
     }
 
     fn verify_program_memory_table(&self) {
