@@ -3,7 +3,7 @@ use crate::runtime::error_code_util::error_code::ErrorCode;
 use crate::runtime::memory_util::memory::Memory;
 use crate::runtime::opcode_util::opcode::Opcode;
 use crate::runtime::opcode_util::opcode_execution_checker::OpcodeExecutionChecker;
-use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
+use crate::runtime::opcode_util::opcode_with_immediate_value::OpcodeWithImmediateValue;
 use crate::runtime::program_memory_util::program_memory::ProgramMemory;
 use crate::runtime::stack_util::stack::Stack;
 use crate::runtime::stack_util::stack_requirement::StackRequirement;
@@ -24,7 +24,7 @@ pub struct DummyVirtualMachine {
 }
 
 impl DummyVirtualMachine {
-    pub fn new(program_memory: &Vec<OpcodeWithParams>) -> Self {
+    pub fn new(program_memory: &Vec<OpcodeWithImmediateValue>) -> Self {
         Self {
             program_memory: ProgramMemory::new(&program_memory),
             program_counter: 0,
@@ -231,8 +231,7 @@ impl DummyVirtualMachine {
 
     pub fn execute(&mut self, execution_length: usize) -> (u32, ErrorCode, RawExecutionTrace) {
         let mut execution_trace = RawExecutionTrace::new(
-            &self.program_memory,
-            self.program_counter,
+            &self.program_memory
         );
         for _ in 0..execution_length {
             self.execute_single_step(&mut execution_trace);

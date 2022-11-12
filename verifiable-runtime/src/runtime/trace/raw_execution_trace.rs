@@ -1,6 +1,5 @@
 use crate::runtime::access_util::access_operation::AccessOperation;
-// use crate::runtime::constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE};
-use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
+use crate::runtime::opcode_util::opcode_with_immediate_value::{OpcodeWithImmediateValue};
 use crate::runtime::program_memory_util::program_memory::ProgramMemory;
 use crate::runtime::stack_util::stack_access::StackAccess;
 
@@ -10,29 +9,27 @@ pub struct RawExecutionTrace {
     depth_trace: Vec<usize>, // advice: store the depth of the stack
     program_counter_trace: Vec<usize>, // advice: store pc after each execution
     stack_trace: Vec<StackAccess>, // advice: store all possible accesses to stack with respective time, location, operation
-    opcode_with_params_trace: Vec<OpcodeWithParams>, // advice: store the encoded opcodes (u32) according to pc_trace
+    opcode_with_immediate_value_trace: Vec<OpcodeWithImmediateValue>, // advice: store the encoded opcodes (u32) according to pc_trace
 }
 
 impl RawExecutionTrace {
 
-    pub fn new(program_memory: &ProgramMemory, initial_program_counter: usize) -> Self {
-        todo!()
-        // Self {
-        //     program_memory: program_memory.clone(), // TODO: recommending changing to reference with life time, to be fixed later
-        //
-        //     program_counter_trace: vec![initial_program_counter], // initialized with the first program_counter
-        //     stack_trace: Vec::<StackAccess>::new(),
-        //     depth_trace: vec![MAXIMUM_NUM_READS_PER_OPCODE], // depth trace must have 1 element for initial stack
-        //     opcode_with_params_trace: Vec::<OpcodeWithParams>::new(),
-        //     // depth_trace: Vec::<usize>::new(),
-        // }
+    pub fn new(program_memory: &ProgramMemory) -> Self {
+        Self {
+            program_memory: program_memory.clone(), // TODO: recommending changing to reference with life time, to be fixed later
+
+            program_counter_trace: vec![0], // initialized with the first program_counter
+            stack_trace: Vec::<StackAccess>::new(),
+            depth_trace: vec![0],
+            opcode_with_immediate_value_trace: Vec::<OpcodeWithImmediateValue>::new(),
+        }
     }
     
     pub fn push(&mut self, 
         time_tag: &mut u32, // time_tag a mutable reference whose value is the latest time hasn't been assigned to any element in stack_trace
         depth_before_changed: usize,
         // read_stack_values: [u32; MAXIMUM_NUM_READS_PER_OPCODE],
-        opcode_with_params_for_current_execution: OpcodeWithParams,
+        opcode_with_params_for_current_execution: OpcodeWithImmediateValue,
         depth_after_changed: usize,
         program_counter_after_changed: usize, 
         // write_stack_values: [u32; MAXIMUM_NUM_WRITES_PER_OPCODE],
@@ -81,8 +78,8 @@ impl RawExecutionTrace {
         &self.depth_trace
     }
 
-    pub fn get_opcode_with_params_trace(&self) -> &Vec<OpcodeWithParams> {
-        &self.opcode_with_params_trace
+    pub fn get_opcode_with_params_trace(&self) -> &Vec<OpcodeWithImmediateValue> {
+        &self.opcode_with_immediate_value_trace
     }
 
     pub fn get_program_memory(&self) -> &ProgramMemory {

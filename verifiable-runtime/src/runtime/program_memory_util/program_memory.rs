@@ -1,24 +1,24 @@
 use std::ops::Index;
 use crate::runtime::opcode_util::opcode::Opcode;
 
-use crate::runtime::opcode_util::opcode_with_params::OpcodeWithParams;
+use crate::runtime::opcode_util::opcode_with_immediate_value::{OpcodeWithImmediateValue};
 
 #[derive(Clone)]
 pub struct ProgramMemory {
-    memory: Vec<OpcodeWithParams>,
+    memory: Vec<OpcodeWithImmediateValue>,
 }
 
 impl ProgramMemory {
-    pub fn new(program_memory: &Vec<OpcodeWithParams>) -> Self {
+    pub fn new(program_memory: &Vec<OpcodeWithImmediateValue>) -> Self {
         // program must be executable
         assert!(program_memory.len() > 0);
 
         let mut new_program_memory = program_memory.clone();
 
         // each program must have an errorcode at the end to return whenever error happens
-        new_program_memory.push(OpcodeWithParams::new(Opcode::Error, &[None]));
+        new_program_memory.push(OpcodeWithImmediateValue::new(Opcode::Error, None));
         // then followed by Opcode::Stop
-        new_program_memory.push(OpcodeWithParams::new(Opcode::Stop, &[None]));
+        new_program_memory.push(OpcodeWithImmediateValue::new(Opcode::Stop, None));
         // then return
         Self {
             memory: new_program_memory,
@@ -49,7 +49,7 @@ impl ProgramMemory {
         println!("------------- :@) ----------");
         println!("The following is program memory generated: ");
         for i in 0..self.memory.len() {
-            println!("{i}. {:?}  {:?}", self.memory[i].get_opcode(), self.memory[i].get_all_params());
+            println!("{i}. {:?}  {:?}", self.memory[i].get_opcode(), self.memory[i].get_immediate_value());
         }
         println!();
         println!("Error index is {}", self.get_error_index());
@@ -60,7 +60,7 @@ impl ProgramMemory {
 }
 
 impl Index<usize> for ProgramMemory {
-    type Output = OpcodeWithParams;
+    type Output = OpcodeWithImmediateValue;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.memory[index]
