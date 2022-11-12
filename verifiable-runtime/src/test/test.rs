@@ -20,7 +20,7 @@ fn test_with_program_memory(num_steps: usize, program_memory: &Vec<OpcodeWithPar
             println!("{}: {:?}", element.to_u32(), element);
         }
 
-        let (result, error_code) = dummy_vm.execute(num_steps);
+        let (result, error_code, execution_trace) = dummy_vm.execute(num_steps);
         println!("Input = {:?}, Result = {}, Error Code = {:?}", input, result, error_code);
 
         //print_vector(&format!("Directions ({} elements): ", direction_trace.len()), direction_trace, ',');

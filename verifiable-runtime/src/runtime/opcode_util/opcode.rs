@@ -6,8 +6,9 @@ use crate::runtime::access_util::access_specficiation_extractor::AccessSpecifica
 use crate::runtime::access_util::access_specification::AccessSpecification;
 use crate::runtime::access_util::access_type::AccessType;
 
-use crate::runtime::constants::{MAXIMUM_NUM_READS_PER_OPCODE, MAXIMUM_NUM_WRITES_PER_OPCODE};
+use crate::runtime::constants::{MAXIMUM_NUM_ACCESSES_PER_OPCODE};
 use crate::runtime::error_code_util::error_code::ErrorCode;
+use crate::runtime::opcode_util::opcode_execution_checker::OpcodeExecutionChecker;
 use crate::runtime::program_memory_util::program_memory::ProgramMemory;
 use crate::runtime::stack_util::stack_requirement::StackRequirement;
 
@@ -77,100 +78,74 @@ impl StackRequirement for Opcode {
 
 impl OpcodeExecutionChecker for Opcode {
     fn get_error_after_executing(&self,
-        read_stack_values: &[u32; MAXIMUM_NUM_READS_PER_OPCODE],
-        program_memory_before_executing: &ProgramMemory,
+        access_values: &[u32; MAXIMUM_NUM_ACCESSES_PER_OPCODE],
+        program_memory: &ProgramMemory,
         program_counter_before_executing: usize,
     ) -> ErrorCode {
-        match self {
-            Opcode::Stop | Opcode::Return | Opcode::Error => {
-                // Stop does not move pc => NoError
-                // Return and Error move pc to location of Stop => always NoError
-
-                ErrorCode::NoError
-            },
-            Opcode::Add | Opcode::Sub | Opcode::Mul | Opcode::Push4 | Opcode::Dup2 | Opcode::Pop | Opcode::Swap1 => {
-                // pc is moved next
-                match program_memory_before_executing.is_program_counter_reasonable(
-                    program_counter_before_executing + 1
-                ) {
-                    false => ErrorCode::IncorrectProgramCounter,
-                    true => ErrorCode::NoError,
-                }
-            },
-            Opcode::Div | Opcode::Mod => {
-                let b = &read_stack_values[1];
-                match b {
-                    0 => ErrorCode::DivisionByZero,
-                    _ => {
-                        // pc is moved next
-                        match program_memory_before_executing.is_program_counter_reasonable(
-                            program_counter_before_executing + 1
-                        ) {
-                            false => ErrorCode::IncorrectProgramCounter,
-                            true => ErrorCode::NoError,
-                        }
-                    }
-                }
-            },
-            Opcode::Jump => {
-                let destination = &read_stack_values[0];
-                match program_memory_before_executing.is_program_counter_reasonable(
-                    *destination as usize
-                ) {
-                    false => ErrorCode::IncorrectProgramCounter,
-                    true => ErrorCode::NoError,
-                }
-            },
-            Opcode::Jumpi => {
-                let (destination, condition) = &(read_stack_values[0], read_stack_values[1]);
-
-                // get next pc according to condition
-                let next_program_counter = match condition {
-                    0 => program_counter_before_executing + 1,
-                    _ => *destination as usize,
-                };
-
-                // then check validity of pc
-                match program_memory_before_executing.is_program_counter_reasonable(
-                    next_program_counter
-                ) {
-                    false => ErrorCode::IncorrectProgramCounter,
-                    true => ErrorCode::NoError,
-                }
-            },
-        }
+        todo!()
+        // match self {
+        //     Opcode::Stop | Opcode::Return | Opcode::Error => {
+        //         // Stop does not move pc => NoError
+        //         // Return and Error move pc to location of Stop => always NoError
+        //
+        //         ErrorCode::NoError
+        //     },
+        //     Opcode::Add | Opcode::Sub | Opcode::Mul | Opcode::Push4 | Opcode::Dup2 | Opcode::Pop | Opcode::Swap1 => {
+        //         // pc is moved next
+        //         match program_memory_before_executing.is_program_counter_reasonable(
+        //             program_counter_before_executing + 1
+        //         ) {
+        //             false => ErrorCode::IncorrectProgramCounter,
+        //             true => ErrorCode::NoError,
+        //         }
+        //     },
+        //     Opcode::Div | Opcode::Mod => {
+        //         let b = &read_stack_values[1];
+        //         match b {
+        //             0 => ErrorCode::DivisionByZero,
+        //             _ => {
+        //                 // pc is moved next
+        //                 match program_memory_before_executing.is_program_counter_reasonable(
+        //                     program_counter_before_executing + 1
+        //                 ) {
+        //                     false => ErrorCode::IncorrectProgramCounter,
+        //                     true => ErrorCode::NoError,
+        //                 }
+        //             }
+        //         }
+        //     },
+        //     Opcode::Jump => {
+        //         let destination = &read_stack_values[0];
+        //         match program_memory_before_executing.is_program_counter_reasonable(
+        //             *destination as usize
+        //         ) {
+        //             false => ErrorCode::IncorrectProgramCounter,
+        //             true => ErrorCode::NoError,
+        //         }
+        //     },
+        //     Opcode::Jumpi => {
+        //         let (destination, condition) = &(read_stack_values[0], read_stack_values[1]);
+        //
+        //         // get next pc according to condition
+        //         let next_program_counter = match condition {
+        //             0 => program_counter_before_executing + 1,
+        //             _ => *destination as usize,
+        //         };
+        //
+        //         // then check validity of pc
+        //         match program_memory.is_program_counter_reasonable(
+        //             next_program_counter
+        //         ) {
+        //             false => ErrorCode::IncorrectProgramCounter,
+        //             true => ErrorCode::NoError,
+        //         }
+        //     },
+        // }
     }
 }
 
 impl AccessSpecificationExtractor for Opcode {
-    fn get_access_specification(&self) -> (
-        [AccessSpecification; MAXIMUM_NUM_READS_PER_OPCODE],
-        [AccessSpecification; MAXIMUM_NUM_WRITES_PER_OPCODE]
-    ) {
-        match self {
-            Opcode::Stop => {
-                (
-                    [
-                        AccessSpecification::new(AccessType::Garbage, None),
-                    ],
-                    [
-
-                    ]
-                )
-            },
-            Opcode::Add => {},
-            Opcode::Sub => {},
-            Opcode::Mul => {},
-            Opcode::Div => {},
-            Opcode::Mod => {},
-            Opcode::Pop => {},
-            Opcode::Jump => {},
-            Opcode::Jumpi => {},
-            Opcode::Push4 => {},
-            Opcode::Dup2 => {},
-            Opcode::Swap1 => {},
-            Opcode::Return => {},
-            Opcode::Error => {},
-        }
+    fn get_access_specification(&self) -> [AccessSpecification; MAXIMUM_NUM_ACCESSES_PER_OPCODE]{
+        todo!()
     }
 }
