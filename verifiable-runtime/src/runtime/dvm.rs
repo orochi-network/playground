@@ -1,4 +1,3 @@
-use crate::{utils::numeric_encoding::NumericEncoding};
 use crate::runtime::error_code_util::error_code::ErrorCode;
 use crate::runtime::memory_util::memory::Memory;
 use crate::runtime::opcode_util::opcode::Opcode;
