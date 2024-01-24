@@ -13,9 +13,10 @@ use std::marker::PhantomData;
 // y=u^3+u^2*v+u*v^2+v^3+1
 // where y is a known public value
 
-// Step 1: Define the configuration table
+// Step 1: Define the configuration table. A configuration table has
+// 3 types of column: advice, instance, and fixed. Advices are
 #[derive(Clone, Debug)]
-struct MyConfig {
+struct ExampleConfig {
     // The advice column, containing the witness
     advice: [Column<Advice>; 3],
     // The instance column, containing the public values
@@ -23,7 +24,8 @@ struct MyConfig {
     // The fixed column, containing the fixed values, used for lookup
     constant: Column<Fixed>,
 
-    // The selectors
+    // The selectors. We need 3 selector for addition, multiplication
+    // and addition with constant
     s_add: Selector,
     s_mul: Selector,
     s_add_c: Selector,
@@ -31,17 +33,17 @@ struct MyConfig {
 
 // Step 2: Define a chip struct to constraint the circuit and provide
 // assignment functions
-struct FChip<Field: FieldExt> {
+struct ExampleChip<Field: FieldExt> {
     // the chip must contain the configuration table
-    config: MyConfig,
+    config: ExampleConfig,
     _marker: PhantomData<Field>,
 }
 
 // Implement the chip struct
 // the chip struct must have two functions: config() and loaded()
-// these functions are not that necessary
-impl<Field: FieldExt> Chip<Field> for FChip<Field> {
-    type Config = MyConfig;
+// these functions are not that necessary in our example
+impl<Field: FieldExt> Chip<Field> for ExampleChip<Field> {
+    type Config = ExampleConfig;
     type Loaded = ();
 
     fn config(&self) -> &Self::Config {
@@ -53,7 +55,7 @@ impl<Field: FieldExt> Chip<Field> for FChip<Field> {
     }
 }
 
-impl<Field: FieldExt> FChip<Field> {
+impl<Field: FieldExt> ExampleChip<Field> {
     // describe the arrangement of the circuit
     // normally we just need to define the gate in here
     fn configure(
@@ -85,8 +87,11 @@ impl<Field: FieldExt> FChip<Field> {
         // requires s_add*(witness[0]+witness[1]-witness[2])=0
         meta.create_gate("add", |meta| {
             let s_add = meta.query_selector(s_add);
+            // set lhs to be witness[0]
             let lhs = meta.query_advice(advice[0], Rotation::cur());
+            // set rhs to be witness[1]
             let rhs = meta.query_advice(advice[1], Rotation::cur());
+            // set out to be witness[2]
             let out = meta.query_advice(advice[2], Rotation::cur());
             vec![s_add * (lhs + rhs - out)]
         });
@@ -111,7 +116,7 @@ impl<Field: FieldExt> FChip<Field> {
             vec![s_add_c * (lhs + fixed - out)]
         });
 
-        MyConfig {
+        ExampleConfig {
             advice,
             instance,
             constant,
@@ -129,15 +134,16 @@ impl<Field: FieldExt> FChip<Field> {
 // without the witness value
 // b) the function configure() describes the gate arrangement and column
 // arrangement
-// c) the function synthesize() synthesizes the circuit
+// c) the function synthesize() add the constraints between the instance,
+// advice and fixed cells of the circuit
 #[derive(Default)]
-struct MyCircuit<Field: FieldExt> {
+struct ExampleCircuit<Field: FieldExt> {
     u: Value<Field>,
     v: Value<Field>,
 }
 
-impl<Field: FieldExt> Circuit<Field> for MyCircuit<Field> {
-    type Config = MyConfig;
+impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
+    type Config = ExampleConfig;
     type FloorPlanner = SimpleFloorPlanner;
 
     fn without_witnesses(&self) -> Self {
@@ -152,7 +158,7 @@ impl<Field: FieldExt> Circuit<Field> for MyCircuit<Field> {
         ];
         let instance = meta.instance_column();
         let constant = meta.fixed_column();
-        FChip::configure(meta, advice, instance, constant)
+        ExampleChip::configure(meta, advice, instance, constant)
     }
 
     fn synthesize(
@@ -160,9 +166,14 @@ impl<Field: FieldExt> Circuit<Field> for MyCircuit<Field> {
         config: Self::Config,
         mut layouter: impl Layouter<Field>,
     ) -> Result<(), Error> {
-        // handling multiplication region
+        // y=u^3+u^2*v+u*v^2+v^3+1
+        // meaning the constraints are:
+        // y=t10+1
+        // and t1= u^2, t2=t1*u, t3=v^2, t4=v*t3,  t5=u*v, t6=u*t5, t7=v*t5
+        // t8=t2+t4, t9=t6+t7, t10=t8+t9
 
-        // temp variables
+        // handling multiplication region
+        // temp variables for multiplication constraints
         // t1= u^2, t2=t1*u, t3=v^2, t4=v*t3,  t5=u*v, t6=t5*u, t7=t5*v
 
         let t1 = self.u * self.u;
@@ -172,12 +183,6 @@ impl<Field: FieldExt> Circuit<Field> for MyCircuit<Field> {
         let t5 = self.u * self.v;
         let t6 = self.u * t5;
         let t7 = self.v * t5;
-
-        // y=u^3+u^2*v+u*v^2+v^3+1
-        // meaning the constraints are:
-        // y=t10+1
-        // and t1= u^2, t2=t1*u, t3=v^2, t4=v*t3,  t5=u*v, t6=u*t5, t7=v*t5
-        // t8=t2+t4, t9=t6+t7, t10=t8+t9
 
         // define the contraints of multiplication
         // we need t1=u*u, t2=u*v,
@@ -272,12 +277,14 @@ impl<Field: FieldExt> Circuit<Field> for MyCircuit<Field> {
             },
         )?;
 
+        // temp variables for addition constraints
+        // t8=t2+t4, t9=t6+t7, t10=t8+t9, t11=t10+1
+
         let t8 = t2 + t4;
         let t9 = t6 + t7;
         let t10 = t8 + t9;
         let t11 = t10 + Value::known(Field::from(1));
 
-        // define addition region
         let ((x_a8, x_b8, x_c8), (x_a9, x_b9, x_c9), (x_a10, x_b10, x_c10), (x_a11, x_c11)) =
             layouter.assign_region(
                 || "addition region",
@@ -398,17 +405,22 @@ fn main() {
     use halo2_proofs::dev::MockProver;
     use halo2_proofs::halo2curves::bn256::Fr as Fp;
 
+    // create witness
     let u = Fp::from(12);
     let v = Fp::from(9);
+
+    // create instance
     let res = u * u * u + v * v * v + u * u * v + u * v * v + Fp::from(1);
 
-    let circuit = MyCircuit {
+    // instantiate the circuit
+    let circuit = ExampleCircuit {
         u: Value::known(u),
         v: Value::known(v),
     };
 
     // the number of rows cannot exceed 2^k
     let k = 5;
+    // prove and verify
     let prover = MockProver::run(k, &circuit, vec![vec![res]]).unwrap();
     assert_eq!(prover.verify(), Ok(()));
 }
