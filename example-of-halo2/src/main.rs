@@ -22,13 +22,13 @@ struct ExampleConfig {
     // The instance column, containing the public values
     instance: Column<Instance>,
     // The fixed column, containing the fixed values, used for lookup
-    constant: Column<Fixed>,
+    fixed: Column<Fixed>,
 
     // The selectors. We need 3 selector for addition, multiplication
     // and addition with constant
-    s_add: Selector,
-    s_mul: Selector,
-    s_add_c: Selector,
+    selector_add: Selector,
+    selector_mul: Selector,
+    selector_add_const: Selector,
 }
 
 // Step 2: Define a chip struct to constraint the circuit and provide
@@ -59,70 +59,72 @@ impl<Field: FieldExt> ExampleChip<Field> {
     // describe the arrangement of the circuit
     // normally we just need to define the gate in here
     fn configure(
+        // meta is the constraint system struct used for creating gates
+        // and enabling equalities over cells
         meta: &mut ConstraintSystem<Field>,
         advice: [Column<Advice>; 3],
         instance: Column<Instance>,
-        constant: Column<Fixed>,
+        fixed: Column<Fixed>,
     ) -> <Self as Chip<Field>>::Config {
         // specify columns used for proving copy constraints
         // enable_equality() allows the specified column to participate
         // in the permutation check
         meta.enable_equality(instance);
         // enable_constant() allows the fixed column to be used
-        meta.enable_constant(constant);
+        meta.enable_constant(fixed);
         for column in &advice {
             meta.enable_equality(*column);
         }
 
-        // extract columns with respect to selectors
-        let s_add = meta.selector();
-        let s_mul = meta.selector();
-        let s_add_c = meta.selector();
+        // allocate columns with respect to selectors
+        let selector_add = meta.selector();
+        let selector_mul = meta.selector();
+        let selector_add_const = meta.selector();
 
         // we start with 3 simple gates: the addition, multiplication and
         // addition with constant.  we can also define other custom gates
         // as well, but now we will just start with the basic
 
         // define addition gate
-        // requires s_add*(witness[0]+witness[1]-witness[2])=0
+        // requires selector_add*(witness[0]+witness[1]-witness[2])=0
         meta.create_gate("add", |meta| {
-            let s_add = meta.query_selector(s_add);
+            let selector_add = meta.query_selector(selector_add);
             // set lhs to be witness[0]
             let lhs = meta.query_advice(advice[0], Rotation::cur());
             // set rhs to be witness[1]
             let rhs = meta.query_advice(advice[1], Rotation::cur());
             // set out to be witness[2]
             let out = meta.query_advice(advice[2], Rotation::cur());
-            vec![s_add * (lhs + rhs - out)]
+            vec![selector_add * (lhs + rhs - out)]
         });
 
         // define multiplication gate
-        // requires s_mul*(witness[0]*witness[1]-witness[2])=0
+        // requires selector_mul*(witness[0]*witness[1]-witness[2])=0
         meta.create_gate("mul", |meta| {
-            let s_mul = meta.query_selector(s_mul);
+            let selector_mul = meta.query_selector(selector_mul);
             let lhs = meta.query_advice(advice[0], Rotation::cur());
             let rhs = meta.query_advice(advice[1], Rotation::cur());
             let out = meta.query_advice(advice[2], Rotation::cur());
-            vec![s_mul * (lhs * rhs - out)]
+            vec![selector_mul * (lhs * rhs - out)]
         });
 
         // define addition with constant gate
-        // requires s_add_c*(witness[0]+fixed-witness[2])=0
+        // requires selector_add_const*(witness[0]+fixed-witness[2])=0
         meta.create_gate("add with constant", |meta| {
-            let s_add_c = meta.query_selector(s_add_c);
+            let selector_add_const = meta.query_selector(selector_add_const);
             let lhs = meta.query_advice(advice[0], Rotation::cur());
-            let fixed = meta.query_fixed(constant, Rotation::cur());
+            let fixed = meta.query_fixed(fixed, Rotation::cur());
             let out = meta.query_advice(advice[2], Rotation::cur());
-            vec![s_add_c * (lhs + fixed - out)]
+            vec![selector_add_const * (lhs + fixed - out)]
         });
 
         ExampleConfig {
             advice,
             instance,
-            constant,
-            s_add,
-            s_mul,
-            s_add_c,
+            fixed,
+            selector_add,
+            selector_mul,
+            selector_add_const,
         }
     }
 }
@@ -146,6 +148,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
     type Config = ExampleConfig;
     type FloorPlanner = SimpleFloorPlanner;
 
+    // right now, we don't need this function in our example
     fn without_witnesses(&self) -> Self {
         Self::default()
     }
@@ -161,6 +164,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
         ExampleChip::configure(meta, advice, instance, constant)
     }
 
+    // we shall define the constraints of our example here
     fn synthesize(
         &self,
         config: Self::Config,
@@ -200,10 +204,10 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
                 // first row
                 // require t1=u*u
                 // the function enable() sets the selector of the 'offset'-th row to be 1
-                // the selector s_mul represents the condition s_mul*(x_a1*x_b1-x_c1)=0
-                // since we set the s_mul selector to be 1, it means that the constraint
+                // the selector selector_mul represents the condition selector_mul*(x_a1*x_b1-x_c1)=0
+                // since we set the selector_mul selector to be 1, it means that the constraint
                 // x_a1*x_b1-x_c1=0 is enabled
-                config.s_mul.enable(&mut region, 0)?;
+                config.selector_mul.enable(&mut region, 0)?;
                 let x_a1 =
                 // assign_advice() assigns the cell named x_a1 to be u
                 // the parameters are: 'annotation', 'column', 'offset' and 'to'
@@ -217,7 +221,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
 
                 // second row
                 // require t2=t1*u
-                config.s_mul.enable(&mut region, 1)?;
+                config.selector_mul.enable(&mut region, 1)?;
                 let x_a2 = region.assign_advice(|| "x_a2", config.advice[0].clone(), 1, || t1)?;
                 let x_b2 =
                     region.assign_advice(|| "x_b2", config.advice[1].clone(), 1, || self.u)?;
@@ -225,7 +229,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
 
                 // third row
                 // require t3=v*v
-                config.s_mul.enable(&mut region, 2)?;
+                config.selector_mul.enable(&mut region, 2)?;
                 let x_a3 =
                     region.assign_advice(|| "x_a3", config.advice[0].clone(), 2, || self.v)?;
                 let x_b3 =
@@ -234,7 +238,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
 
                 // fourth row
                 // require t4=t3*v
-                config.s_mul.enable(&mut region, 3)?;
+                config.selector_mul.enable(&mut region, 3)?;
                 let x_a4 = region.assign_advice(|| "x_a4", config.advice[0].clone(), 3, || t3)?;
                 let x_b4 =
                     region.assign_advice(|| "x_b4", config.advice[1].clone(), 3, || self.v)?;
@@ -242,7 +246,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
 
                 // fifth row
                 // require t5=u*v
-                config.s_mul.enable(&mut region, 4)?;
+                config.selector_mul.enable(&mut region, 4)?;
                 let x_a5 =
                     region.assign_advice(|| "x_a5", config.advice[0].clone(), 4, || self.u)?;
                 let x_b5 =
@@ -251,7 +255,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
 
                 // sixth row
                 // require t6=t5*u
-                config.s_mul.enable(&mut region, 5)?;
+                config.selector_mul.enable(&mut region, 5)?;
                 let x_a6 = region.assign_advice(|| "x_a6", config.advice[0].clone(), 5, || t5)?;
                 let x_b6 =
                     region.assign_advice(|| "x_b6", config.advice[1].clone(), 5, || self.u)?;
@@ -259,7 +263,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
 
                 // seventh row
                 // require t7=t5*v
-                config.s_mul.enable(&mut region, 5)?;
+                config.selector_mul.enable(&mut region, 5)?;
                 let x_a7 = region.assign_advice(|| "x_a7", config.advice[0].clone(), 6, || t5)?;
                 let x_b7 =
                     region.assign_advice(|| "x_b7", config.advice[1].clone(), 6, || self.v)?;
@@ -292,7 +296,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
                     // first row
                     // require t8=t2+t4
                     // now we turn on the addition selector to handle the addition region
-                    config.s_add.enable(&mut region, 0)?;
+                    config.selector_add.enable(&mut region, 0)?;
                     let x_a8 =
                         region.assign_advice(|| "x_a8", config.advice[0].clone(), 0, || t2)?;
                     let x_b8 =
@@ -302,7 +306,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
 
                     // second row
                     // require t9=t6+t7
-                    config.s_add.enable(&mut region, 1)?;
+                    config.selector_add.enable(&mut region, 1)?;
                     let x_a9 =
                         region.assign_advice(|| "x_a9", config.advice[0].clone(), 1, || t6)?;
                     let x_b9 =
@@ -312,7 +316,7 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
 
                     // third row
                     // require t10=t8+t9
-                    config.s_add.enable(&mut region, 2)?;
+                    config.selector_add.enable(&mut region, 2)?;
                     let x_a10 =
                         region.assign_advice(|| "x_a10", config.advice[0].clone(), 2, || t8)?;
                     let x_b10 =
@@ -322,14 +326,14 @@ impl<Field: FieldExt> Circuit<Field> for ExampleCircuit<Field> {
 
                     // third row
                     // require t11=t10+1
-                    config.s_add_c.enable(&mut region, 3)?;
+                    config.selector_add_const.enable(&mut region, 3)?;
                     let x_a11 =
                         region.assign_advice(|| "x_a11", config.advice[0].clone(), 3, || t10)?;
 
                     // assign the fixed value to be 1
                     region.assign_fixed(
                         || "constant 1",
-                        config.constant.clone(),
+                        config.fixed.clone(),
                         3,
                         || Value::known(Field::from(1)),
                     )?;
