@@ -1,0 +1,6945 @@
+
+> circomlib@2.0.5 smtbench
+> npm run test ./test/smtprocessor-bench.js smt_depth=10 proof_system=groth16
+
+
+> circomlib@2.0.5 test
+> mocha --max-old-space-size=4000 ./test/smtprocessor-bench.js smt_depth=10 proof_system=groth16
+
+[33mWarning: Cannot find any files matching pattern "smt_depth=10"[39m
+[33mWarning: Cannot find any files matching pattern "proof_system=groth16"[39m
+SMT Depth: 10
+Proof System: groth16
+
+
+  SMT Processor test
+[32mtemplate instances[0m: 160
+non-linear constraints: 6545
+linear constraints: 0
+public inputs: 0
+private inputs: 18
+public outputs: 1
+wires: 6556
+labels: 20474
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_10_bn128_groth16.r1cs
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_10_bn128_groth16.sym
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_10_bn128_groth16_js/smtprocessor_10_bn128_groth16.wasm
+[32mEverything went okay[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "CompConstant(21888242871839275222246405745257275088548364400416034343698204186575808495616)": Array of subcomponent input/output signals num2bits.out contains a total of 134 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: num2bits.out[0], num2bits.out[100].
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorSM()": Local signal fnc[1] does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorLevel()": Local signal st_na does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "SMTProcessor(10)": Array of subcomponent input/output signals n2bOld.out contains a total of 244 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: n2bOld.out[100], n2bOld.out[101].
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "SMTProcessor(10)": Array of subcomponent input/output signals n2bNew.out contains a total of 244 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: n2bNew.out[100], n2bNew.out[101].
+
+
+Generating groth16 zkey...
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG2
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading alphatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading betatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit hash: 
+		d9f81efb dfc34d22 3aa4fe4b 9345b2c1
+		4c701139 853c712e 136b2bfa f76f79a7
+		f80fbb0e 5fdea49a c727fe0e 285dbad2
+		ee8957c7 8141ab77 c2fb9472 21ae8765
+
+groth16 zkey generated.
+Exporting groth16 verification key...
+groth16 verification key exported.
+CPU Information:
+- manufacturer: Apple
+- brand: M2 Pro
+- speed: 2.4
+- cores: 12
+- physical cores: 12
+...
+    ✔ Print hardward information
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 599.9098329999979
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 246.213667
+}
+    ✔ Should verify an insert to an empty tree (966ms)
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 599.1597920000022
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 239.645916999998
+}
+    ✔ It should add another element (948ms)
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 579.3107080000009
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 235.93733300000167
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 583.325166999999
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 236.11041699999987
+}
+    ✔ Should remove an element (1857ms)
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 572.6621249999989
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 231.3061250000028
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 617.8977909999994
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.0008749999979
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 584.3091249999998
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 247.68087500000183
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 619.7365830000017
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 265.29170800000065
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 616.1788330000054
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 242.43274999999994
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 607.0218749999985
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 242.54316599999584
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 576.6947910000017
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 236.29983399999765
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 584.9927089999983
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 242.07137499999953
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 609.7333339999968
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 244.30220800000097
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 603.461374999999
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 247.59895899999538
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 595.8900829999984
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 245.9483340000006
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 605.5508750000008
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 242.0161670000016
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 594.771332999997
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 244.43883300000016
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 654.2517090000038
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 236.46841599999607
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 649.3685410000035
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 233.84329199999775
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 604.0290840000016
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 241.20491599999514
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 647.6435420000053
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 248.06299999999464
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 606.5251659999994
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 236.49195899999904
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 577.0642090000038
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 236.0243330000012
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 587.1520000000019
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 232.1371250000011
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 573.3551250000019
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 232.88345899999695
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 577.5905829999974
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.34408399999666
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 567.8172500000001
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 241.75308300000324
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 567.8328330000004
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.26283300000068
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 570.471292000002
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 239.40187499999593
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 575.921666000002
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 230.47733400000288
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 567.7364170000001
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.30574999999953
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 573.1150419999976
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 235.51979199999914
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 580.4759580000027
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 227.23558400000184
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 559.4708329999994
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 225.23366700000042
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 563.0314169999983
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 226.5582080000022
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 561.1688329999961
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 227.28825000000506
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 559.9337090000045
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 230.5736659999966
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 566.7619580000028
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.38316699999996
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 562.4084999999977
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 226.16158300000097
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 565.049791999998
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 236.15149999999994
+}
+    ✔ Should test convination of adding and removing 3 elements (36442ms)
+    ✔ Should match a NOp with random vals (239ms)
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 603.0287910000043
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 266.04033399999753
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 679.3362500000003
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 281.6074579999986
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 738.5489999999991
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 253.13108300000022
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 629.2494169999991
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 240.69958300000872
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 631.0772499999875
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 235.83404200000223
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 594.2383330000011
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 234.7564999999886
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 575.9513339999976
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 231.73554100000183
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 597.2718749999913
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 231.2580830000079
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 581.4022090000071
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 233.3023749999993
+}
+    ✔ Should update an element (9752ms)
+[
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 599.9098329999979
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 246.213667
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 599.1597920000022
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 239.645916999998
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 579.3107080000009
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 235.93733300000167
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 583.325166999999
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 236.11041699999987
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 572.6621249999989
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 231.3061250000028
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 617.8977909999994
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.0008749999979
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 584.3091249999998
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 247.68087500000183
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 619.7365830000017
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 265.29170800000065
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 616.1788330000054
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 242.43274999999994
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 607.0218749999985
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 242.54316599999584
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 576.6947910000017
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 236.29983399999765
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 584.9927089999983
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 242.07137499999953
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 609.7333339999968
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 244.30220800000097
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 603.461374999999
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 247.59895899999538
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 595.8900829999984
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 245.9483340000006
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 605.5508750000008
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 242.0161670000016
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 594.771332999997
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 244.43883300000016
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 654.2517090000038
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 236.46841599999607
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 649.3685410000035
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 233.84329199999775
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 604.0290840000016
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 241.20491599999514
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 647.6435420000053
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 248.06299999999464
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 606.5251659999994
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 236.49195899999904
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 577.0642090000038
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 236.0243330000012
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 587.1520000000019
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 232.1371250000011
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 573.3551250000019
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 232.88345899999695
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 577.5905829999974
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.34408399999666
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 567.8172500000001
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 241.75308300000324
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 567.8328330000004
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.26283300000068
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 570.471292000002
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 239.40187499999593
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 575.921666000002
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 230.47733400000288
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 567.7364170000001
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.30574999999953
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 573.1150419999976
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 235.51979199999914
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 580.4759580000027
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 227.23558400000184
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 559.4708329999994
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 225.23366700000042
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 563.0314169999983
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 226.5582080000022
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 561.1688329999961
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 227.28825000000506
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 559.9337090000045
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 230.5736659999966
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 566.7619580000028
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.38316699999996
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 562.4084999999977
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 226.16158300000097
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 565.049791999998
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 236.15149999999994
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 603.0287910000043
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 266.04033399999753
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 679.3362500000003
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 281.6074579999986
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 738.5489999999991
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 253.13108300000022
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 629.2494169999991
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 240.69958300000872
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 631.0772499999875
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 235.83404200000223
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 594.2383330000011
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 234.7564999999886
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 575.9513339999976
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 231.73554100000183
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 597.2718749999913
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 231.2580830000079
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 581.4022090000071
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 233.3023749999993
+  }
+]
+Done writing benchmarks to file __homedir__/playground/circomlib-test/smt/test/circuits/circuit_benchmarks/2024-10-04/smtprocessor_10_bn128_groth16_benchmarks.csv
+
+
+  7 passing (1m)
+
+
+> circomlib@2.0.5 smtbench
+> npm run test ./test/smtprocessor-bench.js smt_depth=10 proof_system=plonk
+
+
+> circomlib@2.0.5 test
+> mocha --max-old-space-size=4000 ./test/smtprocessor-bench.js smt_depth=10 proof_system=plonk
+
+[33mWarning: Cannot find any files matching pattern "smt_depth=10"[39m
+[33mWarning: Cannot find any files matching pattern "proof_system=plonk"[39m
+SMT Depth: 10
+Proof System: plonk
+
+
+  SMT Processor test
+[32mtemplate instances[0m: 160
+non-linear constraints: 6545
+linear constraints: 0
+public inputs: 0
+private inputs: 18
+public outputs: 1
+wires: 6556
+labels: 20474
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_10_bn128_plonk.r1cs
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_10_bn128_plonk.sym
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_10_bn128_plonk_js/smtprocessor_10_bn128_plonk.wasm
+[32mEverything went okay[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "CompConstant(21888242871839275222246405745257275088548364400416034343698204186575808495616)": Array of subcomponent input/output signals num2bits.out contains a total of 134 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: num2bits.out[0], num2bits.out[100].
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorSM()": Local signal fnc[1] does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorLevel()": Local signal st_na does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "SMTProcessor(10)": Array of subcomponent input/output signals n2bNew.out contains a total of 244 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: n2bNew.out[100], n2bNew.out[101].
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "SMTProcessor(10)": Array of subcomponent input/output signals n2bOld.out contains a total of 244 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: n2bOld.out[100], n2bOld.out[101].
+
+
+Generating plonk zkey...
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Plonk constraints: 59649
+[32;22m[INFO]  [39;1msnarkJS[0m: Setup Finished
+
+plonk zkey generated.
+Exporting plonk verification key...
+plonk verification key exported.
+CPU Information:
+- manufacturer: Apple
+- brand: M2 Pro
+- speed: 2.4
+- cores: 12
+- physical cores: 12
+...
+    ✔ Print hardward information
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23296.41975
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 236.87725000000137
+}
+    ✔ Should verify an insert to an empty tree (23651ms)
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23360.450292
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 283.9587909999973
+}
+    ✔ It should add another element (23752ms)
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23509.639417000006
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 236.5161669999943
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23099.663958999998
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.29783300000418
+}
+    ✔ Should remove an element (47294ms)
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23169.871832999997
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 234.95704199999454
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23016.697707999992
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.85683400000562
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23168.171541999996
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.6087080000143
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23172.782749999984
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 232.3833750000049
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23218.53108300001
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 239.63712499997928
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23180.857916999987
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.46183300000848
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23187.67749999999
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 230.4065829999745
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22987.776084000012
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 233.908666000003
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23296.67166600004
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 240.64045899995835
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23232.034042000014
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 269.41829099995084
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23223.657957999967
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 257.93604200001573
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23045.14083400002
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 236.24004100001184
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23197.57574999996
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 232.932415999996
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23304.236167000025
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 257.4500419999822
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23225.66270799999
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 259.79220800002804
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22948.844915999973
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 234.671875
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22867.99541600002
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.998459000024
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23207.79545799998
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 232.21991700003855
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23121.61499999999
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 236.0549170000013
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23287.504791000043
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 244.9692090000026
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23621.515540999942
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 277.4967090000864
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23455.48212499998
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 234.74029200000223
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22964.441417000024
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 233.7984999999171
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23206.560209000017
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 233.69720799999777
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22988.365624999977
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.73333399998955
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23006.921291999985
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 263.9730409999611
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23340.90716599999
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 232.84183400007896
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23022.586499999976
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 236.19437499996275
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23221.08708299999
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.53324999997858
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23252.46437499998
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 234.66258300002664
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22987.280750000034
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 230.81320799991954
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23055.401165999938
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.80908400006592
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23050.212541000103
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 235.19745899992995
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23276.004624999943
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.23391700000502
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23246.542500000098
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.1174999999348
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23068.413290999946
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 234.53925000003073
+}
+    ✔ Should test convination of adding and removing 3 elements (849015ms)
+    ✔ Should match a NOp with random vals (235ms)
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23283.07283399999
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 233.04179100005422
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23177.43745800003
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 230.47716699994635
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22903.949666000088
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 233.18129199999385
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23192.93208300008
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 261.00016699999105
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22859.299332999974
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 233.5460000000894
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22943.943750000093
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.79462499986403
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 22869.8265829999
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.64637500001118
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23198.339042000007
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 233.90299999993294
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 23119.41200000001
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 231.92487500002608
+}
+    ✔ Should update an element (211528ms)
+[
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23296.41975
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 236.87725000000137
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23360.450292
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 283.9587909999973
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23509.639417000006
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 236.5161669999943
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23099.663958999998
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.29783300000418
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23169.871832999997
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 234.95704199999454
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23016.697707999992
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.85683400000562
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23168.171541999996
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.6087080000143
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23172.782749999984
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 232.3833750000049
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23218.53108300001
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 239.63712499997928
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23180.857916999987
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.46183300000848
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23187.67749999999
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 230.4065829999745
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22987.776084000012
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 233.908666000003
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23296.67166600004
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 240.64045899995835
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23232.034042000014
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 269.41829099995084
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23223.657957999967
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 257.93604200001573
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23045.14083400002
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 236.24004100001184
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23197.57574999996
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 232.932415999996
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23304.236167000025
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 257.4500419999822
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23225.66270799999
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 259.79220800002804
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22948.844915999973
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 234.671875
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22867.99541600002
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.998459000024
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23207.79545799998
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 232.21991700003855
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23121.61499999999
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 236.0549170000013
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23287.504791000043
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 244.9692090000026
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23621.515540999942
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 277.4967090000864
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23455.48212499998
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 234.74029200000223
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22964.441417000024
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 233.7984999999171
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23206.560209000017
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 233.69720799999777
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22988.365624999977
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.73333399998955
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23006.921291999985
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 263.9730409999611
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23340.90716599999
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 232.84183400007896
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23022.586499999976
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 236.19437499996275
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23221.08708299999
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.53324999997858
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23252.46437499998
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 234.66258300002664
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22987.280750000034
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 230.81320799991954
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23055.401165999938
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.80908400006592
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23050.212541000103
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 235.19745899992995
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23276.004624999943
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.23391700000502
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23246.542500000098
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.1174999999348
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23068.413290999946
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 234.53925000003073
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23283.07283399999
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 233.04179100005422
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23177.43745800003
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 230.47716699994635
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22903.949666000088
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 233.18129199999385
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23192.93208300008
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 261.00016699999105
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22859.299332999974
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 233.5460000000894
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22943.943750000093
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.79462499986403
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 22869.8265829999
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.64637500001118
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23198.339042000007
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 233.90299999993294
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 23119.41200000001
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 231.92487500002608
+  }
+]
+Done writing benchmarks to file __homedir__/playground/circomlib-test/smt/test/circuits/circuit_benchmarks/2024-10-04/smtprocessor_10_bn128_plonk_benchmarks.csv
+
+
+  7 passing (19m)
+
+
+> circomlib@2.0.5 smtbench
+> npm run test ./test/smtprocessor-bench.js smt_depth=10 proof_system=fflonk
+
+
+> circomlib@2.0.5 test
+> mocha --max-old-space-size=4000 ./test/smtprocessor-bench.js smt_depth=10 proof_system=fflonk
+
+[33mWarning: Cannot find any files matching pattern "smt_depth=10"[39m
+[33mWarning: Cannot find any files matching pattern "proof_system=fflonk"[39m
+SMT Depth: 10
+Proof System: fflonk
+
+
+  SMT Processor test
+[32mtemplate instances[0m: 160
+non-linear constraints: 6545
+linear constraints: 0
+public inputs: 0
+private inputs: 18
+public outputs: 1
+wires: 6556
+labels: 20474
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_10_bn128_fflonk.r1cs
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_10_bn128_fflonk.sym
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_10_bn128_fflonk_js/smtprocessor_10_bn128_fflonk.wasm
+[32mEverything went okay[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "CompConstant(21888242871839275222246405745257275088548364400416034343698204186575808495616)": Array of subcomponent input/output signals num2bits.out contains a total of 134 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: num2bits.out[0], num2bits.out[100].
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorSM()": Local signal fnc[1] does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorLevel()": Local signal st_na does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "SMTProcessor(10)": Array of subcomponent input/output signals n2bNew.out contains a total of 244 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: n2bNew.out[100], n2bNew.out[101].
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "SMTProcessor(10)": Array of subcomponent input/output signals n2bOld.out contains a total of 244 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: n2bOld.out[100], n2bOld.out[101].
+
+
+Generating fflonk zkey...
+[32;22m[INFO]  [39;1msnarkJS[0m: FFLONK SETUP STARTED
+[32;22m[INFO]  [39;1msnarkJS[0m: > Reading PTau file
+[32;22m[INFO]  [39;1msnarkJS[0m: > Getting curve from PTau settings
+[32;22m[INFO]  [39;1msnarkJS[0m: > Reading r1cs file
+[32;22m[INFO]  [39;1msnarkJS[0m: > Processing FFlonk constraints
+[32;22m[INFO]  [39;1msnarkJS[0m: ----------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m:   FFLONK SETUP SETTINGS
+[32;22m[INFO]  [39;1msnarkJS[0m:   Curve:         bn128
+[32;22m[INFO]  [39;1msnarkJS[0m:   Circuit power: 16
+[32;22m[INFO]  [39;1msnarkJS[0m:   Domain size:   65536
+[32;22m[INFO]  [39;1msnarkJS[0m:   Vars:          59659
+[32;22m[INFO]  [39;1msnarkJS[0m:   Public vars:   1
+[32;22m[INFO]  [39;1msnarkJS[0m:   Constraints:   59649
+[32;22m[INFO]  [39;1msnarkJS[0m:   Additions:     53103
+[32;22m[INFO]  [39;1msnarkJS[0m: ----------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: > computing k1 and k2
+[32;22m[INFO]  [39;1msnarkJS[0m: > computing w3
+[32;22m[INFO]  [39;1msnarkJS[0m: > computing w4
+[32;22m[INFO]  [39;1msnarkJS[0m: > computing w8
+[32;22m[INFO]  [39;1msnarkJS[0m: > computing wr
+[32;22m[INFO]  [39;1msnarkJS[0m: > Writing the zkey file
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 1. Zkey Header
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 3. Additions
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 4. A Map
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 5. B Map
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 6. C Map
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 7. QL
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 8. QR
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 9. QM
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 10. QO
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 11. QC
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Sections 12,13,14. Sigma1, Sigma2 & Sigma 3
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 15. Lagrange Polynomials
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 16. Powers of Tau
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 17. C0
+[32;22m[INFO]  [39;1msnarkJS[0m: ··· Writing Section 2. FFlonk Header
+[32;22m[INFO]  [39;1msnarkJS[0m: > Writing the zkey file finished
+[32;22m[INFO]  [39;1msnarkJS[0m: FFLONK SETUP FINISHED
+
+fflonk zkey generated.
+Exporting fflonk verification key...
+fflonk verification key exported.
+CPU Information:
+- manufacturer: Apple
+- brand: M2 Pro
+- speed: 2.4
+- cores: 12
+- physical cores: 12
+...
+    ✔ Print hardward information
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32214.609375
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.33179099999688
+}
+    ✔ Should verify an insert to an empty tree (32580ms)
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31913.147374999993
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.22104200000467
+}
+    ✔ It should add another element (32277ms)
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31903.887833
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 252.8034170000028
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32054.123125
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 256.11350000000675
+}
+    ✔ Should remove an element (64685ms)
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32236.888084000006
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 255.00129099999322
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32214.790416000003
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 251.14770899998257
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32035.322749999992
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.74354200001108
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32139.83483400001
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 259.3082079999731
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31953.769542000024
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 250.8287910000072
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31834.908292000007
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 252.72891700000037
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32166.038499999966
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 250.84974999999395
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32078.37608299998
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.3649999999907
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32124.245375
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 250.86216600000625
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32108.174667000014
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.79208300000755
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32208.20504099998
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 252.30983400001423
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32017.43854199996
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.22808300005272
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31952.55037499999
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 251.06750000000466
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32138.27004199999
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.97970799996983
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31918.670209000004
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 270.35962499992456
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31993.87691699993
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 252.362458000076
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32036.076624999987
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.04733299999498
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32160.018374999985
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 257.3845829999773
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32043.55266699998
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 255.26216599997133
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32140.956250000047
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.93987499992363
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31904.746207999997
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.23816700000316
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31978.76454200002
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 252.18650000006892
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31967.158999999985
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 249.64087500004098
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32040.051457999973
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.1617499999702
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32091.737166000064
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.55550000001676
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31924.443916999968
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 251.60158300003968
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31933.429958999972
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.53008299996145
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32045.343458999996
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 250.88179100002162
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31905.54129199998
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.7492500001099
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32220.152000000002
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 251.78804200002924
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31903.633959
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 260.45920799998567
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31935.359790999908
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.39991699997336
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32098.39570899983
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.56045800005086
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31884.305374999996
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.77770900004543
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31927.57379100006
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.9856669998262
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32084.01754199993
+}
+{
+  task: 'delete',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.68820800003596
+}
+    ✔ Should test convination of adding and removing 3 elements (1169155ms)
+    ✔ Should match a NOp with random vals (234ms)
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32005.298833000008
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.39829199993983
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32070.550999999978
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 252.60670800018124
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32105.277416999917
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.00320799998008
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32004.050209000008
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 259.21220800001174
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31949.340707999887
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 261.05004200013354
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 31898.437167000026
+}
+{
+  task: 'insert',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 254.06154199992307
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32092.131208000006
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.79449999984354
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32173.95029200008
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 253.68299999996088
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-generation',
+  duration: 32042.873208999867
+}
+{
+  task: 'update',
+  smtDepth: 10,
+  curve: 'bn128',
+  proofSystem: 'fflonk',
+  type: 'proof-verification',
+  duration: 255.54237500019372
+}
+    ✔ Should update an element (292512ms)
+[
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32214.609375
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.33179099999688
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31913.147374999993
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.22104200000467
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31903.887833
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 252.8034170000028
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32054.123125
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 256.11350000000675
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32236.888084000006
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 255.00129099999322
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32214.790416000003
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 251.14770899998257
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32035.322749999992
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.74354200001108
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32139.83483400001
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 259.3082079999731
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31953.769542000024
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 250.8287910000072
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31834.908292000007
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 252.72891700000037
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32166.038499999966
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 250.84974999999395
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32078.37608299998
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.3649999999907
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32124.245375
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 250.86216600000625
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32108.174667000014
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.79208300000755
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32208.20504099998
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 252.30983400001423
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32017.43854199996
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.22808300005272
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31952.55037499999
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 251.06750000000466
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32138.27004199999
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.97970799996983
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31918.670209000004
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 270.35962499992456
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31993.87691699993
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 252.362458000076
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32036.076624999987
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.04733299999498
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32160.018374999985
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 257.3845829999773
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32043.55266699998
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 255.26216599997133
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32140.956250000047
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.93987499992363
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31904.746207999997
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.23816700000316
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31978.76454200002
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 252.18650000006892
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31967.158999999985
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 249.64087500004098
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32040.051457999973
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.1617499999702
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32091.737166000064
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.55550000001676
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31924.443916999968
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 251.60158300003968
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31933.429958999972
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.53008299996145
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32045.343458999996
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 250.88179100002162
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31905.54129199998
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.7492500001099
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32220.152000000002
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 251.78804200002924
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31903.633959
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 260.45920799998567
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31935.359790999908
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.39991699997336
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32098.39570899983
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.56045800005086
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31884.305374999996
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.77770900004543
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31927.57379100006
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.9856669998262
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32084.01754199993
+  },
+  {
+    task: 'delete',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.68820800003596
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32005.298833000008
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.39829199993983
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32070.550999999978
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 252.60670800018124
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32105.277416999917
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.00320799998008
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32004.050209000008
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 259.21220800001174
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31949.340707999887
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 261.05004200013354
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 31898.437167000026
+  },
+  {
+    task: 'insert',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 254.06154199992307
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32092.131208000006
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.79449999984354
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32173.95029200008
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 253.68299999996088
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-generation',
+    duration: 32042.873208999867
+  },
+  {
+    task: 'update',
+    smtDepth: 10,
+    curve: 'bn128',
+    proofSystem: 'fflonk',
+    type: 'proof-verification',
+    duration: 255.54237500019372
+  }
+]
+Done writing benchmarks to file __homedir__/playground/circomlib-test/smt/test/circuits/circuit_benchmarks/2024-10-04/smtprocessor_10_bn128_fflonk_benchmarks.csv
+
+
+  7 passing (27m)
+
+
+> circomlib@2.0.5 smtbench
+> npm run test ./test/smtprocessor-bench.js smt_depth=254 proof_system=groth16
+
+
+> circomlib@2.0.5 test
+> mocha --max-old-space-size=4000 ./test/smtprocessor-bench.js smt_depth=254 proof_system=groth16
+
+[33mWarning: Cannot find any files matching pattern "smt_depth=254"[39m
+[33mWarning: Cannot find any files matching pattern "proof_system=groth16"[39m
+SMT Depth: 254
+Proof System: groth16
+
+
+  SMT Processor test
+[32mtemplate instances[0m: 160
+non-linear constraints: 128301
+linear constraints: 0
+public inputs: 0
+private inputs: 262
+public outputs: 1
+wires: 128556
+labels: 410630
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_groth16.r1cs
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_groth16.sym
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_groth16_js/smtprocessor_254_bn128_groth16.wasm
+[32mEverything went okay[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "CompConstant(21888242871839275222246405745257275088548364400416034343698204186575808495616)": Array of subcomponent input/output signals num2bits.out contains a total of 134 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: num2bits.out[0], num2bits.out[100].
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorSM()": Local signal fnc[1] does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorLevel()": Local signal st_na does not appear in any constraint[0m
+
+
+Generating groth16 zkey...
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG2
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading alphatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading betatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit hash: 
+		5970c23b a359c64f e85e54eb 1ae11b68
+		3fbc7e44 d5a0ae28 cfbb696a 370157e7
+		dd6596dd 7391201e 6796b475 65e5f3fd
+		348dd879 2dd79667 73f0182f 8aa444cd
+
+groth16 zkey generated.
+Exporting groth16 verification key...
+groth16 verification key exported.
+CPU Information:
+- manufacturer: Apple
+- brand: M2 Pro
+- speed: 2.4
+- cores: 12
+- physical cores: 12
+...
+    ✔ Print hardward information
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4326.147416000007
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.1328749999957
+}
+    ✔ Should verify an insert to an empty tree (4948ms)
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4369.483583000008
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 226.6759999999922
+}
+    ✔ It should add another element (4988ms)
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4354.786957999997
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 232.80912499999977
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4319.382666999998
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 230.64329199999338
+}
+    ✔ Should remove an element (9922ms)
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4351.930791000006
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.10208399999829
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4431.485249999998
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 230.82858300000953
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4397.215250000008
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 227.25941699999385
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4342.889167000001
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 235.26733299999614
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4371.490915999995
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 231.00262500000827
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4346.334375000006
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.90074999998615
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4336.7460839999985
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 227.9609160000109
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4384.050374999992
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.22608400002355
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4377.825624999998
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 226.36100000000442
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4386.387416999991
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 227.11816700000782
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4367.59150000001
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.7834579999908
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4379.1407910000125
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.00062499998603
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4353.411667000008
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.38862499999232
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4402.584708999988
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 230.94895799999358
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4351.462375000003
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.2296249999781
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4338.739458999975
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 227.16991600001347
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4400.265708999999
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.61104099999648
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4386.9534170000115
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.21058299997821
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4360.592959000001
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.69854099999066
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4365.109874999995
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.61900000000605
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4374.122292000015
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 231.34762499999488
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4355.2062910000095
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.78208400000585
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4383.515875000012
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 226.9752499999886
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4355.651874999981
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 226.1184170000197
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4429.641749999981
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 230.40562500001397
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4363.481624999986
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.46716599998763
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4358.024458
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.05683399998816
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4387.607625000004
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.6608750000014
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4364.802832999994
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 226.82216700000572
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4343.514458999998
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.01004100000137
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4341.248415999988
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 230.89133399998536
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4337.743791999994
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 226.95100000000093
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4386.679333000007
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 225.95787499999278
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4359.211457999976
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.06950000004144
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4341.419292000006
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 227.3644159999676
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4386.7100419999915
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 231.18949999997858
+}
+    ✔ Should test convination of adding and removing 3 elements (182369ms)
+    ✔ Should match a NOp with random vals (3589ms)
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4359.722375000012
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.46537500002887
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4362.3297909999965
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 232.2192090000026
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4421.156292000029
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 234.77245799999218
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4361.186665999994
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.0502919999999
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4350.455083999957
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 233.28462500002934
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4404.389832999965
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 231.47695899999235
+}
+{
+  task: 'update',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4414.242750000034
+}
+{
+  task: 'update',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 230.2134579999838
+}
+{
+  task: 'update',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4430.377625000023
+}
+{
+  task: 'update',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 228.33775000000605
+}
+{
+  task: 'update',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-generation',
+  duration: 4401.4977090000175
+}
+{
+  task: 'update',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'groth16',
+  type: 'proof-verification',
+  duration: 229.0427909999853
+}
+    ✔ Should update an element (46048ms)
+[
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4326.147416000007
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.1328749999957
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4369.483583000008
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 226.6759999999922
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4354.786957999997
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 232.80912499999977
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4319.382666999998
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 230.64329199999338
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4351.930791000006
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.10208399999829
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4431.485249999998
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 230.82858300000953
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4397.215250000008
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 227.25941699999385
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4342.889167000001
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 235.26733299999614
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4371.490915999995
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 231.00262500000827
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4346.334375000006
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.90074999998615
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4336.7460839999985
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 227.9609160000109
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4384.050374999992
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.22608400002355
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4377.825624999998
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 226.36100000000442
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4386.387416999991
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 227.11816700000782
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4367.59150000001
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.7834579999908
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4379.1407910000125
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.00062499998603
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4353.411667000008
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.38862499999232
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4402.584708999988
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 230.94895799999358
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4351.462375000003
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.2296249999781
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4338.739458999975
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 227.16991600001347
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4400.265708999999
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.61104099999648
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4386.9534170000115
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.21058299997821
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4360.592959000001
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.69854099999066
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4365.109874999995
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.61900000000605
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4374.122292000015
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 231.34762499999488
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4355.2062910000095
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.78208400000585
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4383.515875000012
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 226.9752499999886
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4355.651874999981
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 226.1184170000197
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4429.641749999981
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 230.40562500001397
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4363.481624999986
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.46716599998763
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4358.024458
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.05683399998816
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4387.607625000004
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.6608750000014
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4364.802832999994
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 226.82216700000572
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4343.514458999998
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.01004100000137
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4341.248415999988
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 230.89133399998536
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4337.743791999994
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 226.95100000000093
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4386.679333000007
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 225.95787499999278
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4359.211457999976
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.06950000004144
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4341.419292000006
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 227.3644159999676
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4386.7100419999915
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 231.18949999997858
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4359.722375000012
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.46537500002887
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4362.3297909999965
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 232.2192090000026
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4421.156292000029
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 234.77245799999218
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4361.186665999994
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.0502919999999
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4350.455083999957
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 233.28462500002934
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4404.389832999965
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 231.47695899999235
+  },
+  {
+    task: 'update',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4414.242750000034
+  },
+  {
+    task: 'update',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 230.2134579999838
+  },
+  {
+    task: 'update',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4430.377625000023
+  },
+  {
+    task: 'update',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 228.33775000000605
+  },
+  {
+    task: 'update',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-generation',
+    duration: 4401.4977090000175
+  },
+  {
+    task: 'update',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'groth16',
+    type: 'proof-verification',
+    duration: 229.0427909999853
+  }
+]
+Done writing benchmarks to file __homedir__/playground/circomlib-test/smt/test/circuits/circuit_benchmarks/2024-10-04/smtprocessor_254_bn128_groth16_benchmarks.csv
+
+
+  7 passing (5m)
+
+
+> circomlib@2.0.5 smtbench
+> npm run test ./test/smtprocessor-bench.js smt_depth=254 proof_system=plonk
+
+
+> circomlib@2.0.5 test
+> mocha --max-old-space-size=4000 ./test/smtprocessor-bench.js smt_depth=254 proof_system=plonk
+
+[33mWarning: Cannot find any files matching pattern "smt_depth=254"[39m
+[33mWarning: Cannot find any files matching pattern "proof_system=plonk"[39m
+SMT Depth: 254
+Proof System: plonk
+
+
+  SMT Processor test
+[32mtemplate instances[0m: 160
+non-linear constraints: 128301
+linear constraints: 0
+public inputs: 0
+private inputs: 262
+public outputs: 1
+wires: 128556
+labels: 410630
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_plonk.r1cs
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_plonk.sym
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_plonk_js/smtprocessor_254_bn128_plonk.wasm
+[32mEverything went okay[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "CompConstant(21888242871839275222246405745257275088548364400416034343698204186575808495616)": Array of subcomponent input/output signals num2bits.out contains a total of 134 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: num2bits.out[0], num2bits.out[100].
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorSM()": Local signal fnc[1] does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorLevel()": Local signal st_na does not appear in any constraint[0m
+
+
+Generating plonk zkey...
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Plonk constraints: 1313624
+[32;22m[INFO]  [39;1msnarkJS[0m: Setup Finished
+
+plonk zkey generated.
+Exporting plonk verification key...
+plonk verification key exported.
+CPU Information:
+- manufacturer: Apple
+- brand: M2 Pro
+- speed: 2.4
+- cores: 12
+- physical cores: 12
+...
+    ✔ Print hardward information (55ms)
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 808176.435875
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 329.49124999996275
+}
+    ✔ Should verify an insert to an empty tree (808958ms)
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 800866.676375
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 334.2773749998305
+}
+    ✔ It should add another element (801622ms)
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 797469.6810410002
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 318.88650000002235
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 798065.103375
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 335.2000829996541
+}
+    ✔ Should remove an element (1597067ms)
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 816116.7908750004
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 343.01454099966213
+}
+> circomlib@2.0.5 smtbench
+> npm run test ./test/smtprocessor-bench.js smt_depth=254 proof_system=plonk
+
+
+> circomlib@2.0.5 test
+> mocha --max-old-space-size=4000 ./test/smtprocessor-bench.js smt_depth=254 proof_system=plonk
+
+[33mWarning: Cannot find any files matching pattern "smt_depth=254"[39m
+[33mWarning: Cannot find any files matching pattern "proof_system=plonk"[39m
+SMT Depth: 254
+Proof System: plonk
+
+
+  SMT Processor test
+[32mtemplate instances[0m: 160
+non-linear constraints: 128301
+linear constraints: 0
+public inputs: 0
+private inputs: 262
+public outputs: 1
+wires: 128556
+labels: 410630
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_plonk.r1cs
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_plonk.sym
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_plonk_js/smtprocessor_254_bn128_plonk.wasm
+[32mEverything went okay[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "CompConstant(21888242871839275222246405745257275088548364400416034343698204186575808495616)": Array of subcomponent input/output signals num2bits.out contains a total of 134 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: num2bits.out[0], num2bits.out[100].
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorSM()": Local signal fnc[1] does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorLevel()": Local signal st_na does not appear in any constraint[0m
+
+
+Generating plonk zkey...
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Plonk constraints: 1313624
+[32;22m[INFO]  [39;1msnarkJS[0m: Setup Finished
+
+plonk zkey generated.
+Exporting plonk verification key...
+plonk verification key exported.
+CPU Information:
+- manufacturer: Apple
+- brand: M2 Pro
+- speed: 2.4
+- cores: 12
+- physical cores: 12
+...
+    ✔ Print hardward information (54ms)
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 820080.875333
+}
+{
+  task: 'insert',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 331.12758299999405
+}
+{
+  task: 'update',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 817243.569375
+}
+{
+  task: 'update',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 336.75974999996834
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-generation',
+  duration: 807503.9251249998
+}
+{
+  task: 'delete',
+  smtDepth: 254,
+  curve: 'bn128',
+  proofSystem: 'plonk',
+  type: 'proof-verification',
+  duration: 339.2270420002751
+}
+    ✔ Quick test: Should verify SMT operation (2447116ms)
+[
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 820080.875333
+  },
+  {
+    task: 'insert',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 331.12758299999405
+  },
+  {
+    task: 'update',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 817243.569375
+  },
+  {
+    task: 'update',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 336.75974999996834
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-generation',
+    duration: 807503.9251249998
+  },
+  {
+    task: 'delete',
+    smtDepth: 254,
+    curve: 'bn128',
+    proofSystem: 'plonk',
+    type: 'proof-verification',
+    duration: 339.2270420002751
+  }
+]
+Done writing benchmarks to file __homedir__/playground/circomlib-test/smt/test/circuits/circuit_benchmarks/2024-10-05/smtprocessor_254_bn128_plonk_benchmarks.csv
+
+
+  2 passing (44m)
+
+
+
+> circomlib@2.0.5 smtbench
+> npm run test ./test/smtprocessor-bench.js smt_depth=254 proof_system=fflonk
+
+
+> circomlib@2.0.5 test
+> mocha --max-old-space-size=4000 ./test/smtprocessor-bench.js smt_depth=254 proof_system=fflonk
+
+[33mWarning: Cannot find any files matching pattern "smt_depth=254"[39m
+[33mWarning: Cannot find any files matching pattern "proof_system=fflonk"[39m
+SMT Depth: 254
+Proof System: fflonk
+
+
+  SMT Processor test
+[32mtemplate instances[0m: 160
+non-linear constraints: 128301
+linear constraints: 0
+public inputs: 0
+private inputs: 262
+public outputs: 1
+wires: 128556
+labels: 410630
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_fflonk.r1cs
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_fflonk.sym
+[32mWritten successfully:[0m __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_fflonk_js/smtprocessor_254_bn128_fflonk.wasm
+[32mEverything went okay[0m
+
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "CompConstant(21888242871839275222246405745257275088548364400416034343698204186575808495616)": Array of subcomponent input/output signals num2bits.out contains a total of 134 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: num2bits.out[0], num2bits.out[100].
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorSM()": Local signal fnc[1] does not appear in any constraint[0m
+
+[0m[1m[38;5;11mwarning[CA01][0m[1m: In template "SMTProcessorLevel()": Local signal st_na does not appear in any constraint[0m
+
+
+Generating fflonk zkey...
+    1) "before all" hook for "Print hardward information"
+[]
+Done writing benchmarks to file __homedir__/playground/circomlib-test/smt/test/circuits/circuit_benchmarks/2024-10-05/smtprocessor_254_bn128_fflonk_benchmarks.csv
+
+
+  0 passing (13s)
+  1 failing
+
+  1) SMT Processor test
+       "before all" hook for "Print hardward information":
+     AssertionError: circom compiler error 
+Error: Command failed: snarkjs fflonk setup __homedir__/playground/circomlib-test/smt/test/circuits/compiled_outputs/smtprocessor_254_bn128_fflonk.r1cs __homedir__/playground/circomlib-test/smt/test/circuits/circuit_artifacts/powersOfTau28_hez_final_21.ptau __homedir__/playground/circomlib-test/smt/test/circuits/circuit_artifacts/smtprocessor_254_bn128_fflonk_circuit.zkey
+
+      at Context.<anonymous> (test/smtprocessor-bench.js:318:9)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+
+

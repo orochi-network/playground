@@ -1,0 +1,7 @@
+Task,SMT Depth,Curve,Proof System,Type,Duration (ms)
+insert,254,bn128,plonk,proof-generation,820080.875333
+insert,254,bn128,plonk,proof-verification,331.12758299999405
+update,254,bn128,plonk,proof-generation,817243.569375
+update,254,bn128,plonk,proof-verification,336.75974999996834
+delete,254,bn128,plonk,proof-generation,807503.9251249998
+delete,254,bn128,plonk,proof-verification,339.2270420002751

@@ -1,0 +1,7 @@
+Task,SMT Depth,Curve,Proof System,Type,SMT Circuit,Duration (ms)
+insert,10,bn128,groth16,proof-generation,smt-single-processor,54.35787500000151
+insert,10,bn128,groth16,proof-verification,smt-single-processor,218.682417
+update,10,bn128,groth16,proof-generation,smt-single-processor,52.132791
+update,10,bn128,groth16,proof-verification,smt-single-processor,225.26050000000032
+delete,10,bn128,groth16,proof-generation,smt-single-processor,49.179833999998664
+delete,10,bn128,groth16,proof-verification,smt-single-processor,220.9683330000007

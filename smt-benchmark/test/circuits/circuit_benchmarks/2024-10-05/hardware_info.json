@@ -1,0 +1,28 @@
+{
+  "manufacturer": "Apple",
+  "brand": "M2 Pro",
+  "vendor": "Apple",
+  "family": "-634136515",
+  "model": "",
+  "stepping": "4",
+  "revision": "",
+  "voltage": "",
+  "speed": 2.4,
+  "speedMin": 2.4,
+  "speedMax": 2.4,
+  "governor": "",
+  "cores": 12,
+  "physicalCores": 12,
+  "performanceCores": 8,
+  "efficiencyCores": 4,
+  "processors": 1,
+  "socket": "SOC",
+  "flags": "",
+  "virtualization": true,
+  "cache": {
+    "l1d": 131072,
+    "l1i": 65536,
+    "l2": 4194304,
+    "l3": null
+  }
+}
