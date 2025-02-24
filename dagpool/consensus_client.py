@@ -34,6 +34,9 @@ class Node:
     def label(self) -> NodeLabel:
       return f"{self.peer_id}:{self.node_hash}"
     
+    def has_computed_seen_nodes(self) -> bool:
+      return self.seen_nodes is not None and self.equivocated_peers is not None
+
     @staticmethod
     def merkle_root_of_transaction_list(txs: list[TransactionId]) -> NodeId:
       assert len(txs) > 0
@@ -143,9 +146,9 @@ class NetworkSimulator:
               # Gossip genesis node to neighbors
               success = await self.gossip_send_node_and_ancestry(peer1.peer_id, peer2.peer_id, cloned_genesis_node)
               if not success:
-                print(f"peer {peer1.peer_id} gossiped send to {peer2.peer_id} genesis node {genesis_node.node_hash} failed")
+                print(f"peer {peer1.peer_id} gossiped to {peer2.peer_id} genesis node {genesis_node.node_hash} failed")
               else:
-                print(f"peer {peer1.peer_id} gossiped send to {peer2.peer_id} genesis node {genesis_node.node_hash} successfully")
+                print(f"peer {peer1.peer_id} gossiped to {peer2.peer_id} genesis node {genesis_node.node_hash} successfully")
 
         self.genesis_checkpoint = Checkpoint(
             timestamp=time.time(),
@@ -164,7 +167,7 @@ class NetworkSimulator:
         txs = []
         for _ in range(num_txs):
           # 50% pick a random txs already in the global mempool
-          if len(mempool_txs) > 0 and self.random_instance.random() < 0.5:
+          if len(mempool_txs) > 0 and self.random_instance.random() < 0.1:
             txs.append(self.random_instance.choice(mempool_txs))
           else:
             # 50% add a new txs
@@ -301,7 +304,10 @@ class NetworkSimulator:
         for i in range(len(all_received_nodes)):
           current_node = all_received_nodes[i]
           if not receiver_peer.verify_node_and_add_to_local_view(current_node):
+            print(f"Peer {receiver_peer.peer_id} rejected node {current_node.node_hash} from {sender_peer.peer_id}")
             continue
+          else:
+            print(f"Peer {receiver_peer.peer_id} accepted node {current_node.node_hash} from {sender_peer.peer_id}")
 
         return receiver_peer.has_seen_valid_node(node1)
 
@@ -333,7 +339,7 @@ class ConsensusPeer:
         ## adversary-related data
         self.equivocated_peers: Set[PeerId] = set() # set of peers that current peer believes they actively create equivocated nodes
         self.equivocated_nodes: Set[NodeId] = set() # set of nodes that current peer believes are equivocated
-        self.equivocation_prob = 0.5 if is_adversary else 0.0
+        self.equivocation_prob = 0.2 if is_adversary else 0.0
         self.neighbors: list[PeerId] = []  # Track neighboring peers
         # if each peer connects to log(N) neighbors, a transaction would takes O(log(N)/log(log(N))) gossip hops to reach the whole network
         # for N = 10^6, it would be 7 hops
@@ -616,11 +622,10 @@ class ConsensusPeer:
 
     def verify_node_and_add_to_local_view(self, node: Node = None) -> bool:
         """Verify a node and its transactions, and add it to the local view"""
+
         if not self.verify_node(node):
           return False
 
-        # self.add_node_to_local_view(node)
-        
         # add to seen_valid_nodes
         if node.peer_id not in self.seen_valid_nodes:
           self.seen_valid_nodes[node.peer_id] = []
@@ -634,8 +639,6 @@ class ConsensusPeer:
               self.local_graph[predecessor.node_hash] = set()
             self.local_graph[predecessor.node_hash].add(node.node_hash)
 
-          # compute the list of seen_nodes of the new node
-          self.compute_seen_nodes_of_new_node(node)
           # do the cleanup if the node is created by the current peer
           if node.peer_id == self.peer_id:
             self.pending_txs.clear() # because all txs in the pending_txs are now in the new node
@@ -649,7 +652,6 @@ class ConsensusPeer:
         ## check if this witness strongly sees > 2/3 of witnesses of r
         ## if some witnesses are descendants of equivocated nodes, they are ignored completely
         ## NOTE: we already make sure the ancestry of dest_node is verified
-        ## NOTE: at this point, dest_node is not called compute_seen_nodes_of_new_node() yet
 
         strongly_sees_threshold = 2/3 * len(self.network.peers)
         strongly_seen_witnesses: list["Node"] = []
@@ -681,7 +683,7 @@ class ConsensusPeer:
 
         return strongly_seen_witnesses
     
-    def check_round_number_of_non_genesis_node(self, node: Node) -> bool:
+    def check_round_number_of_non_genesis_node_with_valid_parents(self, node: Node) -> bool:
       """
       if a node is of round r:
         - it must not strongly sees > 2N/3 of witnesses of round r
@@ -712,17 +714,41 @@ class ConsensusPeer:
         - round number must be valid
         - node hash must be valid
         => This method should be called recursively for all ancestors of a node before it's verified
+
+        If the node accepts any parents from an equivocated peer, it is invalid
         """
         if node is None:
           return False
 
-        if node.is_genesis():
-          return True
+        # an honest peer must not accept a node which itself or its parents are from equivocated peers
+        try:
+          if not node.has_computed_seen_nodes(): # in case a node is called verify_node_and_add_to_local_view() multiple times
+            self.compute_seen_nodes_of_new_node(node)
 
-        if not node.verify_node_hash():
+          if node.is_genesis():
+            return True
+
+          if not node.verify_node_hash():
+            return False
+
+          predecessors = self.get_predecessors(node)
+
+          # must have valid parents
+          if len(predecessors) < 2:
+            return False
+          
+          predecessors_and_current_node = predecessors + [node]
+          for node_to_check in predecessors_and_current_node:
+            if node_to_check.peer_id in node.equivocated_peers:
+              is_allowed_to_bypass = self.is_adversary and node_to_check.peer_id == self.peer_id # adversary don't accept invalid nodes from other adversaries
+              if not is_allowed_to_bypass:
+                return False
+        except Exception as e:
+          # adversary sending invalid nodes
+          print("error = ", e)
           return False
 
-        return self.check_round_number_of_non_genesis_node(node)
+        return self.check_round_number_of_non_genesis_node_with_valid_parents(node)
 
     def get_all_transactions(self) -> Set[TransactionId]:
         """Get all transactions known to this peer"""
@@ -748,7 +774,8 @@ class ConsensusPeer:
         @return: the newly created node, if there is no new txs, return None
         """
         assert self_parent is not None and cross_parent is not None
-        assert self_parent == self.get_my_last_node()
+        if not self.is_adversary:
+          assert self_parent == self.get_my_last_node()
 
         # the newly seen list of txs in the new node must be not empty
         # TODO: sort this list by timestamp of receipt of the transactions
@@ -762,7 +789,8 @@ class ConsensusPeer:
         round_num = len(self.my_nodes())
         base_hash = f"{self.peer_id}{str(round_num).zfill(3)}"
 
-        assert self_parent.round == self.current_round
+        if not self.is_adversary:
+          assert self_parent.round == self.current_round
 
         new_node = Node(
             peer_id=self.peer_id,
@@ -782,7 +810,10 @@ class ConsensusPeer:
             self_parent_hash=self_parent.node_hash,
             cross_parent_hash=cross_parent.node_hash
           )
-          assert self.verify_node(new_node)
+        
+        if not self.verify_node(new_node):
+          # this new_node is invalid because either its parents are from equivocated peers
+          return None 
 
         print(f"Peer {self.peer_id} COMPUTED NEW NODE {new_node.node_hash} from {self_parent.node_hash} and {cross_parent.node_hash}")
 
@@ -793,7 +824,7 @@ class ConsensusPeer:
         # generate a random permutation of connected peers
         # try to extend the node sequence and push it to the neighbors
 
-        self_parent_node = self.get_my_last_node()
+        self_parent_node = self.get_my_last_node() if not self.is_adversary else self.random_instance.choice(self.my_nodes())
         # pick a random peer with non-empty seen_valid_nodes
         possible_cross_peers = [peer_id for peer_id in self.seen_valid_nodes if self.seen_valid_nodes[peer_id]]
 
@@ -807,9 +838,9 @@ class ConsensusPeer:
         # NOTE: currently, the equivocation logic is simple, an adversary basically picks the last node of the current peer as the self parent, and the latest nodes of different cross peers as the cross parents
         
         for _ in range(num_nodes_to_create):
-          found_unique_cross_parent = False
-          while not found_unique_cross_parent:
-            found_unique_cross_parent = True
+          max_num_retries = 10
+
+          for i in range(max_num_retries):
 
             cross_parent_peer_id = self.random_instance.choice(possible_cross_peers)
             while cross_parent_peer_id == self.peer_id:
@@ -817,16 +848,28 @@ class ConsensusPeer:
             
             cross_parent_node = self.seen_valid_nodes[cross_parent_peer_id][-1]
 
+            if cross_parent_node.node_hash in [node.cross_parent_hash for node in new_nodes]:
+              # duplicated cross parent
+              continue
+            
             new_node = self.compute_new_node(self_parent=self_parent_node, cross_parent=cross_parent_node)
-            if new_node is None:
-              return
 
-            if new_node.cross_parent_hash not in [node.cross_parent_hash for node in new_nodes]:
+            if new_node is not None:
+              # found a valid node with unique cross parent
               new_nodes.append(new_node)
+              break
             else:
-              found_unique_cross_parent = False
+              print(f"Peer {self.peer_id} can't compute any new nodes from {self_parent_node.node_hash} and {cross_parent_node.node_hash}")
+              pass
+              # can't construct a valid node from the current tuple of self_parent and cross_parent
+
+        assert len(new_nodes) <= num_nodes_to_create
+        if len(new_nodes) > 0:
+          print(f"Peer {self.peer_id}, is_adversary = {self.is_adversary}, computed {len(new_nodes)} nodes, its neighbors = {self.neighbors}, its equivocated peers = {self.my_nodes()[-1].equivocated_peers}, seen_peers = {[peer_id for peer_id in self.seen_valid_nodes]}")
+        else:
+          print(f"Peer {self.peer_id}, is_adversary = {self.is_adversary}, can't compute any new nodes, its neighbors = {self.neighbors}, its equivocated peers = {self.my_nodes()[-1].equivocated_peers}, seen_peers = {[peer_id for peer_id in self.seen_valid_nodes]}")
+          return
         
-        assert len(new_nodes) == num_nodes_to_create
         for new_node in new_nodes:
           assert self.verify_node_and_add_to_local_view(new_node)
 
@@ -836,12 +879,14 @@ class ConsensusPeer:
             # select randomly nodes from new_nodes
             node_to_send = (new_nodes[0] if i * 2 < len(self.neighbors) else new_nodes[-1]).clone() # simulate the process of serializing and deserializing the nodes in internet protocols
 
+            print(f"Peer {self.peer_id} try to gossip to {other_peer_id} node {node_to_send.node_hash}:")
+
             # Send the selected node
             success = await self.network.gossip_send_node_and_ancestry(self.peer_id, other_peer_id, node_to_send)
             if not success:
-              print(f"peer {self.peer_id} gossiped send to {other_peer_id} node {node_to_send.node_hash} failed")
+              print(f"peer {self.peer_id} gossiped to {other_peer_id} node {node_to_send.node_hash} failed")
             else:
-              print(f"peer {self.peer_id} gossiped send to {other_peer_id} node {node_to_send.node_hash} successfully")
+              print(f"peer {self.peer_id} gossiped to {other_peer_id} node {node_to_send.node_hash} successfully")
             
     # TODO: finish equivocation detection
     def detect_equivocation(self) -> list:
@@ -856,7 +901,7 @@ async def main():
     )
 
     # Create peers
-    num_peers = 4 # next threshold for count_adversary = 2 is N = 7
+    num_peers = 7 # next threshold for count_adversary = 2 is N = 7
     count_adversary = 0
     for i in range(num_peers):
         is_adversary = (count_adversary + 1) < 1 * num_peers / 3 and network.random_instance.random() < 0.5
@@ -886,7 +931,7 @@ async def main():
 
     # Main consensus loop
     i = 0
-    while True and i < 100:
+    while True and i < 50:
         i += 1
         if i % 100 == 0:
           print(f"{i}th iteration")
