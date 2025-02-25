@@ -10,12 +10,72 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import hashlib
-from schemas import TransactionId, PeerId, NodeId, NodeLabel
+from schemas import TransactionId, PeerId, NodeId, NodeLabel, Signature, BatchId, Pubkey, HashValue
 import json
 from math import log2, ceil  # Added log2 and ceil imports
+from graph import TournamentGraph
+
+BEACON_PACE = 4
+# the first BEACON_PACE rounds are derived directly from the list of peers
+# BEACON_PACE should be chosen large enough to make sure peers have enough time to realize that they are the leader of the next rounds
+BEACON_FIELD_PRIME = 28948022309329048855892746252171976963363056481941560715954676764349967630337 # equal to Pallas base field prime
+
+class Utils:
+  @staticmethod
+  def merkle_root_of_transaction_list(txs: list[TransactionId]) -> NodeId:
+    assert len(txs) > 0
+    # do the merkle tree construction using a while loop
+    res = [tx for tx in txs]
+    while len(res) > 1:
+      new_res = []
+      for i in range(0, len(res), 2):
+        if i+1 < len(res):
+          new_res.append(hashlib.sha256(f"{res[i]}{res[i+1]}".encode()).hexdigest())
+        else:
+          new_res.append(res[i])
+      res = new_res
+    return res[0]
+
+class BatchProposal:
+  batch_hash: HashValue
+  prev_batch_hash: HashValue
+  final_fair_ordering: List[TransactionId]
+  next_beacon_randomness: HashValue # peers use this to derive the leader of round r + BEACON_PACE
+
+  def __init__(self, prev_batch_hash: HashValue, final_fair_ordering: List[TransactionId], prev_beacon_randomness: HashValue):
+    self.prev_batch_hash = prev_batch_hash
+    self.final_fair_ordering = final_fair_ordering
+    self.next_beacon_randomness = self.compute_next_beacon_randomness(round, prev_beacon_randomness, final_fair_ordering)
+    self.batch_hash = self.compute_batch_hash()
+
+  def compute_next_beacon_randomness(self, round_number: int, prev_beacon_randomness: HashValue, final_fair_ordering: List[TransactionId]) -> HashValue:
+    components = [prev_beacon_randomness, str(round_number + BEACON_PACE), Utils.merkle_root_of_transaction_list(final_fair_ordering)]
+    return hashlib.sha256(''.join(components).encode()).hexdigest()
+
+  def compute_batch_hash(self) -> HashValue:
+    # use hashlib of [prev_batch_hash, final_fair_ordering, next_beacon_randomness]
+    components = [self.prev_batch_hash, Utils.merkle_root_of_transaction_list(self.final_fair_ordering), self.next_beacon_randomness]
+    return hashlib.sha256(''.join(components).encode()).hexdigest()[:8]
+
+  def verify_batch_proposal_is_well_formed(self, round_number: int, prev_beacon_randomness: HashValue) -> bool:
+    if not self.next_beacon_randomness == self.compute_next_beacon_randomness(round_number, prev_beacon_randomness, self.final_fair_ordering):
+      return False
+    if not self.batch_hash == self.compute_batch_hash():
+      return False
+    return True
+
+  def clone(self):
+    return BatchProposal(self.prev_batch_hash, [tx for tx in self.final_fair_ordering], self.next_beacon_randomness)
+
+class NodeMetadata:
+  batch_proposal: BatchProposal # can be None if the node is not a head node (head node means the witness of the leader in its selected round)
+  creator_signature: Signature
+
+  def clone(self):
+    return NodeMetadata(self.batch_proposal.clone() if self.batch_proposal else None, self.creator_signature)
 
 class Node:
-    def __init__(self, peer_id: PeerId, round: int, is_witness: bool, newly_seen_txs_list: list[TransactionId], self_parent_hash: NodeId, cross_parent_hash: NodeId):
+    def __init__(self, peer_id: PeerId, round: int, is_witness: bool, newly_seen_txs_list: list[TransactionId], self_parent_hash: NodeId, cross_parent_hash: NodeId, metadata: NodeMetadata):
         self.peer_id = peer_id
         self.is_witness = is_witness
         self.round = round
@@ -27,9 +87,11 @@ class Node:
         ## fork-related data
         self.equivocated_peers: Set[PeerId] = None # set of peers that current node believes are equivocated, and this node won't SEE (i.e. UNSEE) all nodes created by them. Note that this doesn't affect STRONGLY SEEING property of this node.
         self.seen_nodes: Set[NodeId] = None # set of nodes that current node sees
+        self.metadata: NodeMetadata = metadata
+        self.update_signature()
   
     def clone(self):
-      return Node(self.peer_id, self.round, self.is_witness, [txs for txs in self.newly_seen_txs_list], self.self_parent_hash, self.cross_parent_hash)
+      return Node(self.peer_id, self.round, self.is_witness, [txs for txs in self.newly_seen_txs_list], self.self_parent_hash, self.cross_parent_hash, self.metadata.clone())
 
     def label(self) -> NodeLabel:
       return f"{self.peer_id}:{self.node_hash}"
@@ -37,21 +99,22 @@ class Node:
     def has_computed_seen_nodes(self) -> bool:
       return self.seen_nodes is not None and self.equivocated_peers is not None
 
-    @staticmethod
-    def merkle_root_of_transaction_list(txs: list[TransactionId]) -> NodeId:
-      assert len(txs) > 0
-      # do the merkle tree construction using a while loop
-      res = [tx for tx in txs]
-      while len(res) > 1:
-        new_res = []
-        for i in range(0, len(res), 2):
-          if i+1 < len(res):
-            new_res.append(hashlib.sha256(f"{res[i]}{res[i+1]}".encode()).hexdigest())
-          else:
-            new_res.append(res[i])
-        res = new_res
-      return res[0]
+    def compute_signature(self, _creator_private_key: PrivateKey) -> Signature:
+      # TODO: use real private key
+      if self.metadata.batch_proposal:
+        # signature = hash(batch_proposal.batch_hash, node_hash)
+        return hashlib.sha256([self.metadata.batch_proposal.batch_hash, self.node_hash].encode()).hexdigest()[:8]
+      else:
+        # signature = hash(node_hash)
+        return hashlib.sha256([self.node_hash].encode()).hexdigest()[:8]
     
+    def update_signature(self):
+      self.metadata.creator_signature = self.compute_signature()
+
+    def verify_signature(self, creator_pubkey: Pubkey) -> bool:
+      # TODO: use real pubkey
+      return self.metadata.creator_signature == self.compute_signature()
+
     @staticmethod
     def hash_node(creator: PeerId, round: int, is_witness: bool, self_parent_hash: NodeId, cross_parent_hash: NodeId, newly_seen_txs_list: list[TransactionId]) -> NodeId:
         """Create deterministic hash for a node"""
@@ -61,11 +124,25 @@ class Node:
         if self_parent_hash:
             components.append(self_parent_hash)
         if newly_seen_txs_list:
-            components.append(Node.merkle_root_of_transaction_list(newly_seen_txs_list))
+            components.append(Utils.merkle_root_of_transaction_list(newly_seen_txs_list))
         return hashlib.sha256(''.join(components).encode()).hexdigest()[:8] # the hash value of a node basically depends deterministically on all of its content
 
     def verify_node_hash(self) -> bool:
       return self.node_hash == Node.hash_node(self.peer_id, self.round, self.is_witness, self.self_parent_hash, self.cross_parent_hash, self.newly_seen_txs_list)
+
+    def validate_node_data(self, creator_pubkey: Pubkey) -> bool:
+      if not self.verify_node_hash():
+        return False
+      
+      # TODO: validate that all the node data is well-formed (use schema validator)
+      
+      if self.metadata.batch_proposal and not self.metadata.batch_proposal.verify_batch_proposal_is_well_formed(self.round, self.metadata.batch_proposal.prev_beacon_randomness):
+        return False
+      
+      if not self.verify_signature(creator_pubkey):
+        return False
+ 
+      return True
 
     def is_genesis(self):
       is_genesis = self.round == 0 and self.is_witness == True and self.self_parent_hash == "" and self.cross_parent_hash == "" and self.verify_node_hash()
@@ -117,6 +194,19 @@ class NetworkSimulator:
         # global mempool: simulate a global mempool of all transactions from all clients
         self.global_mempool = set()
 
+    def get_first_leaders(self) -> List[PeerId]:
+      all_peers = [p.peer_id for p in self.peers]
+      value_bytes = hashlib.sha256(",".join(all_peers).encode()).digest()
+      value = int.from_bytes(value_bytes, "big")
+      # choose the first BEACON_PACE leaders for the first BEACON_PACE rounds, using the first BEACON_FIELD_PRIME as modulo somehow
+      beacon_random = random.Random(value)
+      leaders = beacon_random.sample(all_peers, BEACON_PACE)
+      return leaders
+
+    def get_peer_pubkey(self, peer_id: PeerId) -> Pubkey:
+      # TODO: use real pubkey
+      return "DUMMY_PUBKEY"
+
     def register_peer(self, peer: 'ConsensusPeer'):
         # peer_id must be unique
         assert peer.peer_id not in [p.peer_id for p in self.peers]
@@ -135,6 +225,7 @@ class NetworkSimulator:
         genesis_nodes: Dict[PeerId, Node] = {}
         for peer1 in self.peers:
             genesis_node = peer1.create_genesis_node()
+            peer1.construct_batch_proposal_if_needed(genesis_node)
 
             genesis_nodes[peer1.peer_id] = genesis_node
             for peer2 in self.peers:
@@ -335,7 +426,7 @@ class ConsensusPeer:
         self.current_round = 0
         self.seen_valid_nodes: Dict[PeerId, List[Node]] = {}
         self.accumulated_txs = set()  # Track all transactions seen by this peer
-        self.network = network
+        self.network: NetworkSimulator = network
         ## adversary-related data
         self.equivocated_peers: Set[PeerId] = set() # set of peers that current peer believes they actively create equivocated nodes
         self.equivocated_nodes: Set[NodeId] = set() # set of nodes that current peer believes are equivocated
@@ -560,10 +651,47 @@ class ConsensusPeer:
             is_witness=True,
             newly_seen_txs_list=[],
             self_parent_hash="",
-            cross_parent_hash=""
+            cross_parent_hash="",
+            metadata=NodeMetadata()
         )
         assert self.verify_node_and_add_to_local_view(node) == True
         return node
+
+    def construct_batch_proposal_if_needed(self, node: Node):
+      """
+      Construct a batch proposal for the given node
+      """
+      if node.peer_id != self.peer_id or not node.is_witness:
+        return
+      
+      # fork-choice rule: select the previous batch using the Heaviest Observed Subtree (HOS) selection rule
+      heaviest_batch = 0
+      while self.batch_has_children(heaviest_batch):
+        heaviest_batch = self.get_heaviest_child(heaviest_batch)
+
+      prev_batch_beacon_randomness: HashValue = self.get_beacon_randomness_of_batch(heaviest_batch)
+
+      # construct the truncated cone = the intersection between the lineage of the heaviest batch and the ancestry of the current head node
+      truncated_cone: Dict[NodeId, Node] = self.get_truncated_cone(heaviest_batch, node)
+      # gather all transactions in the truncated cone into a tournament graph
+      tournament_graph: TournamentGraph = self.construct_tournament_graph_of_transactions(truncated_cone)
+      # calculate the fair ordering of the transactions and construct the batch proposal
+      sccs = tournament_graph.find_strongly_connected_components()
+      sccs_with_fair_orderings = [[scc, tournament_graph.find_hamiltonian_cycle(scc)] for scc in sccs]
+      final_fair_ordering: List[TransactionId] = []
+      for scc, fair_ordering in sccs_with_fair_orderings:
+        final_fair_ordering.extend(fair_ordering)
+
+      batch_proposal = BatchProposal(
+        prev_batch_hash=heaviest_batch,
+        final_fair_ordering=final_fair_ordering,
+        prev_beacon_randomness=prev_batch_beacon_randomness
+      )
+
+      assert batch_proposal.verify_batch_proposal_is_well_formed(node.round, prev_batch_beacon_randomness)
+
+      node.metadata = NodeMetadata(batch_proposal=batch_proposal)
+      node.update_signature()
 
     # TODO: implement bootstrap node (first node refers to parents in a checkpoint after a node rejoins the network)
     
@@ -728,7 +856,7 @@ class ConsensusPeer:
           if node.is_genesis():
             return True
 
-          if not node.verify_node_hash():
+          if not node.validate_node_data(self.network.get_peer_pubkey(node.peer_id)):
             return False
 
           predecessors = self.get_predecessors(node)
@@ -743,6 +871,11 @@ class ConsensusPeer:
               is_allowed_to_bypass = self.is_adversary and node_to_check.peer_id == self.peer_id # adversary don't accept invalid nodes from other adversaries
               if not is_allowed_to_bypass:
                 return False
+
+          # TODO: verify the batch proposal if it exists
+          # 1. check if the current node is a head witness
+          # 2. verify the batch proposal is constructed correctly
+          
         except Exception as e:
           # adversary sending invalid nodes
           print("error = ", e)
@@ -798,8 +931,10 @@ class ConsensusPeer:
             is_witness=False,
             newly_seen_txs_list=newly_seen_txs_list,
             self_parent_hash=self_parent.node_hash,
-            cross_parent_hash=cross_parent.node_hash
+            cross_parent_hash=cross_parent.node_hash,
+            metadata=NodeMetadata()
         )
+        self.construct_batch_proposal_if_needed(new_node)
 
         if not self.verify_node(new_node):
           new_node = Node(
@@ -808,8 +943,10 @@ class ConsensusPeer:
             is_witness=True,
             newly_seen_txs_list=newly_seen_txs_list,
             self_parent_hash=self_parent.node_hash,
-            cross_parent_hash=cross_parent.node_hash
+            cross_parent_hash=cross_parent.node_hash,
+            metadata=NodeMetadata()
           )
+          self.construct_batch_proposal_if_needed(new_node)
         
         if not self.verify_node(new_node):
           # this new_node is invalid because either its parents are from equivocated peers
@@ -888,10 +1025,6 @@ class ConsensusPeer:
             else:
               print(f"peer {self.peer_id} gossiped to {other_peer_id} node {node_to_send.node_hash} successfully")
             
-    # TODO: finish equivocation detection
-    def detect_equivocation(self) -> list:
-      pass
-
 async def main():
     # Create network simulator
     network = NetworkSimulator(

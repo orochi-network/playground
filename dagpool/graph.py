@@ -14,20 +14,24 @@ References:
 """
 
 from typing import Set, Dict, List, Tuple
-from schemas import OrderFairnessGraphNodeId, HashValue
+from schemas import GraphNodeId, HashValue
 
 class DirectedGraph:
     def __init__(self):
-        self.nodes: Set[OrderFairnessGraphNodeId] = {}
-        self.edges: Dict[OrderFairnessGraphNodeId, Set[OrderFairnessGraphNodeId]] = {}
+        self.nodes: Set[GraphNodeId] = {}
+        self.edges: Dict[GraphNodeId, Set[GraphNodeId]] = {}
         self.is_tournament_graph = None
-        self.connected_components: List[Tuple[OrderFairnessGraphNodeId, HashValue]] = None
+        self.connected_components: List[Tuple[GraphNodeId, HashValue]] = None
+        self.node_to_scc_hash: Dict[GraphNodeId, HashValue] = None
+        self.hash_to_scc_nodes: Dict[HashValue, List[GraphNodeId]] = None
 
     def reset_graph_properties(self):
       self.is_tournament_graph = None
       self.connected_components = None
+      self.node_to_scc_hash = None
+      self.hash_to_scc_nodes = None
 
-    def add_node(self, nodeId: OrderFairnessGraphNodeId):
+    def add_node(self, nodeId: GraphNodeId):
         if nodeId in self.nodes:
             return
         self.nodes.add(nodeId)
@@ -35,14 +39,14 @@ class DirectedGraph:
         # reset the graph properties
         self.reset_graph_properties()
     
-    def add_directed_edge(self, nodeId1: OrderFairnessGraphNodeId, nodeId2: OrderFairnessGraphNodeId):
+    def add_directed_edge(self, nodeId1: GraphNodeId, nodeId2: GraphNodeId):
         if nodeId1 not in self.nodes:
             self.add_node(nodeId1)
         self.edges[nodeId1].add(nodeId2)
         # reset the graph properties
         self.reset_graph_properties()
 
-    def has_edge(self, nodeId1: OrderFairnessGraphNodeId, nodeId2: OrderFairnessGraphNodeId) -> bool:
+    def has_edge(self, nodeId1: GraphNodeId, nodeId2: GraphNodeId) -> bool:
         return nodeId1 in self.edges and nodeId2 in self.edges[nodeId1]
     
     def assert_is_tournament_graph(self):
@@ -59,18 +63,21 @@ class DirectedGraph:
                     return False
         return True
     
-    def find_strongly_connected_components(self) -> List[List[OrderFairnessGraphNodeId]]:
+    """
+    Find the strongly connected components of the graph and return them in the topological order of the SCCs
+    """
+    def find_strongly_connected_components(self) -> List[Tuple[List[GraphNodeId], HashValue]]:
         assert self.connected_components is None
-        self.connected_components: List[Tuple[OrderFairnessGraphNodeId, HashValue]] = []
+        self.connected_components: List[Tuple[GraphNodeId, HashValue]] = []
         
         # tarjan's algorithm
         index = 0
         indices = {}
         lowlinks = {}
         stack = []
-        components: List[List[OrderFairnessGraphNodeId]] = []
+        components: List[Tuple[List[GraphNodeId], HashValue]] = []
 
-        def strongconnect(nodeId: OrderFairnessGraphNodeId) -> None:
+        def strongconnect(nodeId: GraphNodeId) -> None:
             assert nodeId not in indices
             nonlocal index, indices, lowlinks, stack, on_stack, components
             # Set the depth index for node
@@ -103,17 +110,34 @@ class DirectedGraph:
             if nodeId not in indices:
                 strongconnect(nodeId)
 
-        # Store components with their hash values
-        self.connected_components = components
+        self.node_to_scc_hash: Dict[GraphNodeId, HashValue] = {nodeId: component[1] for component in enumerate(components) for nodeId in component[0]}
+        self.hash_to_scc_nodes: Dict[HashValue, List[GraphNodeId]] = {component[1]: component[0] for component in components}
         
-        return components
+        self.connected_components: List[Tuple[List[GraphNodeId], HashValue]] = []
 
-    def assert_is_strongly_connected_component(self, hamiltonian_path: List[OrderFairnessGraphNodeId]):
+        visited_sccs = set()
+        def sort_sccs(comp: Tuple[List[GraphNodeId], HashValue]):
+          assert comp[1] not in visited_sccs
+          self.connected_components.append(comp)
+          for u in comp[0]:
+            if u in self.edges:
+              for v in self.edges[u]:
+                if not self.node_to_scc_hash[v] in visited_sccs:
+                  sort_sccs(self.hash_to_scc_nodes[self.node_to_scc_hash[v]])
+          visited_sccs.add(comp[1])
+
+        for component in components:
+          if component[1] not in visited_sccs:
+            sort_sccs(component)
+        
+        return self.connected_components
+
+    def assert_is_strongly_connected_component(self, hamiltonian_path: List[GraphNodeId]):
       assert self.connected_components is not None
       hash_value = hash(tuple(sorted(hamiltonian_path)))
       assert hash_value in [connected_component[1] for connected_component in self.connected_components]
 
-    def assert_is_hamiltonian_path(self, hamiltonian_path: List[OrderFairnessGraphNodeId]):
+    def assert_is_hamiltonian_path(self, hamiltonian_path: List[GraphNodeId]):
       for i in range(1, len(hamiltonian_path)):
         assert self.has_edge(hamiltonian_path[i - 1], hamiltonian_path[i])
 
@@ -124,12 +148,12 @@ class TournamentGraph(DirectedGraph):
     def is_tournament_graph(self) -> bool:
         return super().is_tournament_graph()
 
-    def find_hamiltonian_path(self, scc: List[OrderFairnessGraphNodeId]) -> List[OrderFairnessGraphNodeId]:
+    def find_hamiltonian_path(self, scc: List[GraphNodeId]) -> List[GraphNodeId]:
       # must be a strongly connected component
       self.assert_is_strongly_connected_component(scc)
 
       # Complexity: O(len(scc)^2)
-      hamiltonian_path: List[OrderFairnessGraphNodeId] = [scc[0]]
+      hamiltonian_path: List[GraphNodeId] = [scc[0]]
       for k in range(1, len(scc)):
         # find first i < k | has_edge(hamiltonian_path[i], scc[k]) & has_edge(scc[k], hamiltonian_path[i+1])
         i = 0
@@ -140,13 +164,13 @@ class TournamentGraph(DirectedGraph):
 
       return hamiltonian_path
 
-    def find_hamiltonian_cycle(self, hamiltonian_path_of_scc: List[OrderFairnessGraphNodeId]) -> List[OrderFairnessGraphNodeId]:
+    def find_hamiltonian_cycle(self, hamiltonian_path_of_scc: List[GraphNodeId]) -> List[GraphNodeId]:
       self.assert_is_tournament_graph()
       self.assert_is_strongly_connected_component(hamiltonian_path_of_scc)
       self.assert_is_hamiltonian_path(hamiltonian_path_of_scc)
 
       # Complexity: O(len(hamiltonian_path)^2)
-      accumulated_hamiltonian_cycle: List[OrderFairnessGraphNodeId] = [hamiltonian_path_of_scc[0]]
+      accumulated_hamiltonian_cycle: List[GraphNodeId] = [hamiltonian_path_of_scc[0]]
       j = 1
       while j < len(hamiltonian_path_of_scc):
         p = j + 1
