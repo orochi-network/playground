@@ -79,7 +79,6 @@ class DirectedGraph:
 
         def strongconnect(nodeId: GraphNodeId) -> None:
             assert nodeId not in indices
-            nonlocal index, indices, lowlinks, stack, on_stack, components
             # Set the depth index for node
             indices[nodeId] = index
             lowlinks[nodeId] = index
@@ -177,7 +176,6 @@ class TournamentGraph(DirectedGraph):
         r = -1
         found_backward_edge = False
         while not found_backward_edge and p < len(hamiltonian_path_of_scc):
-          nonlocal r
           # check if there is a backward edge from hamiltonian_path[p] to accumulated_hamiltonian_cycle[r]
           r = 0 # the out-going node of the backward edge
           while r < len(accumulated_hamiltonian_cycle) and not self.has_edge(hamiltonian_path_of_scc[p], accumulated_hamiltonian_cycle[r]):
@@ -186,6 +184,10 @@ class TournamentGraph(DirectedGraph):
           if r < len(accumulated_hamiltonian_cycle):
             found_backward_edge = True
         
+        if not found_backward_edge:
+          # If no backward edge is found, the graph is not a tournament or not strongly connected
+          raise ValueError("No Hamiltonian cycle exists for the given path.")
+
         # reorder the accumulated_hamiltonian_cycle: accumulated_hamiltonian_cycle[0 -> r - 1] -> hamiltonian_path_of_scc[j+1 -> p] -> accumulated_hamiltonian_cycle[r -> ...] -> hamiltonian_path_of_scc[0]
         j = p
         accumulated_hamiltonian_cycle = accumulated_hamiltonian_cycle[0:r] + hamiltonian_path_of_scc[j+1:p+1] + accumulated_hamiltonian_cycle[r:]

@@ -19,7 +19,7 @@ BEACON_PACE = 4
 # the first BEACON_PACE rounds are derived directly from the list of peers
 # BEACON_PACE should be chosen large enough to make sure peers have enough time to realize that they are the leader of the next rounds
 BEACON_FIELD_PRIME = 28948022309329048855892746252171976963363056481941560715954676764349967630337 # equal to Pallas base field prime
-
+GENESIS_BATCH = ""
 class Utils:
   @staticmethod
   def merkle_root_of_transaction_list(txs: list[TransactionId]) -> NodeId:
@@ -38,6 +38,9 @@ class Utils:
 
 class Vote:
   head_batch_hash: HashValue
+
+  def __init__(self, head_batch_hash: HashValue):
+    self.head_batch_hash = head_batch_hash
 
 class BatchProposal:
   batch_hash: HashValue
@@ -75,6 +78,11 @@ class NodeMetadata:
   vote: Vote # BFT vote for the head batch of the network, which determines the order of transactions in the network
   creator_signature: Signature
 
+  def __init__(self, batch_proposal: BatchProposal = None, vote: Vote = Vote(GENESIS_BATCH), creator_signature: Signature = ""):
+    self.batch_proposal = batch_proposal
+    self.vote = vote
+    self.creator_signature = creator_signature
+
   def clone(self):
     return NodeMetadata(self.batch_proposal.clone() if self.batch_proposal else None, Vote(self.vote.head_batch_hash), self.creator_signature)
 
@@ -103,17 +111,17 @@ class Node:
     def label(self) -> NodeLabel:
       return f"{self.peer_id}:{self.node_hash}"
     
-    def has_filled_node_data(self) -> bool:
-      return self.has_filled_node_data
-    
-    def compute_signature(self, _creator_private_key: PrivateKey) -> Signature:
+    def is_head_node(self) -> bool:
+      return self.is_witness and self.metadata.batch_proposal is not None
+
+    def compute_signature(self, _creator_private_key: str = None) -> Signature:
       # TODO: use real private key
       if self.metadata.batch_proposal:
         # signature = hash(batch_proposal.batch_hash, node_hash)
-        return hashlib.sha256([self.metadata.batch_proposal.batch_hash, self.node_hash].encode()).hexdigest()[:8]
+        return hashlib.sha256('#'.join([self.metadata.batch_proposal.batch_hash, self.node_hash]).encode()).hexdigest()[:8]
       else:
         # signature = hash(node_hash)
-        return hashlib.sha256([self.node_hash].encode()).hexdigest()[:8]
+        return hashlib.sha256(self.node_hash.encode()).hexdigest()[:8]
     
     def update_signature(self):
       self.metadata.creator_signature = self.compute_signature()
@@ -208,14 +216,25 @@ class NetworkSimulator:
         # global mempool: simulate a global mempool of all transactions from all clients
         self.global_mempool = set()
 
-    def get_first_leaders(self) -> List[PeerId]:
+    # TODO: use secure cryptographic randomness source
+    def get_first_beacon_randomness(self) -> HashValue:
       all_peers = [p.peer_id for p in self.peers]
       value_bytes = hashlib.sha256(",".join(all_peers).encode()).digest()
       value = int.from_bytes(value_bytes, "big")
+      return value
+
+    def get_first_leaders(self) -> List[PeerId]: # for round 1 -> BEACON_PACE
+      all_peers = [p.peer_id for p in self.peers]
+      first_beacon_randomness = self.get_first_beacon_randomness()
       # choose the first BEACON_PACE leaders for the first BEACON_PACE rounds, using the first BEACON_FIELD_PRIME as modulo somehow
-      beacon_random = random.Random(value)
+      beacon_random = random.Random(first_beacon_randomness)
       leaders = beacon_random.sample(all_peers, BEACON_PACE)
       return leaders
+
+    def get_leader_after_BEACON_PACE_rounds(self, beacon_randomness: HashValue) -> PeerId:
+      beacon_random = random.Random(beacon_randomness)
+      all_peers = [p.peer_id for p in self.peers]
+      return beacon_random.choice(all_peers)
 
     def get_peer_pubkey(self, peer_id: PeerId) -> Pubkey:
       # TODO: use real pubkey
@@ -442,8 +461,6 @@ class ConsensusPeer:
         self.accumulated_txs = set()  # Track all transactions seen by this peer
         self.network: NetworkSimulator = network
         ## adversary-related data
-        self.equivocated_peers: Set[PeerId] = set() # set of peers that current peer believes they actively create equivocated nodes
-        self.equivocated_nodes: Set[NodeId] = set() # set of nodes that current peer believes are equivocated
         self.equivocation_prob = 0.2 if is_adversary else 0.0
         self.neighbors: list[PeerId] = []  # Track neighboring peers
         # if each peer connects to log(N) neighbors, a transaction would takes O(log(N)/log(log(N))) gossip hops to reach the whole network
@@ -452,8 +469,7 @@ class ConsensusPeer:
         self.pending_txs: List[Tuple[TransactionId, float]] = []
         self.local_graph: Dict[NodeId, Set[NodeId]] = {} # node_hash to set of node_hashes (parent, child)
         # batch-related data
-        self.observed_valid_batches: List[Node] = []
-        self.observed_votes_from_peers: Dict[PeerId, List[Node]] = {}
+        self.observed_valid_batches: Dict[HashValue, Node] = {} # map from the hash value of the batch to the node that proposes it
 
     def my_nodes(self) -> List[Node]:
       return self.seen_valid_nodes[self.peer_id]
@@ -679,15 +695,16 @@ class ConsensusPeer:
       Get the heaviest batch in the strict ancestors of the given node using a fork-choice rule based on the Heaviest Observed Subtree (HOS) selection rule
       """
       # 1. construct a tree of batch proposals
-      tree: Dict[HashValue, Set[HashValue]] = {}
-      for node in self.observed_valid_batches: # TODO: only use the batches from the last finalized branch, so we can filter out the batches from equivocated peers
+      tree: Dict[HashValue, Set[HashValue]] = {GENESIS_BATCH: set()}
+      
+      for node in self.observed_valid_batches.values(): # TODO: only use the batches from the last finalized branch, so we can filter out the batches from equivocated peers
         tree[node.batch_hash] = set()
         parent_batch_hash = node.metadata.batch_proposal.prev_batch_hash
         if parent_batch_hash not in tree:
           tree[parent_batch_hash] = set()
         tree[parent_batch_hash].add(node.batch_hash)
       # 2. collect the latest votes of all peers that the node can see
-      weight_of_branch: Dict[HashValue, int] = {}
+      weight_of_branch: Dict[HashValue, int] = {GENESIS_BATCH: 0}
 
       non_equivocated_peers = node.non_equivocated_peers
       for peer_id in node.seen_votes_by_peers:
@@ -700,29 +717,60 @@ class ConsensusPeer:
         for child_batch_hash in tree[batch_hash]:
           traverse(child_batch_hash)
           weight_of_branch[batch_hash] += weight_of_branch[child_batch_hash]
-      root = ""
+      root = GENESIS_BATCH
       traverse(root)
       # 4. traverse downwards from the root to leaves using the HOS rule
-      heaviest_batch = ""
+      heaviest_batch = GENESIS_BATCH
       while heaviest_batch in tree:
+        if len(tree[heaviest_batch]) == 0:
+          break
         heaviest_batch = max(tree[heaviest_batch], key=lambda x: weight_of_branch[x])
       return heaviest_batch
+    
+    def get_beacon_randomness_of_batch(self, batch_hash: HashValue) -> HashValue:
+      """
+      Get the beacon randomness of the given batch
+      """
+      if batch_hash == GENESIS_BATCH:
+        return self.network.get_first_beacon_randomness()
+      else:
+        return self.observed_valid_batches[batch_hash].metadata.batch_proposal.next_beacon_randomness
 
     def verify_node_is_head_node(self, node: Node) -> bool:
       """
-      Verify that the given node is a head node
+      Verify that the given node is a head node, given that the vote is valid
       """
-      pass
-
-    def construct_batch_proposal_if_needed(self, node: Node):
-      """
-      Construct a batch proposal for the given node
-      """
-      if node.peer_id != self.peer_id or not node.is_witness or not self.verify_node_is_head_node(node):
-        return
+      return False 
+      # TODO: turn this on
       
+      if not node.is_witness or node.is_genesis(): # this function might be called before the batch proposal is constructed so we only needs to check whether the node is a witness
+        return False
+
+      # find the batch that contains the randomness that determines the leader of the current round
+      beacon_batch:HashValue = node.metadata.vote.head_batch_hash
+      steps_back = BEACON_PACE - 1 + (1 if node.metadata.batch_proposal is not None else 0)
+
+      for i in range(steps_back):
+        if beacon_batch == "":
+          break
+        # find parent batch of the current beacon batch
+        beacon_batch: HashValue = self.observed_valid_batches[beacon_batch].metadata.batch_proposal.prev_batch_hash
+      
+      if beacon_batch == "":
+        # genesis beacon randomness
+        first_leaders: List[PeerId] = self.network.get_first_leaders()
+        is_head_node = len(first_leaders) == BEACON_PACE and node.round > 0 and node.round <= BEACON_PACE and node.peer_id == first_leaders[node.round - 1]
+        return is_head_node
+      else:
+        # non-genesis beacon randomness
+        return node.peer_id == self.network.get_leader_after_BEACON_PACE_rounds(self.get_beacon_randomness_of_batch(beacon_batch))
+
+    def compute_batch_proposal(self, node: Node) -> BatchProposal:
+      """
+      Compute a batch proposal for the given node
+      """
       # fork-choice rule: select the previous batch using the Heaviest Observed Subtree (HOS) selection rule
-      heaviest_batch = self.get_heaviest_batch_amongst_strict_ancestors(node)
+      heaviest_batch: HashValue = self.get_heaviest_batch_amongst_strict_ancestors(node)
 
       prev_batch_beacon_randomness: HashValue = self.get_beacon_randomness_of_batch(heaviest_batch)
 
@@ -742,34 +790,72 @@ class ConsensusPeer:
         final_fair_ordering=final_fair_ordering,
         prev_beacon_randomness=prev_batch_beacon_randomness
       )
-
       assert batch_proposal.verify_batch_proposal_is_well_formed(node.round, prev_batch_beacon_randomness)
 
+      return batch_proposal
+
+    def construct_batch_proposal_if_needed(self, node: Node):
+      """
+      Construct a batch proposal for the given node. This must be called after the vote is constructed for the node.
+      """
+      if node.peer_id != self.peer_id or not self.verify_node_is_head_node(node):
+        return
+
+      batch_proposal: BatchProposal = self.compute_batch_proposal(node)
+
       node.metadata = NodeMetadata(batch_proposal=batch_proposal)
-      node.update_signature()
 
     # TODO: implement bootstrap node (first node refers to parents in a checkpoint after a node rejoins the network)
     
+    def verify_batch_proposal_is_valid(self, node: Node) -> bool:
+      """
+      Verify that the given batch proposal is valid
+      """
+      assert node.metadata.batch_proposal is not None
+     
+      correct_batch_proposal: BatchProposal = self.compute_batch_proposal(node)
+
+      return node.metadata.batch_proposal.batch_hash == correct_batch_proposal.batch_hash
+
+    def compute_vote_for_node(self, node: Node) -> Vote:
+      """
+      Compute a vote for the given node
+      """
+      is_head_node = self.verify_node_is_head_node(node)
+      if is_head_node:
+        return Vote(head_batch_hash=node.metadata.batch_proposal.batch_hash) # vote for its own head batch
+      else:
+        return Vote(head_batch_hash=self.get_heaviest_batch_amongst_strict_ancestors(node)) # vote for the heaviest batch amongst its strict ancestors
+
     def construct_vote_for_node(self, node: Node):
       """
       Construct a vote for the given node
       """
-      if self.verify_node_is_head_node(node):
-        node.metadata.vote = Vote(head_batch_hash=node.metadata.batch_proposal.batch_hash)
-      else:
-        node.metadata.vote = Vote(head_batch_hash=self.get_heaviest_batch_amongst_strict_ancestors(node))
+      vote = self.compute_vote_for_node(node)
+      node.metadata.vote = vote
 
-    def fill_node_data(self, node: Node) -> Node:
+    def verify_vote_is_valid(self, node: Node) -> bool:
+      """
+      Verify that the given vote is valid
+      """
+      return node.metadata.vote.head_batch_hash == self.compute_vote_for_node(node).head_batch_hash
+
+    def fill_node_data(self, node: Node) -> bool:
       """
       Fill the data for the given node
       """
-      if not node.has_filled_node_data():
-        self.compute_seen_nodes_of_new_node(node)
-        self.construct_batch_proposal_if_needed(node)
-        self.construct_vote_for_node(node)
-        node.has_filled_node_data = True
-
-      return node
+      if not node.has_filled_node_data:
+        try:
+          self.compute_seen_nodes_of_new_node(node)
+          self.construct_batch_proposal_if_needed(node)
+          self.construct_vote_for_node(node) # this will throw errors if predecessors of the node are not available
+          node.has_filled_node_data = True
+          node.update_signature()
+        except Exception as e:
+          print(f"error = {e}")
+          return False
+        
+      return True
       
     def has_seen_valid_node(self, node: Node) -> bool:
       if node.peer_id == self.peer_id:
@@ -778,9 +864,6 @@ class ConsensusPeer:
         return (node.peer_id in self.seen_valid_nodes) and (node.node_hash in [node.node_hash for node in self.seen_valid_nodes[node.peer_id]])
 
     def get_node_by_hash(self, node_hash: NodeId) -> Optional[Node]:
-      for node in self.my_nodes():
-        if node.node_hash == node_hash:
-          return node
       ## find in seen_valid_nodes of other peers
       for peer_id in self.seen_valid_nodes:
         for node in self.seen_valid_nodes[peer_id]:
@@ -807,25 +890,26 @@ class ConsensusPeer:
       non_equivocated_peers = set()
       seen_votes_by_peers: Dict[PeerId, HashValue] = {}
 
-      ancestry_of_node = self.get_ancestry(node)
-      self_parent_set: Set[NodeId] = set()
+      if not node.is_genesis():
+        ancestry_of_node = self.get_ancestry(node)
+        self_parent_set: Set[NodeId] = set()
 
-      for cur_node in ancestry_of_node:
-        if not cur_node.is_genesis():
-          if cur_node.self_parent_hash in self_parent_set:
-            equivocated_peers.add(cur_node.peer_id)
-          else:
-            self_parent_set.add(cur_node.self_parent_hash)
-            non_equivocated_peers.add(cur_node.peer_id)
+        for cur_node in ancestry_of_node:
+          if not cur_node.is_genesis():
+            if cur_node.self_parent_hash in self_parent_set:
+              equivocated_peers.add(cur_node.peer_id)
+            else:
+              self_parent_set.add(cur_node.self_parent_hash)
+              non_equivocated_peers.add(cur_node.peer_id)
 
-      for cur_node in ancestry_of_node:
-        if cur_node.peer_id in equivocated_peers:
-          continue
+        for cur_node in ancestry_of_node:
+          if cur_node.peer_id in equivocated_peers:
+            continue
 
-        if cur_node.node_hash not in self_parent_set: # there should be at most 1 such node for each peer
-          seen_votes_by_peers[cur_node.peer_id] = cur_node.metadata.vote.head_batch_hash
-        
-        node.seen_nodes.add(cur_node.node_hash)
+          if cur_node.node_hash not in self_parent_set: # there should be at most 1 such node for each peer
+            seen_votes_by_peers[cur_node.peer_id] = cur_node.metadata.vote.head_batch_hash
+          
+          node.seen_nodes.add(cur_node.node_hash)
       
       non_equivocated_peers = non_equivocated_peers.difference(equivocated_peers)
       # assign the computed values to the node
@@ -837,6 +921,8 @@ class ConsensusPeer:
     def verify_node_and_add_to_local_view(self, node: Node = None) -> bool:
         """Verify a node and its transactions, and add it to the local view"""
 
+        self.fill_node_data(node)
+
         if not self.verify_node(node):
           return False
 
@@ -847,7 +933,9 @@ class ConsensusPeer:
         should_add_node = node.node_hash not in [node.node_hash for node in self.seen_valid_nodes[node.peer_id]]
         if should_add_node:
           self.seen_valid_nodes[node.peer_id].append(node)
-
+          if node.metadata.batch_proposal is not None:
+            self.observed_valid_batches[node.metadata.batch_proposal.batch_hash] = node
+          
           for predecessor in self.get_predecessors(node):
             if predecessor.node_hash not in self.local_graph:
               self.local_graph[predecessor.node_hash] = set()
@@ -943,6 +1031,7 @@ class ConsensusPeer:
             return False
 
           predecessors = self.get_predecessors(node)
+          predecessors = self.get_predecessors(node)
 
           # must have valid parents
           if len(predecessors) < 2:
@@ -955,12 +1044,17 @@ class ConsensusPeer:
               if not is_allowed_to_bypass:
                 return False
 
-          # TODO: verify the batch proposal if it exists
-          # 1. check if the current node is a head witness
-          # 2. verify the batch proposal is constructed correctly
+          # verify the batch proposal if it exists
+          if self.verify_node_is_head_node(node):
+            if not self.verify_batch_proposal_is_valid(node):
+              return False
+          else:
+            assert node.metadata.batch_proposal is None
 
-          # TODO: verify the vote
-          
+          # verify the vote
+          if not self.verify_vote_is_valid(node):
+            return False
+
         except Exception as e:
           # adversary sending invalid nodes
           print("error = ", e)
@@ -1010,34 +1104,28 @@ class ConsensusPeer:
         if not self.is_adversary:
           assert self_parent.round == self.current_round
 
-        new_node = self.fill_node_data(Node(
-            peer_id=self.peer_id,
-            round=self_parent.round,
-            is_witness=False,
-            newly_seen_txs_list=newly_seen_txs_list,
-            self_parent_hash=self_parent.node_hash,
-            cross_parent_hash=cross_parent.node_hash,
-            metadata=NodeMetadata()
-        ))
+        for round_num in range(self_parent.round, self_parent.round + 2):
+          print(f"Peer {self.peer_id} computing new node for round {round_num}")
+          new_node = Node(
+              peer_id=self.peer_id,
+              round=round_num,
+              is_witness=False if round_num == self_parent.round else True,
+              newly_seen_txs_list=newly_seen_txs_list,
+              self_parent_hash=self_parent.node_hash,
+              cross_parent_hash=cross_parent.node_hash,
+              metadata=NodeMetadata()
+          )
+          assert self.fill_node_data(new_node)
 
-        if not self.verify_node(new_node):
-          new_node = self.fill_node_data(Node(
-            peer_id=self.peer_id,
-            round=self_parent.round + 1,
-            is_witness=True,
-            newly_seen_txs_list=newly_seen_txs_list,
-            self_parent_hash=self_parent.node_hash,
-            cross_parent_hash=cross_parent.node_hash,
-            metadata=NodeMetadata()
-          ))
-        
-        if not self.verify_node(new_node):
-          # this new_node is invalid because either its parents are from equivocated peers
-          return None 
+          # found a valid new node
+          is_node_valid = self.verify_node(new_node)
 
-        print(f"Peer {self.peer_id} COMPUTED NEW NODE {new_node.node_hash} from {self_parent.node_hash} and {cross_parent.node_hash}")
+          if is_node_valid:
+            print(f"Peer {self.peer_id} COMPUTED NEW {'HEAD' if new_node.is_head_node() else "NON-HEAD"} NODE {new_node.node_hash} from {self_parent.node_hash} and {cross_parent.node_hash}")
+            return new_node
 
-        return new_node
+        # the created new nodes is invalid because either its parents are from equivocated peers
+        return None 
 
     async def gossip_push(self):
         """Sync with another peer through gossip, potentially sending different views"""
