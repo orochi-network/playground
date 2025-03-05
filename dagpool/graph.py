@@ -25,6 +25,9 @@ class DirectedGraph:
         self.node_to_scc_hash: Dict[GraphNodeId, HashValue] = None
         self.hash_to_scc_nodes: Dict[HashValue, List[GraphNodeId]] = None
 
+    def count_nodes(self) -> int:
+      return len(self.nodes)
+    
     def reset_graph_properties(self):
       self.is_tournament_graph = None
       self.connected_components = None
@@ -148,6 +151,7 @@ class TournamentGraph(DirectedGraph):
         return super().is_tournament_graph()
 
     def find_hamiltonian_path(self, scc: List[GraphNodeId]) -> List[GraphNodeId]:
+      self.assert_is_tournament_graph()
       # must be a strongly connected component
       self.assert_is_strongly_connected_component(scc)
 
