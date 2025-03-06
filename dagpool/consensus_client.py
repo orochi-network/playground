@@ -16,6 +16,14 @@ import json
 from math import log2, ceil  # Added log2 and ceil imports
 from graph import TournamentGraph
 
+import builtins
+original_print = builtins.print
+
+SHOULD_PRINT = True
+def print(*args, **kwargs):
+  if SHOULD_PRINT:
+    original_print(*args, **kwargs)
+
 BEACON_PACE = 4
 # the first BEACON_PACE rounds are derived directly from the list of peers
 # BEACON_PACE should be chosen large enough to make sure peers have enough time to realize that they are the leader of the next rounds
@@ -374,6 +382,7 @@ class NetworkSimulator:
         return False
 
     def is_connected(self, peer_a: PeerId, peer_b: PeerId) -> bool:
+        return True
         conn_key = (peer_a, peer_b)
         conn_key_rev = (peer_b, peer_a)
         return self.connections.get(conn_key, ConnectionState.CLOSED) == ConnectionState.ESTABLISHED or self.connections.get(conn_key_rev, ConnectionState.CLOSED) == ConnectionState.ESTABLISHED
@@ -402,40 +411,30 @@ class NetworkSimulator:
 
         sender_peer = [p for p in self.peers if p.peer_id == sender][0]
         receiver_peer = [p for p in self.peers if p.peer_id == receiver][0]
+
+        if receiver_peer.has_seen_valid_node(node1):
+          return True
   
-        receiver_has_all_needed_ancestors = False
-        all_received_nodes = []
-        current_gossiped_list = [node1] # we don't send the ancestry of the last node of the sender because node1 might be an equivocated node
-        while not receiver_has_all_needed_ancestors:
-          # receiver receives nodes from sender
-          receiver_has_all_needed_ancestors = True
+        all_received_nodes: List[Node] = []
+        traced: Dict[NodeId, bool] = {}
 
-          new_gossiped_list = []
-          for node in current_gossiped_list:
-            if receiver_peer.has_seen_valid_node(node):
-              continue
-            else:
-              all_received_nodes.append(node)
-              receiver_has_all_needed_ancestors = False # not stop
+        def trace(node: Node):
+          if node.node_hash in traced or receiver_peer.has_seen_valid_node(node):
+            return
+          traced[node.node_hash] = True
 
-              if not node.is_genesis():
-                self_parent_node = sender_peer.get_node_by_hash(node.self_parent_hash)
-                cross_parent_node = sender_peer.get_node_by_hash(node.cross_parent_hash)
-                (self_parent_node is not None and cross_parent_node is not None) or (_ for _ in ()).throw(ValueError("self_parent_node and cross_parent_node must be non-None"))
+          predecessors = sender_peer.get_predecessors(node)
+          for predecessor in predecessors:
+            trace(predecessor)
 
-                # use clone() to simulate the process of serializing and deserializing the nodes in internet protocols
-                new_gossiped_list.append(self_parent_node.clone())
-                new_gossiped_list.append(cross_parent_node.clone())
-          
-          current_gossiped_list = new_gossiped_list
+          all_received_nodes.append(node)
 
-        ### reverse all_received_nodes because the early nodes in the ancestry are in the right of the list, but we want them to be in the left
-        all_received_nodes = all_received_nodes[::-1]
-    
+        trace(node1)
+
         for i in range(len(all_received_nodes)):
           current_node = all_received_nodes[i]
           try:
-            receiver_peer.verify_node_and_add_to_local_view(current_node) or (_ for _ in ()).throw(ValueError("failed to verify and add node"))
+            receiver_peer.verify_node_and_add_to_local_view(current_node.clone()) or (_ for _ in ()).throw(ValueError("failed to verify and add node"))
           except Exception as e:
             print(f"Peer {receiver_peer.peer_id} rejected node {current_node.node_hash} from {sender_peer.peer_id}: {e}")
             continue
@@ -448,8 +447,9 @@ class NetworkSimulator:
         """Simulate network latency"""
         delay = 0
         # TODO: turn on delay (a value in the self.latency_range range) for full simulation
-        await asyncio.sleep(delay)
-
+        # await asyncio.sleep(delay)
+        pass
+      
     def find_node_by_hash(self, node_hash: str) -> Optional[Node]:
         """Find a node by its hash across all peers"""
         if not node_hash:
@@ -472,7 +472,8 @@ class ConsensusPeer:
         self.accumulated_txs = set()  # Track all transactions seen by this peer
         self.network: NetworkSimulator = network
         ## adversary-related data
-        self.equivocation_prob = 0.2 if is_adversary else 0.0
+        self.equivocation_prob = 0.3 if is_adversary else 0.0
+        self.equivocated_peers: Set[PeerId] = set()
         self.neighbors: list[PeerId] = []  # Track neighboring peers
         # if each peer connects to log(N) neighbors, a transaction would takes O(log(N)/log(log(N))) gossip hops to reach the whole network
         # for N = 10^6, it would be 7 hops
@@ -616,7 +617,7 @@ class ConsensusPeer:
               lines_of_peers[predecessor.peer_id].append(count_lines)
               line_id = count_lines
           
-          node_positions[node.node_hash] = (max(node_positions[predecessor.node_hash][0] + 3, node_positions[node.node_hash][0]), line_id)
+          node_positions[node.node_hash] = (max(node_positions[predecessor.node_hash][0] + 10, node_positions[node.node_hash][0]), line_id)
 
       for node in seen_valid_nodes:
         if not node.node_hash in visited:
@@ -648,13 +649,13 @@ class ConsensusPeer:
               G,
               node_positions,
               nodelist=[node.node_hash],
-              node_size=1000,
+              node_size=500,
               node_shape='s',
               node_color=node_color,
               label=[node.peer_id]
           )
 
-      nx.draw_networkx_edges(G, node_positions, edge_color='black', arrows=True, arrowsize=20, width=1, node_size=1000)  # Ensure arrows are properly sized relative to nodes
+      nx.draw_networkx_edges(G, node_positions, edge_color='black', arrows=True, arrowsize=20, width=1, node_size=500)  # Ensure arrows are properly sized relative to nodes
 
       # Draw node labels with a border
       for node in seen_valid_nodes:
@@ -792,7 +793,6 @@ class ConsensusPeer:
 
       node_of_prev_batch: Node = self.get_node_of_batch(prev_batch_hash)
 
-      print(f"found node of prev batch = {node_of_prev_batch}")
       # the difference between the ancestry of the current node and the ancestry of the node containing the previous batch
       ancestry_of_cur_node = self.get_ancestry(head_node)
       truncated_cone_candidates: Set[Node] = ancestry_of_cur_node.difference(set() if node_of_prev_batch is None else self.get_ancestry(node_of_prev_batch))
@@ -863,15 +863,10 @@ class ConsensusPeer:
       # fork-choice rule: select the previous batch using the Heaviest Observed Subtree (HOS) selection rule
       heaviest_batch: HashValue = self.get_heaviest_batch_amongst_strict_ancestors(node)
 
-      print(f"Before computing batch proposal for {node.node_hash}, heaviest batch = {heaviest_batch}")
-
       prev_batch_beacon_randomness: HashValue = self.get_beacon_randomness_of_batch(heaviest_batch)
-
-      print(f"Before computing truncated cone for {node.node_hash}, heaviest batch = {heaviest_batch}")
 
       # construct the truncated cone
       truncated_cone: Dict[NodeId, Node] = self.get_truncated_cone(heaviest_batch, node)
-      print(f"After computing truncated cone for {node.node_hash}, truncated cone = {truncated_cone}")
 
       # gather all transactions in the truncated cone into a tournament graph
       tournament_graph: TournamentGraph = self.construct_tournament_graph_of_transactions(truncated_cone)
@@ -943,20 +938,16 @@ class ConsensusPeer:
       """
       if not node.has_filled_node_data:
         try:
-          print(f"Peer {self.peer_id} before computing seen nodes of new node {node.node_hash}")
           self.compute_seen_nodes_of_new_node(node)
-          print(f"Peer {self.peer_id} after computing seen nodes of new node {node.node_hash} => latest_seen_node_by_peers = {node.latest_seen_node_by_peers}, non_equivocated_peers = {node.non_equivocated_peers}, equivocated_peers = {node.equivocated_peers}, seen_votes_by_peers = {node.seen_votes_by_peers}, latest_seen_witness_by_peers = {node.latest_seen_witness_by_peers}")
           self.construct_batch_proposal_if_needed(node)
-          print(f"Peer {self.peer_id} after constructing batch proposal for node {node.node_hash}")
           self.construct_vote_for_node(node) # this will throw errors if predecessors of the node are not available
-          print(f"Peer {self.peer_id} after constructing vote for node {node.node_hash}")
           node.has_filled_node_data = True
           node.update_signature()
         except Exception as e:
           print(f"Peer {self.peer_id} error when filling data for node {node.node_hash} = {e}")
           raise e
       
-      print(f"Peer {node.peer_id} finished filling data for node {node.node_hash}, with seen nodes = {node.latest_seen_node_by_peers}")
+      print(f"Peer {self.peer_id} finished filling data for node {node.node_hash}, with seen nodes = {node.latest_seen_node_by_peers}")
     def has_seen_valid_node(self, node: Node) -> bool:
       return node.node_hash in self.pos_in_seen_valid_nodes
 
@@ -976,7 +967,7 @@ class ConsensusPeer:
         """Randomly select neighbors from available peers"""
         potential_neighbors = [p for p in all_peers if p != self.peer_id]
         num_neighbors = min(self.get_max_num_neighbors(), len(all_peers) - 1)
-        self.neighbors = self.random_instance.sample(potential_neighbors, num_neighbors)
+        self.neighbors = [peer_id for peer_id in self.random_instance.sample(potential_neighbors, num_neighbors) if peer_id not in self.equivocated_peers]
 
     def is_valid_descendant_and_self_ancestor(self, descendant_node_hash: NodeId, self_ancestor_node_hash: NodeId) -> bool:
         try:
@@ -1070,45 +1061,65 @@ class ConsensusPeer:
         dest_node.equivocated_peers = equivocated_peers
         # we only updates a node sees itself when it is verified and added to the local view in self.verify_node_and_add_to_local_view()
         dest_node.latest_seen_node_by_peers = latest_seen_node_by_peers
+
         dest_node.latest_seen_witness_by_peers = latest_seen_witness_by_peers
+
+        ###
+        self.equivocated_peers.update(dest_node.equivocated_peers)
 
     def verify_node_and_add_to_local_view(self, node: Node = None) -> bool:
         """Verify a node and its transactions, and add it to the local view"""
+
+        if self.has_seen_valid_node(node):
+          return True
 
         self.fill_node_data(node)
 
         if not self.verify_node(node):
           return False
 
-        should_add_node = not self.has_seen_valid_node(node)
+        if node.peer_id not in self.seen_valid_nodes:
+          self.seen_valid_nodes[node.peer_id] = []
+        self.seen_valid_nodes[node.peer_id].append(node)
+        self.pos_in_seen_valid_nodes[node.node_hash] = (node.peer_id, len(self.seen_valid_nodes[node.peer_id]) - 1)
 
-        if should_add_node:
-          if node.peer_id not in self.seen_valid_nodes:
-            self.seen_valid_nodes[node.peer_id] = []
-          self.seen_valid_nodes[node.peer_id].append(node)
-          self.pos_in_seen_valid_nodes[node.node_hash] = (node.peer_id, len(self.seen_valid_nodes[node.peer_id]) - 1)
+        # make a node sees itself so its descendants can use these accumulated values
+        node.latest_seen_node_by_peers[node.peer_id] = node.node_hash
+        if node.is_witness:
+          node.latest_seen_witness_by_peers[node.peer_id] = node.node_hash
 
-          # make a node sees itself so its descendants can use these accumulated values
-          node.latest_seen_node_by_peers[node.peer_id] = node.node_hash
-          if node.is_witness:
-            node.latest_seen_witness_by_peers[node.peer_id] = node.node_hash
+        if node.metadata.batch_proposal is not None:
+          self.observed_valid_batches[node.metadata.batch_proposal.batch_hash] = node
+        
+        for predecessor in self.get_predecessors(node):
+          if predecessor.node_hash not in self.local_graph:
+            self.local_graph[predecessor.node_hash] = set()
+          self.local_graph[predecessor.node_hash].add(node.node_hash)
 
-          if node.metadata.batch_proposal is not None:
-            self.observed_valid_batches[node.metadata.batch_proposal.batch_hash] = node
-          
-          for predecessor in self.get_predecessors(node):
-            if predecessor.node_hash not in self.local_graph:
-              self.local_graph[predecessor.node_hash] = set()
-            self.local_graph[predecessor.node_hash].add(node.node_hash)
-
-          # do the cleanup if the node is created by the current peer
-          if node.peer_id == self.peer_id:
-            self.pending_txs.clear() # because all txs in the pending_txs are now in the new node
-            self.current_round = node.round # this makes the current round of the peer = the round of the last node in the list of its nodes
+        # do the cleanup if the node is created by the current peer
+        if node.peer_id == self.peer_id:
+          self.pending_txs.clear() # because all txs in the pending_txs are now in the new node
+          self.current_round = node.round # this makes the current round of the peer = the round of the last node in the list of its nodes
     
         print(f"Peer {self.peer_id} added node {node.node_hash} to its local view => new round = {self.current_round}")
 
         return True
+
+    def find_prev_witness_at_round(self, cur_witness: Node, r: int) -> Optional[Node]:
+      while cur_witness.round > r:
+        parent_node = self.get_node_by_hash(cur_witness.self_parent_hash)
+        if parent_node is None:
+          return None
+
+        # jump to prev witness
+        prev_witness = self.get_node_by_hash(parent_node.latest_seen_witness_by_peers[cur_witness.peer_id])
+
+        if prev_witness is None:
+          return None
+
+        cur_witness = prev_witness
+
+      return cur_witness
 
     def get_strongly_seen_valid_witnesses(self, dest_node: Node, r: int) -> list["Node"]:
         ## check if this witness strongly sees > 2/3 of witnesses of r
@@ -1118,38 +1129,51 @@ class ConsensusPeer:
         N = len(self.network.peers)
         
         latest_seen_witness_by_peers: Dict[PeerId, NodeId] = dest_node.latest_seen_witness_by_peers
-        seen_witnesses_in_round_r = [self.get_node_by_hash(node_hash) for node_hash in latest_seen_witness_by_peers.values() if node_hash and self.get_node_by_hash(node_hash).round == r]
-        seen_witnesses_in_round_r = [node for node in seen_witnesses_in_round_r if node is not None]
-
+        seen_witnesses_in_round_gte_r = [self.get_node_by_hash(node_hash) for node_hash in latest_seen_witness_by_peers.values() if node_hash and self.get_node_by_hash(node_hash).round >= r]
+        seen_witnesses_in_round_r = [self.find_prev_witness_at_round(node, r) for node in seen_witnesses_in_round_gte_r if node is not None]
+        
         # keep only the strongly seen ones
         latest_seen_node_by_peers: Dict[PeerId, NodeId] = dest_node.latest_seen_node_by_peers
-        seen_nodes_in_round_r = [self.get_node_by_hash(node_hash) for node_hash in latest_seen_node_by_peers.values() if node_hash and self.get_node_by_hash(node_hash).round == r]
-        seen_nodes_in_round_r = [node for node in seen_nodes_in_round_r if node is not None]
+
+        seen_nodes_in_round_gte_r = [self.get_node_by_hash(node_hash) for node_hash in latest_seen_node_by_peers.values() if node_hash and self.get_node_by_hash(node_hash).round >= r]
+        seen_nodes_in_round_gte_r = [node for node in seen_nodes_in_round_gte_r if node is not None]
 
         # compute the number of times each witness is seen by each possible (latest) mid node of peers that are seen by the dest_node
         count_seens: Dict[NodeId, int] = {}
-        
         # O(N^2) where N is the number of peers
-        for mid_node in seen_nodes_in_round_r:
+        for mid_node in seen_nodes_in_round_gte_r:
           for witness in seen_witnesses_in_round_r:
             # check if mid_node can strongly see witness
             witness_peer_id = witness.peer_id
+
+            # if dest_node.node_hash == "03b372de":
+            #   if witness.node_hash == "858a63d3":
+            #     print(f"Peer {self.peer_id} checking if {mid_node} can strongly see {witness}, and seen nodes of {mid_node} = {mid_node.latest_seen_node_by_peers}")
+            
             if witness_peer_id not in mid_node.latest_seen_node_by_peers:
               continue
 
             latest_seen_node_of_witness_peer_id: NodeId = mid_node.latest_seen_node_by_peers[witness_peer_id]
-            if self.is_valid_descendant_and_self_ancestor(latest_seen_node_of_witness_peer_id, mid_node.node_hash):
-              count_seens[witness.node_hash] = count_seens.get(witness.node_hash, 0) + 1
 
+            # if dest_node.node_hash == "03b372de":
+            #   if witness.node_hash == "858a63d3":
+            #     print(f"Let's validate {latest_seen_node_of_witness_peer_id} is a descendant of {witness.node_hash} => {self.is_valid_descendant_and_self_ancestor(latest_seen_node_of_witness_peer_id, witness.node_hash)}")
+            if self.is_valid_descendant_and_self_ancestor(latest_seen_node_of_witness_peer_id, witness.node_hash):
+              count_seens[witness.node_hash] = count_seens.get(witness.node_hash, 0) + 1
+        
         # the dest_node must see the witness of its own peer
-        found_self_peer_witness = [witness for witness in seen_witnesses_in_round_r if witness.peer_id == self.peer_id and count_seens.get(witness.node_hash, 0) > 2 * N / 3]
+        found_self_peer_witness = [witness for witness in seen_witnesses_in_round_r if witness.peer_id == self.peer_id and count_seens.get(witness.node_hash, 0) > 0]
+        # if dest_node.node_hash == "03b372de":
+        #   print(f"Valid seen witnesses in round {r} = {[node.node_hash for node in seen_witnesses_in_round_r]}")
+        #   print(f"Valid seen nodes in round {r} = {[node.node_hash for node in seen_nodes_in_round_r]}")
+        #   print(f"Peer {self.peer_id} found_self_peer_witness = {found_self_peer_witness}, count_seens = {count_seens}")
         if len(found_self_peer_witness) == 0:
           return []
 
         # keep only the witnesses that are seen by > 2/3 of the mid nodes
         strongly_seen_witnesses: list["Node"] = []
         for witness in seen_witnesses_in_round_r:
-          if count_seens[witness.node_hash] > 2 * N / 3:
+          if count_seens.get(witness.node_hash, 0) > 2 * N / 3:
             strongly_seen_witnesses.append(witness)
         
         return strongly_seen_witnesses
@@ -1165,20 +1189,15 @@ class ConsensusPeer:
 
       self_parent_node = self.get_node_by_hash(dest_node.self_parent_hash)
       (self_parent_node is not None) or (_ for _ in ()).throw(ValueError("self_parent_node must be non-None"))
-      if self_parent_node.round < r - 1:
+      if self_parent_node.round < r - 1 or self_parent_node.round > r:
         return False
-
       if self_parent_node.round == r - 1:
         # the dest_node is a witness of round r so it must strongly sees > 2/3 of witnesses of round r-1
         strongly_seen_witnesses_in_round_r_minus_1 = self.get_strongly_seen_valid_witnesses(dest_node, r-1)
         is_witness_of_round_r = len(strongly_seen_witnesses_in_round_r_minus_1) > 2 * N / 3
 
-        print(f"Peer {self.peer_id} checking if {dest_node} is a witness of round {r}: it strongly sees {strongly_seen_witnesses_in_round_r_minus_1}")
-        if dest_node.node_hash == "03b372de":
-          sys.exit(0)
         if not is_witness_of_round_r:
           return False
-
       # the dest_node must not strongly sees > 2/3 of witnesses of round r
       strongly_seen_witnesses_in_round_r = self.get_strongly_seen_valid_witnesses(dest_node, r)
 
@@ -1198,17 +1217,23 @@ class ConsensusPeer:
         if node is None:
           return False
 
+        if node.peer_id in self.equivocated_peers:
+          return False
+
         # an honest peer must not accept a node which itself or its parents are from equivocated peers
         try:
           if node.is_genesis():
             return True
 
+          parent_node = self.get_node_by_hash(node.self_parent_hash)
+          # TODO: verify newly_seen_txs_list of the node
+          (parent_node is not None) or (_ for _ in ()).throw(ValueError("parent_node must be non-None"))
+          (parent_node.node_hash == self.seen_valid_nodes[parent_node.peer_id][-1].node_hash or (self.is_adversary and node.peer_id == self.peer_id)) or (_ for _ in ()).throw(ValueError("parent_node must be the last node of the sender"))
           if not node.validate_node_data(self.network.get_peer_pubkey(node.peer_id)):
             return False
 
           predecessors = self.get_predecessors(node)
           predecessors = self.get_predecessors(node)
-
           # must have valid parents
           if len(predecessors) < 2:
             return False
@@ -1219,23 +1244,19 @@ class ConsensusPeer:
               is_allowed_to_bypass = self.is_adversary and node_to_check.peer_id == self.peer_id # adversary don't accept invalid nodes from other adversaries
               if not is_allowed_to_bypass:
                 return False
-
           # verify the batch proposal if it exists
           if self.verify_node_is_head_node(node):
             if not self.verify_batch_proposal_is_valid(node):
               return False
           else:
             (node.metadata.batch_proposal is None) or (_ for _ in ()).throw(ValueError("batch proposal must be None"))
-
           # verify the vote
           if not self.verify_vote_is_valid(node):
             return False
-
         except Exception as e:
           # adversary sending invalid nodes
           print("error = ", e)
           return False
-
         return self.check_round_number_of_non_genesis_node_with_valid_parents(node)
 
     def get_all_transactions(self) -> Set[TransactionId]:
@@ -1309,7 +1330,8 @@ class ConsensusPeer:
         # generate a random permutation of connected peers
         # try to extend the node sequence and push it to the neighbors
 
-        self_parent_node = self.get_my_last_node() if not self.is_adversary else self.random_instance.choice(self.my_nodes())
+        should_equivocate = self.is_adversary and self.network.random_instance.random() < self.equivocation_prob
+        self_parent_node = self.get_my_last_node() if not should_equivocate else self.random_instance.choice(self.my_nodes()[-2:])
         # pick a random peer with non-empty seen_valid_nodes
         possible_cross_peers = [peer_id for peer_id in self.seen_valid_nodes if self.seen_valid_nodes[peer_id]]
 
@@ -1317,7 +1339,7 @@ class ConsensusPeer:
           return # can't extend the node sequence because there is no cross parent for the new node
 
         randomness = min([self.network.random_instance.random(), self.network.random_instance.random()])
-        num_nodes_to_create = min(len(possible_cross_peers), 1 + (1 if randomness < self.equivocation_prob else 0))
+        num_nodes_to_create = min(len(possible_cross_peers), 1 + (1 if should_equivocate else 0))
         new_nodes = [] # if there are more than 1 node in this list, they are equivocated nodes and that means current peer is an adversary
 
         # NOTE: currently, the equivocation logic is simple, an adversary basically picks the last node of the current peer as the self parent, and the latest nodes of different cross peers as the cross parents
@@ -1328,8 +1350,11 @@ class ConsensusPeer:
           for i in range(max_num_retries):
 
             cross_parent_peer_id = self.random_instance.choice(possible_cross_peers)
-            while cross_parent_peer_id == self.peer_id:
-              cross_parent_peer_id = self.random_instance.choice(possible_cross_peers)
+            for j in range(10000):
+              if cross_parent_peer_id == self.peer_id or cross_parent_peer_id in self.equivocated_peers:
+                cross_parent_peer_id = self.random_instance.choice(possible_cross_peers)
+              else:
+                break
             
             cross_parent_node = self.seen_valid_nodes[cross_parent_peer_id][-1]
 
@@ -1356,15 +1381,20 @@ class ConsensusPeer:
           return
         
         for new_node in new_nodes:
-          (self.verify_node_and_add_to_local_view(new_node)) or (_ for _ in ()).throw(ValueError("failed to verify and add new node"))
+          res = self.verify_node_and_add_to_local_view(new_node)
+          if res:
+            print(f"Peer {self.peer_id} successfully added self-node {new_node.node_hash} to its local view")
+          else:
+            print(f"Peer {self.peer_id} failed to add self-node {new_node.node_hash} to its local view")
+          (res or self.is_adversary) or (_ for _ in ()).throw(ValueError("failed to verify and add new node"))
+
+        self.select_neighbors(self.network.get_all_peer_ids()) # re-select neighbors
 
         # start gossiping to neighboring peers
         for i in range(len(self.neighbors)):
             other_peer_id = self.neighbors[i]
             # select randomly nodes from new_nodes
             node_to_send = (new_nodes[0] if i * 2 < len(self.neighbors) else new_nodes[-1]).clone() # simulate the process of serializing and deserializing the nodes in internet protocols
-
-            print(f"Peer {self.peer_id} try to gossip to {other_peer_id} node {node_to_send.node_hash}:")
 
             # Send the selected node
             success = await self.network.gossip_send_node_and_ancestry(self.peer_id, other_peer_id, node_to_send)
@@ -1389,7 +1419,6 @@ async def main():
 
         if is_adversary:
           count_adversary += 1
-        
         peer = ConsensusPeer(
             peer_id=f"P{i}",
             is_adversary=is_adversary,
@@ -1412,7 +1441,7 @@ async def main():
 
     # Main consensus loop
     i = 0
-    while True and i < 40:
+    while True and i < 1000:
         i += 1
         if i % 100 == 0:
           print(f"{i}th iteration")
@@ -1442,7 +1471,7 @@ async def main():
         # Create checkpoints periodically
         # TODO: create network checkpoints dynamically via network.create_checkpoint()
 
-    for peer in peers:
+    for i, peer in enumerate(peers):
       peer.visualize_view()
       if peer.is_adversary:
         print(f"Peer {peer.peer_id} is an adversary")
@@ -1471,7 +1500,13 @@ async def main():
 
     validate_consistency()
 
-# Run the simulation
+    print(f"Total number of transactions = {len(network.global_mempool)}")
+    for peer in peers:
+      print(f"Peer {peer.peer_id} has {sum([len(peer.seen_valid_nodes[peer_id]) for peer_id in peer.seen_valid_nodes])} nodes")
+      print(f"Peer {peer.peer_id} has {len(peer.neighbors)} neighbors")
+      print(f"Peer {peer.peer_id} sees that {peer.equivocated_peers} peers are equivocated")
+      print(f"Peer {peer.peer_id} is at round {peer.current_round}")
+
 asyncio.run(main())
 
 ### Possible attacks:
@@ -1481,5 +1516,4 @@ asyncio.run(main())
 # => recursive validity proof + proof of finality
 # Solution: Post-Unstaking Slashing for X blocks after unstaking (but not able to withdraw before X blocks yet)
 
-# [] TODO: finish gossip-DAG architecture
 # [] TODO: finish DAGPool's order fairness gadget
