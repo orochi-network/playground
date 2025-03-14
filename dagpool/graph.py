@@ -15,12 +15,15 @@ References:
 
 from typing import Set, Dict, List, Tuple
 from schemas import GraphNodeId, HashValue
+import hashlib
+import random
 
 class DirectedGraph:
     def __init__(self):
-        self.nodes: Set[GraphNodeId] = {}
+        self.nodes: Set[GraphNodeId] = set()
         self.edges: Dict[GraphNodeId, Set[GraphNodeId]] = {}
-        self.is_tournament_graph = None
+        self.flag_is_tournament_graph = None
+        self.flag_is_semi_complete_digraph = None
         self.connected_components: List[Tuple[GraphNodeId, HashValue]] = None
         self.node_to_scc_hash: Dict[GraphNodeId, HashValue] = None
         self.hash_to_scc_nodes: Dict[HashValue, List[GraphNodeId]] = None
@@ -29,7 +32,8 @@ class DirectedGraph:
       return len(self.nodes)
     
     def reset_graph_properties(self):
-      self.is_tournament_graph = None
+      self.flag_is_tournament_graph = None
+      self.flag_is_semi_complete_digraph = None
       self.connected_components = None
       self.node_to_scc_hash = None
       self.hash_to_scc_nodes = None
@@ -53,10 +57,23 @@ class DirectedGraph:
         return nodeId1 in self.edges and nodeId2 in self.edges[nodeId1]
     
     def assert_is_tournament_graph(self):
-      if self.is_tournament_graph is None:
-        self.is_tournament_graph = self.is_tournament_graph()
-      assert self.is_tournament_graph
+      if self.flag_is_tournament_graph is None:
+        self.flag_is_tournament_graph = self.is_tournament_graph()
+      assert self.flag_is_tournament_graph
 
+    def assert_is_semi_complete_digraph(self):
+      if self.flag_is_semi_complete_digraph is None:
+        self.flag_is_semi_complete_digraph = self.is_semi_complete_digraph()
+      assert self.flag_is_semi_complete_digraph
+
+    def is_semi_complete_digraph(self) -> bool:
+      for node1 in self.nodes:
+        for node2 in self.nodes:
+          if node1 != node2:
+            if not self.has_edge(node1, node2) and not self.has_edge(node2, node1):
+              return False
+      return True
+    
     def is_tournament_graph(self) -> bool:
         for node1 in self.nodes:
             for node2 in self.nodes:
@@ -66,6 +83,14 @@ class DirectedGraph:
                     return False
         return True
     
+    def print_all_edges(self):
+      list_edges: List[Tuple[GraphNodeId, GraphNodeId]] = []
+      for node1 in self.nodes:
+        for node2 in self.nodes:
+          if node1 != node2:
+            if self.has_edge(node1, node2):
+              list_edges.append((node1, node2))
+      
     """
     Find the strongly connected components of the graph and return them in the topological order of the SCCs
     """
@@ -77,10 +102,11 @@ class DirectedGraph:
         index = 0
         indices = {}
         lowlinks = {}
-        stack = []
+        stack: List[GraphNodeId] = []
         components: List[Tuple[List[GraphNodeId], HashValue]] = []
 
         def strongconnect(nodeId: GraphNodeId) -> None:
+            nonlocal index
             assert nodeId not in indices
             # Set the depth index for node
             indices[nodeId] = index
@@ -89,7 +115,7 @@ class DirectedGraph:
             stack.append(nodeId)
 
             # Consider successors of node
-            for successorId in self.edges[nodeId]:
+            for successorId in sorted(list(self.edges[nodeId])):
                 if successorId not in indices:
                     # Successor has not yet been visited; recurse on it
                     strongconnect(successorId)
@@ -103,40 +129,45 @@ class DirectedGraph:
                 while True:
                     vertexId = stack.pop()
                     component.append(vertexId)
+                    indices[vertexId] = float('inf')
+                    lowlinks[vertexId] = float('inf')
                     if vertexId == nodeId:
                         break
-                components.append([component, hash(tuple(sorted(component)))])
+                components.append([component, hashlib.sha256(str(sorted(component)).encode()).hexdigest()[:8]])
 
         # Find SCCs for all nodes
         for nodeId in self.nodes:
             if nodeId not in indices:
                 strongconnect(nodeId)
-
-        self.node_to_scc_hash: Dict[GraphNodeId, HashValue] = {nodeId: component[1] for component in enumerate(components) for nodeId in component[0]}
-        self.hash_to_scc_nodes: Dict[HashValue, List[GraphNodeId]] = {component[1]: component[0] for component in components}
+        
+        self.node_to_scc_hash: Dict[GraphNodeId, HashValue] = {nodeId: component[1] for i, component in enumerate(components) for nodeId in component[0]}
+        self.hash_to_scc_nodes: Dict[HashValue, List[GraphNodeId]] = {component[1]: component for component in components}
         
         self.connected_components: List[Tuple[List[GraphNodeId], HashValue]] = []
 
         visited_sccs = set()
         def sort_sccs(comp: Tuple[List[GraphNodeId], HashValue]):
-          assert comp[1] not in visited_sccs
-          self.connected_components.append(comp)
+          if comp[1] in visited_sccs:
+            return
+          visited_sccs.add(comp[1])
           for u in comp[0]:
             if u in self.edges:
-              for v in self.edges[u]:
+              for v in sorted(list(self.edges[u])):
                 if not self.node_to_scc_hash[v] in visited_sccs:
                   sort_sccs(self.hash_to_scc_nodes[self.node_to_scc_hash[v]])
-          visited_sccs.add(comp[1])
+          self.connected_components.append(comp)
 
         for component in components:
           if component[1] not in visited_sccs:
             sort_sccs(component)
-        
+
+        self.connected_components.reverse()
+
         return self.connected_components
 
     def assert_is_strongly_connected_component(self, hamiltonian_path: List[GraphNodeId]):
       assert self.connected_components is not None
-      hash_value = hash(tuple(sorted(hamiltonian_path)))
+      hash_value = hashlib.sha256(str(sorted(hamiltonian_path)).encode()).hexdigest()[:8]
       assert hash_value in [connected_component[1] for connected_component in self.connected_components]
 
     def assert_is_hamiltonian_path(self, hamiltonian_path: List[GraphNodeId]):
@@ -147,36 +178,51 @@ class TournamentGraph(DirectedGraph):
     def __init__(self):
         super().__init__()
 
-    def is_tournament_graph(self) -> bool:
-        return super().is_tournament_graph()
+    def assert_is_valid_graph(self):
+      assert self.is_tournament_graph()
 
     def find_hamiltonian_path(self, scc: List[GraphNodeId]) -> List[GraphNodeId]:
-      self.assert_is_tournament_graph()
+      self.assert_is_valid_graph()
       # must be a strongly connected component
       self.assert_is_strongly_connected_component(scc)
 
+      # deterministic shuffling to prevent censorship
+      seed = hashlib.sha256(str(sorted(scc)).encode()).hexdigest()
+      randomer = random.Random(seed)
+      shuffled_scc = scc.copy()
+      randomer.shuffle(shuffled_scc)
+
       # Complexity: O(len(scc)^2)
-      hamiltonian_path: List[GraphNodeId] = [scc[0]]
-      for k in range(1, len(scc)):
-        # find first i < k | has_edge(hamiltonian_path[i], scc[k]) & has_edge(scc[k], hamiltonian_path[i+1])
-        i = 0
-        while i + 1 < k and not (self.has_edge(hamiltonian_path[i], scc[k]) and self.has_edge(scc[k], hamiltonian_path[i+1])):
-          i += 1
-        
-        hamiltonian_path.insert(i + 1, scc[k])
+      hamiltonian_path: List[GraphNodeId] = [shuffled_scc[0]]
+      for k in range(1, len(shuffled_scc)):
+        # find first i < k | has_edge(hamiltonian_path[i], shuffled_scc[k]) & has_edge(shuffled_scc[k], hamiltonian_path[i+1])
+        if self.has_edge(shuffled_scc[k], hamiltonian_path[0]):
+          hamiltonian_path.insert(0, shuffled_scc[k])
+        elif self.has_edge(hamiltonian_path[-1], shuffled_scc[k]):
+          hamiltonian_path.append(shuffled_scc[k])
+        else:
+          i = 0
+          while i + 1 < k and not (self.has_edge(hamiltonian_path[i], shuffled_scc[k]) and self.has_edge(shuffled_scc[k], hamiltonian_path[i+1])):
+            i += 1
+
+          assert i + 1 < k # must found such a position
+          hamiltonian_path.insert(i + 1, shuffled_scc[k])
+          
+      for i in range(len(hamiltonian_path) - 1):
+        assert self.has_edge(hamiltonian_path[i], hamiltonian_path[i + 1])
 
       return hamiltonian_path
 
     def find_hamiltonian_cycle(self, hamiltonian_path_of_scc: List[GraphNodeId]) -> List[GraphNodeId]:
-      self.assert_is_tournament_graph()
+      self.assert_is_valid_graph()
       self.assert_is_strongly_connected_component(hamiltonian_path_of_scc)
       self.assert_is_hamiltonian_path(hamiltonian_path_of_scc)
 
       # Complexity: O(len(hamiltonian_path)^2)
       accumulated_hamiltonian_cycle: List[GraphNodeId] = [hamiltonian_path_of_scc[0]]
-      j = 1
+      j = 1 # next element to be added to the cycle
       while j < len(hamiltonian_path_of_scc):
-        p = j + 1
+        p = j
         r = -1
         found_backward_edge = False
         while not found_backward_edge and p < len(hamiltonian_path_of_scc):
@@ -187,13 +233,28 @@ class TournamentGraph(DirectedGraph):
           
           if r < len(accumulated_hamiltonian_cycle):
             found_backward_edge = True
+          else:
+            p += 1
         
         if not found_backward_edge:
           # If no backward edge is found, the graph is not a tournament or not strongly connected
           raise ValueError("No Hamiltonian cycle exists for the given path.")
-
         # reorder the accumulated_hamiltonian_cycle: accumulated_hamiltonian_cycle[0 -> r - 1] -> hamiltonian_path_of_scc[j+1 -> p] -> accumulated_hamiltonian_cycle[r -> ...] -> hamiltonian_path_of_scc[0]
-        j = p
-        accumulated_hamiltonian_cycle = accumulated_hamiltonian_cycle[0:r] + hamiltonian_path_of_scc[j+1:p+1] + accumulated_hamiltonian_cycle[r:]
+        accumulated_hamiltonian_cycle = accumulated_hamiltonian_cycle[0:r] + hamiltonian_path_of_scc[j:p+1] + accumulated_hamiltonian_cycle[r:]
+        k = j
+        j = p + 1
+
+        cycle_size = len(accumulated_hamiltonian_cycle)
+        for i in range(cycle_size):
+          # if not self.has_edge(accumulated_hamiltonian_cycle[i], accumulated_hamiltonian_cycle[(i + 1) % cycle_size]):
+            # print(f"DEBUG: {accumulated_hamiltonian_cycle} vs {hamiltonian_path_of_scc}")
+          assert self.has_edge(accumulated_hamiltonian_cycle[i], accumulated_hamiltonian_cycle[(i + 1) % cycle_size])
 
       return accumulated_hamiltonian_cycle
+
+class SemiCompleteDiGraph(TournamentGraph):
+    def __init__(self):
+        super().__init__()
+
+    def assert_is_valid_graph(self):
+      assert self.is_semi_complete_digraph()
