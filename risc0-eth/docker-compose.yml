@@ -1,0 +1,14 @@
+services:
+  risc0-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    volumes:
+      - ./src:/app/src
+    environment:
+      - RISC0_DEV_MODE=false
+    working_dir: /app/src
+    command: bash -c "echo 123" # git submodule update --init && cargo build && forge build && cargo test && forge test -vvvvv"
+
+# docker-compose run --rm risc0-test bash
